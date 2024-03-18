@@ -8,7 +8,7 @@
 #include <chrono>
 #include <random>
 #include <tuple>
-#include "hfvCLibs_v7_hfv_v8.2.h"
+#include "hfvCLibs_v7_hfv_v8.1.h"
 #include "bh_tree_iteration_v2.h"
 #include "ngb_v5.1.h"
 #include <cstdlib> // This is ONLY used for the "exit(0)" function !!
@@ -52,7 +52,7 @@ using namespace std;
 int main()
 {
 
-  float dt = 5e-5; //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! This is only the first time step !!
+  float dt = 1e-4; //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! This is only the first time step !!
 
   const float Nngb_f = 64.0f; // used in smoothing func.
   const int Nngb = 64;
@@ -60,14 +60,14 @@ int main()
   const int Nup = Nngb + 5;
   const float coeff = 0.005f; // used for smoothing length.
 
-  int N = 884736; //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+  int N = 1176949; //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
   
   //*********************************************************************
   //******************** Reading the IC file ****************************
   //*********************************************************************
 
   // Open the binary file
-  std::ifstream file("IC_KH_884k.bin", std::ios::binary);
+  std::ifstream file("IC_Evrard24_1176k.bin", std::ios::binary);
   if (!file.is_open()) {
       // Handle error
       return -1;
@@ -520,12 +520,6 @@ int main()
   float y_min = -1.0 * maxRange;
   float z_min = -1.0 * maxRange;
   
-  float xW, yW, zW;
-  
-  xW = h_rightX[0] - h_leftX[0];
-  yW = h_topX[0] - h_bottomX[0];
-  zW = h_backX[0] - h_frontX[0];
-  
   cout << "x_min, y_min, z_min = " << x_min << endl;
   
   CountBodies<<<1, 512>>>(d_x, d_y, d_z, x_min, y_min, z_min, W_cell, nSplit, d_countx, Ncell, nBodiesB);
@@ -591,8 +585,6 @@ int main()
   cout << "T_ngb_new = " << elapsed_ngb_new.count() * 1e-9 << endl;
 
   cudaMemcpy(&flag, dev_flag, sizeof(int), cudaMemcpyDeviceToHost);
-  
-  
   
   //cout << "Flaging index i = " << flag << endl;
   //exit(0);
@@ -742,7 +734,7 @@ int main()
   cout << "nBodies = " << nBodies << endl;
   
   numParticles = nBodies; // nBodies is the number of patticles with Typ != -1.
-  int eXtraSpace = 40000000;
+  int eXtraSpace = 20000000;
   numNodes = 2 * numParticles + eXtraSpace;
 
   blockSize_bh = blockSize;
@@ -760,8 +752,6 @@ int main()
   h_start = new int[numNodes];
   h_sorted = new int[numNodes];
   h_count = new int[numNodes];
-
-  
 
   // allocate device data
   gpuErrchk(cudaMalloc((void**)&d_left, sizeof(float)));
@@ -856,32 +846,23 @@ int main()
   printf("initial index = %d\n", h_index[0]);
   printf("\n");
 
-  cout << "Check point 1!!!" << endl;
-  cout << "numParticles = " << numParticles << endl;
-  cout << "numNodes = " << numNodes << endl;
+
+  cout << "HERE 1" << endl;
   
+
   cudaMemcpy(h_x, dev_x, numNodes * sizeof(float), cudaMemcpyDeviceToHost);
-  cout << "h_x = " << h_x[111110] << endl;
+  for (int i = 0; i < 100; i++)
+  {
+    cout << "h_x = " << h_x[i] << endl;
+  }
   
   
-  //exit(0);
-  
+
 
   auto T_build_tree_kernel = std::chrono::high_resolution_clock::now();
   build_tree_kernel<<< 1, 256 >>>(dev_x, dev_y, dev_z, dev_mass, d_count, d_start, d_child, d_index, d_left, d_right, d_bottom, d_top, d_front, d_back,
                                   numParticles, numNodes);
-  cudaError_t error = cudaGetLastError();
-  if (error != cudaSuccess)
-  {
-    std::cout << "CUDA kernel launch error: " << cudaGetErrorString(error) << std::endl;
-  }
-
-  // cudaDeviceSynchronize waits for the kernel to finish, and returns any errors encountered during the launch.
-  error = cudaDeviceSynchronize();
-  if (error != cudaSuccess)
-  {
-    std::cout << "CUDA device synchronize error: " << cudaGetErrorString(error) << std::endl;
-  }
+  cudaDeviceSynchronize();  
   auto end_build_tree_kernel = std::chrono::high_resolution_clock::now();
   auto elapsed_build_tree_kernel = std::chrono::duration_cast<std::chrono::nanoseconds>(end_build_tree_kernel - T_build_tree_kernel);
   cout << "Tree construction time = " << elapsed_build_tree_kernel.count() * 1e-9 << endl;
@@ -1030,9 +1011,7 @@ int main()
 
     //****************** position evolution (BH fixed at [0, 0, 0]) *******************
 
-    r_evolve_periodic<<<gridSize, blockSize>>>(d_Typ, d_x, d_y, d_z, d_vx, d_vy, d_vz,
-                                               h_leftX[0],h_rightX[0], h_bottomX[0], h_topX[0], h_frontX[0], h_backX[0],
-                                               xW, yW, zW, dt, N);
+    r_evolve<<<gridSize, blockSize>>>(d_Typ, d_x, d_y, d_z, d_vx, d_vy, d_vz, dt, N);
     cudaDeviceSynchronize();
     
     
@@ -1169,15 +1148,6 @@ int main()
     auto elapsed_ngb_new = std::chrono::duration_cast<std::chrono::nanoseconds>(end_ngb_new - T_ngb_new);
     cout << "T_ngb_new = " << elapsed_ngb_new.count() * 1e-9 << endl;
 
-
-    cudaMemcpy(x, d_x, N * sizeof(float), cudaMemcpyDeviceToHost);
-    for (int i = 0; i < 1000; i++)
-    {
-      if (x[i] < -0.8)
-        cout << "i, x[i] = " << i << ", " << x[i] << endl;
-    }
-
-
     cudaMemcpy(&flag, dev_flag, sizeof(int), cudaMemcpyDeviceToHost);
     
     if (flag == 1)
@@ -1186,7 +1156,6 @@ int main()
       cudaFree(dev_flag);
       exit(EXIT_FAILURE);
     }
-    
     
     //cout << "Check Exit 3 " << endl;
     //exit(0); 
@@ -1524,7 +1493,7 @@ int main()
     auto T_SaveFile = std::chrono::high_resolution_clock::now();
     //------------ SAVING SNAP-SHOTS ------------
     cudaMemcpy(h, d_h, N * sizeof(float), cudaMemcpyDeviceToHost); // Moved outside so that it can be used by nSplit calculator in ach time step.
-    if (!(counter % 10))
+    if (!(counter % 50))
     //if (counter > -1)
     {
       cudaMemcpy(Typ, d_Typ, N * sizeof(int), cudaMemcpyDeviceToHost);

@@ -5,11 +5,11 @@ import struct
 
 # Is used with outputs with CLOUDY h/cooling implementation (24 Feb 2024).
 
-filename = './Outputs/G-0.051584.bin'
+#filename = './Outputs/G-0.051584.bin'
 
 #filename = './Outputs_NoHCooling/G-0.002800.bin'
 
-#filename = '/mnt/Linux_Shared_Folder_2022/Out5k28Jan_1/G-0.147522.bin'
+filename = '/mnt/Linux_Shared_Folder_2022/Out7March2024/G-0.054883.bin'
 
 tCode = np.float64(filename[-12:-4]) / 10.0 #!!!!!!!!!!!!!!!!! Double check if during the file-saving the multiplication by 10 is actually done!!!!!!!!!!
 

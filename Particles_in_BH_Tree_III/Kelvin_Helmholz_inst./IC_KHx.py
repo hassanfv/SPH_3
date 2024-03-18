@@ -9,10 +9,6 @@ np.random.seed = 42
 # Simulation parameters
 domain_size = (1.0, 1.0, 1.0)  # Domain size (x, y, z)
 resolution = 100  # Particles per unit length in one direction
-perturbation_amplitude = 0.02 #!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-velocity_shear = 10 #!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-mass_1 = 0.001  # mass for the first fluid #!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-mass_2 = 0.01  # mass for the second fluid (denser) #!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
 # Calculate the number of particles based on the resolution and domain size
 num_particles_x = int(resolution * domain_size[0])
@@ -32,12 +28,9 @@ y = y.flatten()
 z = z.flatten()
 
 # Initialize velocities and densities
-vx = np.zeros_like(x)
-vy = np.zeros_like(y)
-vz = np.zeros_like(z)
 mass = np.zeros_like(x)
 
-Npart = x.shape[0]
+N = Npart = x.shape[0]
 Volume = 1.0 * 1.0 * 1.0
 
 h = (Volume / Npart)**(1./3.)
@@ -49,26 +42,45 @@ y = np.array([(tmp - 0.5 + h[0] * (-1.0 + random.random())) for tmp in y])
 z = np.array([(tmp - 0.5 + h[0] * (-1.0 + random.random())) for tmp in z])
 
 
-u0 = 0.100 #!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-u = np.zeros_like(x) + u0
+V_Low = 0.25
+m_tot_L = 1.0 * V_Low
+msph_L = m_tot_L / N / 4
 
-epsilon0 = 0.005 #!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-epsilon = np.zeros_like(x) + epsilon0
+V_High = 0.5
+m_tot_H = 2.0 * V_High
+msph_H = m_tot_H / N / 2
+
+mass = mass + msph_L
+mass[np.abs(y - 0.0) <= 0.25] = msph_H
+
+#plt.figure(figsize=(13, 10))
+#scatter = plt.scatter(x, y, s = 0.1, c = np.log10(mass), cmap='rainbow')
+#plt.colorbar(scatter, label='np.log10(rho)')
+#plt.show()
+
+print(mass)
+
+
+# Generate Initial Conditions - opposite moving streams with perturbation
+w0 = 0.1
+sigma = 0.05/np.sqrt(2.)
+rho = 1. + (np.abs(y-0.0) < 0.25)
+vx = -0.5 + (np.abs(y-0.0)<0.25)
+vy = w0*np.sin(4*np.pi*x) * ( np.exp(-(y-0.25)**2/(2 * sigma**2)) + np.exp(-(y-0.75)**2/(2*sigma**2)) )
+
+vz = 0.0 * vx
+
+P = 2.5 * np.ones(N)
+
+gamma = 5.0 / 3.0
+u = P / (gamma - 1.0) / rho
+
+print('u = ', u)
+
+
+epsilon = h
 
 Typ = np.zeros_like(x)
-
-
-
-# Apply velocity shear, mass contrast, and perturbation
-for i in range(len(x)):
-    if y[i] > 0.0: #!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-        vx[i] = velocity_shear
-        mass[i] = mass_1
-    else:
-        vx[i] = -velocity_shear
-        mass[i] = mass_2
-    # Add perturbation at the interface
-    y[i] += perturbation_amplitude * np.sin(6 * np.pi * x[i] / domain_size[0])
 
 
 x = np.round(x, 5)
@@ -97,7 +109,7 @@ epsilon = epsilon.astype(np.float32)
 # Save the arrays to a binary file:
 N_tot = Npart
 num = str(int(np.floor(N_tot/1000)))
-filename = 'IC_KH_' + num + 'k.bin'
+filename = 'IC_KHX_' + num + 'k.bin'
 with open(filename, "wb") as file:
   # Save the rest of the arrays:
   file.write(Typ.tobytes())
@@ -117,7 +129,7 @@ with open(filename, "wb") as file:
 print()
 print("mass = ", mass)
 
-plt.scatter(x, y, s = 0.5)
+plt.scatter(x, z, s = 0.5)
 plt.show()
 
 

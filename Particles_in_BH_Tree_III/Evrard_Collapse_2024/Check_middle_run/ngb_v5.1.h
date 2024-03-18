@@ -242,7 +242,7 @@ __global__ void ngbDB_new_v3(int *Typ, float *x, float *y, float *z, float *h,
       //if (i == 859)
       //  printf("ngbDB_new_v3 =======> i, k, Lim, x[i], y[i], z[i] = %d, %d, %d, %f, %f, %f\n", i, k, Lim, x_i, y_i, z_i);
       
-      if (Lim == 7)
+      if (Lim == 7 && i == 859)
       {
         float rttt = sqrt(x_i*x_i + y_i*y_i + z_i*z_i);
         printf("!!!!!!!!!!!!!! LIM = 7 ===> i, k, x[i], y[i], z[i], r = %d, %d, %f, %f, %f, %f\n", i, k, x_i, y_i, z_i, rttt);

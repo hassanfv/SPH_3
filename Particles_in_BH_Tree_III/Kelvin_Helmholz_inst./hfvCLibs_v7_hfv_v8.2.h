@@ -1117,6 +1117,48 @@ __global__ void r_evolve(int *Typ, float *x, float *y, float *z,
   }
 }
 
+
+
+//===========================================================
+//================= position evolution PERIODIC ======================
+//===========================================================
+__global__ void r_evolve_periodic(int *Typ, float *x, float *y, float *z,
+                                  float *vx, float *vy, float *vz,
+                                  float xL, float xR, float yL, float yR, float zL, float zR, float xW, float yW, float zW,
+                                  float dt, int N)
+{
+
+  int i = threadIdx.x + blockIdx.x * blockDim.x;
+
+  if ((i < N) && ((Typ[i] == 0) || (Typ[i] == 1)))
+  {
+    x[i] += vx[i] * dt;
+    y[i] += vy[i] * dt;
+    z[i] += vz[i] * dt;
+    
+    if (x[i] < xL)
+      x[i] += xW;
+      
+    if (x[i] > xR)
+      x[i] -= xW;
+    
+    if (y[i] < yL)
+      y[i] += yW;
+      
+    if (y[i] > yR)
+      y[i] -= yW;
+    
+    if (z[i] < zL)
+      z[i] += zW;
+      
+    if (z[i] > zR)
+      z[i] -= zW;
+    
+  }
+}
+
+
+
 //===========================================================
 //=================== dt estimation =========================
 //===========================================================
