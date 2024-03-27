@@ -70,8 +70,8 @@ int main()
   int *Typvec = nullptr;
   int N = 0; // N is already saved in the snap-shot!
 
-  float t = 0.4002056f + dt; //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-  std::string filename = "KH-4.002056.bin"; //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+  float t = 0.7615f + dt; //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+  std::string filename = "KH-7.615075.bin"; //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
   readArraysFromBinary(filename, xvec, yvec, zvec, vxvec, vyvec, vzvec, rhovec, hvec, uvec, massvec, Typvec, N);
 
   cout << N << endl;
@@ -715,7 +715,7 @@ int main()
   cout << "nBodies = " << nBodies << endl;
   
   numParticles = nBodies; // nBodies is the number of patticles with Typ != -1.
-  int eXtraSpace = 20000000;
+  int eXtraSpace = 30000000;
   numNodes = 2 * numParticles + eXtraSpace;
 
   blockSize_bh = blockSize;
@@ -1474,7 +1474,7 @@ int main()
     auto T_SaveFile = std::chrono::high_resolution_clock::now();
     //------------ SAVING SNAP-SHOTS ------------
     cudaMemcpy(h, d_h, N * sizeof(float), cudaMemcpyDeviceToHost); // Moved outside so that it can be used by nSplit calculator in ach time step.
-    if (!(counter % 50))
+    if (!(counter % 10))
     //if (counter > -1)
     {
       cudaMemcpy(Typ, d_Typ, N * sizeof(int), cudaMemcpyDeviceToHost);

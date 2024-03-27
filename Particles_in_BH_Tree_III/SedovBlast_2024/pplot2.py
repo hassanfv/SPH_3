@@ -3,7 +3,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import struct
 
-filename = 'KH-0.320000.bin'
+filename = 'KH-2.000028.bin'
 
 def readArraysFromBinary(filename):
     with open(filename, 'rb') as file:

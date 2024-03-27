@@ -428,7 +428,7 @@ int main()
 
   float nH_p = 0.845098;
   float T_p = 4.29;
-  float r_p = 0.12;
+  float r_p = 0.32;
   float NH_p = 20.5;
   float mu_tmp = 0.600;
   

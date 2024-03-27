@@ -16,7 +16,7 @@ TimeArray_seconds
 '''
 
 
-f = h5py.File('grid_noneq_evolution_0.1kpc.hdf5', 'r')
+f = h5py.File('grid_501499.hdf5', 'r')
 #f = h5py.File('./10yrs_veryFine/grid_noneq_evolution_0.3kpc.hdf5', 'r')
 
 # Print the attributes of HDF5 objects
@@ -59,13 +59,13 @@ print()
 print('AbundanceEvolution.shape = ', AbundanceEvolution.shape) # [Temp, nH, Z, metals, time]
 print()
 
-inH = 6
+inH = 0
 print('nH = ', 10**densities[inH])
-iTemp = 2
+iTemp = 0
 print('T = ', 10**temperatures[iTemp])
-iZ = 1
+iZ = 0
 print('Z = ', metallicities[iZ])
-it = -1
+it = 1
 print('time = ', timeArr_yrs[it])
 print()
 print(f'T after {timeArr_yrs[it]:.2f} years is, T = {TemperatureEvolution[iTemp, inH, iZ, it]:.2f} K.')
@@ -73,6 +73,12 @@ print()
 
 print('T Evolution = ', TemperatureEvolution[iTemp, inH, iZ, :])
 print()
+
+
+T_vs_time = TemperatureEvolution[iTemp, inH, iZ, :]
+plt.plot(np.arange(len(T_vs_time)), T_vs_time)
+plt.show()
+
 
 AllCarbon = AbundanceEvolution[iTemp, inH, iZ, 7:15, it]
 print(np.log10(10*sum(AllCarbon))) # Multiplied by 10 because we had assumed Z = 0.1 Z_sun!

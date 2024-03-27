@@ -8,10 +8,38 @@
 #include <chrono>
 #include <random>
 #include <tuple>
-#include "hfvCLibs_v7_hfv_v8_gradRho_v4.h"
+#include "hfvCLibs_v7_hfv_v8.1.h"
 #include "bh_tree_iteration_v2.h"
-#include "ngb_v5.h"
+#include "ngb_v5.1.h"
 #include <cstdlib> // This is ONLY used for the "exit(0)" function !!
+
+
+template <typename T>
+void readData(std::ifstream& file, std::vector<T>& vec) {
+    if(file.read(reinterpret_cast<char*>(vec.data()), vec.size() * sizeof(T))) {
+        std::cout << "Data read successfully for vector size: " << vec.size() << std::endl;
+    } else {
+        std::cerr << "Error reading data for vector size: " << vec.size() << std::endl;
+    }
+}
+
+
+void writeArrayToFile(const int* array, int size, const std::string& filename) {
+    std::ofstream outFile(filename);
+    if (!outFile.is_open()) {
+        std::cerr << "Failed to open the file for writing.\n";
+        return;
+    }
+
+    for (int i = 0; i < size; ++i) {
+        outFile << array[i];
+        if (i < size - 1) {
+            outFile << ","; // Delimiter
+        }
+    }
+
+    outFile.close();
+}
 
 // hcool function updated (10 Jan 2024).
 // Adaptive nSplit implemented (5 Jan 2024).
@@ -24,7 +52,7 @@ using namespace std;
 int main()
 {
 
-  float dt = 5e-8; //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! This is only the first time step !!
+  float dt = 1e-4; //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! This is only the first time step !!
 
   const float Nngb_f = 64.0f; // used in smoothing func.
   const int Nngb = 64;
@@ -32,133 +60,23 @@ int main()
   const int Nup = Nngb + 5;
   const float coeff = 0.005f; // used for smoothing length.
   
-  //const float kpc_in_cm = 3.086e21;
-  
-  //*******************************************************************
-  //******************* Reading Cooling File **************************
-  //*******************************************************************
-  float XH = 0.7;
-  float kB = 1.3807e-16;
-  float mH = 1.673534e-24;
-  float gamma = 5.0f/3.0f;
-
-  std::ifstream file("HCoolChimes03March2024.bin", std::ios::binary);
-  if (!file.is_open())
-  {
-    std::cerr << "Failed to open HCoolChimes.bin file" << std::endl;
-    return 1; // Exit if file not opened successfully
-  }
-    
-  // Reading integers
-  int N_T, N_nH, N_r, N_NH, N_t;
-  file.read(reinterpret_cast<char*>(&N_T), sizeof(N_T));
-  file.read(reinterpret_cast<char*>(&N_nH), sizeof(N_nH));
-  file.read(reinterpret_cast<char*>(&N_r), sizeof(N_r));
-  file.read(reinterpret_cast<char*>(&N_NH), sizeof(N_NH));
-  file.read(reinterpret_cast<char*>(&N_t), sizeof(N_t));
-
-  // Reading floats
-  float nHLowBound, nHUpBound, rLowBound, rUpBound, NHLowBound, NHUpBound, timeLowBound, timeUpBound;
-  file.read(reinterpret_cast<char*>(&nHLowBound), sizeof(nHLowBound));
-  file.read(reinterpret_cast<char*>(&nHUpBound), sizeof(nHUpBound));
-  file.read(reinterpret_cast<char*>(&rLowBound), sizeof(rLowBound));
-  file.read(reinterpret_cast<char*>(&rUpBound), sizeof(rUpBound));
-  file.read(reinterpret_cast<char*>(&NHLowBound), sizeof(NHLowBound));
-  file.read(reinterpret_cast<char*>(&NHUpBound), sizeof(NHUpBound));
-  file.read(reinterpret_cast<char*>(&timeLowBound), sizeof(timeLowBound));
-  file.read(reinterpret_cast<char*>(&timeUpBound), sizeof(timeUpBound));
-
-  // Reading arrays
-  float* uarr = new float[N_T * N_nH * N_r * N_NH * N_t];
-  file.read(reinterpret_cast<char*>(uarr), (N_T * N_nH * N_r * N_NH * N_t) * sizeof(float));
-
-  float* nHGrid = new float[N_nH];
-  file.read(reinterpret_cast<char*>(nHGrid), N_nH * sizeof(float));
-
-  float* rGrid = new float[N_r];
-  file.read(reinterpret_cast<char*>(rGrid), N_r * sizeof(float));
-
-  float* NHGrid = new float[N_NH];
-  file.read(reinterpret_cast<char*>(NHGrid), N_NH * sizeof(float));
-  
-  float* dtGrid = new float[N_t];
-  file.read(reinterpret_cast<char*>(dtGrid), N_t * sizeof(float));
-  file.close();
-  
-  //--- declaring for GPU
-  float *d_nHGrid, *d_rGrid, *d_NHGrid, *d_dtGrid, *d_uarr;
-  
-  cudaMalloc(&d_nHGrid, N_nH * sizeof(float));
-  cudaMalloc(&d_rGrid, N_r * sizeof(float));
-  cudaMalloc(&d_NHGrid, N_NH * sizeof(float));
-  cudaMalloc(&d_dtGrid, N_t * sizeof(float));
-  
-  int N_tot = N_T * N_nH * N_r * N_NH * N_t;
-
-  cudaMalloc(&d_uarr, N_tot * sizeof(float));
-  
-  //--- Copying from Host to Device
-  cudaMemcpy(d_nHGrid, nHGrid, N_nH * sizeof(float), cudaMemcpyHostToDevice);
-  cudaMemcpy(d_rGrid, rGrid, N_r * sizeof(float), cudaMemcpyHostToDevice);
-  cudaMemcpy(d_NHGrid, NHGrid, N_NH * sizeof(float), cudaMemcpyHostToDevice);
-  cudaMemcpy(d_dtGrid, dtGrid, N_t * sizeof(float), cudaMemcpyHostToDevice);
-
-  cudaMemcpy(d_uarr, uarr, N_tot * sizeof(float), cudaMemcpyHostToDevice);
-  //------------- End of reading and preparing HCool table file -----------
-  
-
-  //********************************************************************
-  //**************** Reading the params.txt file ***********************
-  //********************************************************************
-  std::string filename;
-  int N, ndx_BH;
-  float GG, L_AGN_code_unit, M_dot_in, v_in, u_for_10K_Temp, m_sph_high_res, sigma, UnitDensity_in_cgs, Unit_u_in_cgs, unitTime_in_s,
-        unitLength_in_cm;
-
-  readParams(filename, N, ndx_BH, GG, L_AGN_code_unit, M_dot_in, v_in, u_for_10K_Temp, m_sph_high_res, sigma, UnitDensity_in_cgs, Unit_u_in_cgs, unitTime_in_s,
-             unitLength_in_cm);
-
-  std::cout << "filename: " << filename << "\n";
-  std::cout << "N: " << N << "\n";
-  std::cout << "ndx_BH: " << ndx_BH << "\n";
-  std::cout << "GG: " << GG << "\n";
-  std::cout << "L_AGN_code_unit: " << L_AGN_code_unit << "\n";
-  std::cout << "M_dot_in_code_unit: " << M_dot_in << "\n";
-  std::cout << "vin_in_code_unit: " << v_in << "\n";
-  std::cout << "u_for_10K_Temp: " << u_for_10K_Temp << "\n";
-  std::cout << "m_sph_high_res: " << m_sph_high_res << "\n";
-  std::cout << "sigma: " << sigma << "\n";
-  
-  std::cout << "UnitDensity_in_cgs: " << UnitDensity_in_cgs << "\n";
-  std::cout << "Unit_u_in_cgs: " << Unit_u_in_cgs << "\n";
-  std::cout << "unitTime_in_s: " << unitTime_in_s << "\n";
-  
-  std::cout << "unitLength_in_cm: " << unitLength_in_cm << "\n";
-  
-  cout << endl;
-  cout << "******************************************" << endl;
-  cout << "******************************************" << endl;
-  cout << "Addopted Time-step: dt_yrs = " << dt * unitTime_in_s / 3600.0 / 24.0 / 365.25 << " yrs" << endl;
-  cout << "******************************************" << endl;
-  cout << "******************************************" << endl;
-  
   //*********************************************************************
   //******************** Reading the IC file ****************************
   //*********************************************************************
-  auto data = readVectorsFromFile(filename);
+  
+  
+  float *xvec = nullptr, *yvec = nullptr, *zvec = nullptr, *vxvec = nullptr, *vyvec = nullptr, *vzvec = nullptr;
+  float *rhovec = nullptr, *hvec = nullptr, *uvec = nullptr, *massvec = nullptr;
+  int *Typvec = nullptr;
+  int N = 0; // N is already saved in the snap-shot!
 
-  std::vector<int> &Typvec = std::get<0>(data);
-  std::vector<float> &xvec = std::get<1>(data);
-  std::vector<float> &yvec = std::get<2>(data);
-  std::vector<float> &zvec = std::get<3>(data);
-  std::vector<float> &vxvec = std::get<4>(data);
-  std::vector<float> &vyvec = std::get<5>(data);
-  std::vector<float> &vzvec = std::get<6>(data);
-  std::vector<float> &uvec = std::get<7>(data);
-  std::vector<float> &hvec = std::get<8>(data);
-  std::vector<float> &epsvec = std::get<9>(data);
-  std::vector<float> &massvec = std::get<10>(data);
+  float t = 0.060f + dt; //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+  std::string filename = "KH-0.600005.bin"; //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+  readArraysFromBinary(filename, xvec, yvec, zvec, vxvec, vyvec, vzvec, rhovec, hvec, uvec, massvec, Typvec, N);
 
+  cout << N << endl;
+  
+  //exit(0);
 
   // declaring the arrays.
   int *Typ, *d_Typ;
@@ -175,14 +93,9 @@ int main()
   float *dt_particles, *d_dt_particles;
   
   float *dudt_pre, *d_dudt_pre;
-  
-  float *NH, *d_NH;
 
   float gammah = 5.0f / 3.0f;
   float GAMMA_MINUS1 = gammah - 1.0f;
-
-
-  float *gradRhoNorm, *d_gradRhoNorm;
 
   Typ = new int[N];
 
@@ -204,8 +117,6 @@ int main()
   eps = new float[N];
   P = new float[N];
   csnd = new float[N];
-  
-  gradRhoNorm = new float[N];
 
   divV = new float[N];
   curlV = new float[N];
@@ -231,8 +142,6 @@ int main()
   dudt_pre = new float[N];
 
   Nngb_previous = new float[N];
-  
-  NH = new float[N];
 
   cudaMalloc(&d_Typ, N * sizeof(int));
 
@@ -254,9 +163,6 @@ int main()
   cudaMalloc(&d_eps, N * sizeof(float));
   cudaMalloc(&d_P, N * sizeof(float));
   cudaMalloc(&d_csnd, N * sizeof(float));
-  
-  cudaMalloc(&d_gradRhoNorm, N * sizeof(float));
-  cudaMalloc(&d_NH, N * sizeof(float));
 
   cudaMalloc(&d_divV, N * sizeof(float));
   cudaMalloc(&d_curlV, N * sizeof(float));
@@ -283,11 +189,14 @@ int main()
 
   cudaMalloc(&d_Nngb_previous, N * sizeof(float));
 
+  
 
   // Initialize x, y, z, etc on the Host.
   for (int i = 0; i < N; i++)
   {
     Typ[i] = Typvec[i];
+
+    
 
     x[i] = xvec[i];
     y[i] = yvec[i];
@@ -298,7 +207,7 @@ int main()
     vz[i] = vzvec[i];
 
     mass[i] = massvec[i];
-    eps[i] = epsvec[i];
+    eps[i] = hvec[i]; // !!!!!!!!! Note I used hvect as epsvec!!!!
 
     accx[i] = 0.0f;
     accy[i] = 0.0f;
@@ -316,9 +225,6 @@ int main()
     rho[i] = 0.0f;  // place holder.
     P[i] = 0.0f;    // placeholder.
     csnd[i] = 0.0f; // placeholder.
-    
-    gradRhoNorm[i] = 0.0f;
-    NH[i] = 0.0f;
 
     divV[i] = 0.0f;  // placeholder.
     curlV[i] = 0.0f; // placeholder.
@@ -370,9 +276,6 @@ int main()
   cudaMemcpy(d_eps, eps, N * sizeof(float), cudaMemcpyHostToDevice);
   cudaMemcpy(d_P, P, N * sizeof(float), cudaMemcpyHostToDevice);
   cudaMemcpy(d_csnd, csnd, N * sizeof(float), cudaMemcpyHostToDevice);
-  
-  cudaMemcpy(d_gradRhoNorm, gradRhoNorm, N * sizeof(float), cudaMemcpyHostToDevice);
-  cudaMemcpy(d_NH, NH, N * sizeof(float), cudaMemcpyHostToDevice);
 
   cudaMemcpy(d_divV, divV, N * sizeof(float), cudaMemcpyHostToDevice);
   cudaMemcpy(d_curlV, curlV, N * sizeof(float), cudaMemcpyHostToDevice);
@@ -474,14 +377,8 @@ int main()
 
   const float visc_alpha = 2.0f;
 
-  float t;
-
-  t = 0.0f;
-
   float tEnd = 1.0f;
   float Nt = ceil(tEnd / dt) + 1;
-
-  //float Zmetal = 0.1; // ==> [Z/H] = -1.
   
   
   //----- Used for the possible need to decrease the value of nSplit -------
@@ -609,7 +506,7 @@ int main()
   CountBodies<<<1, 512>>>(d_x, d_y, d_z, x_min, y_min, z_min, W_cell, nSplit, d_countx, Ncell, nBodiesB);
   cudaDeviceSynchronize();
   
-    
+  
   int blockSize_CO = 512;
   int gridSize_CO = (Ncell + blockSize_CO - 1) / blockSize_CO;
   ComputeOffset<<<gridSize_CO, blockSize_CO>>>(d_countx, Ncell);
@@ -618,6 +515,7 @@ int main()
   GroupBodies<<<1, 1024>>>(d_x, d_y, d_z, d_groupedIndex, x_min, y_min, z_min, W_cell, nSplit, d_countx, Ncell, nBodiesB);
   cudaDeviceSynchronize();
 
+  cout << "Here2 " << endl;
   
   cudaMemcpy(countx, d_countx, 2*Ncell * sizeof(int), cudaMemcpyDeviceToHost);
   cudaMemcpy(groupedIndex, d_groupedIndex, nBodiesB * sizeof(int), cudaMemcpyDeviceToHost);
@@ -653,6 +551,7 @@ int main()
   cudaMemcpy(d_ngb, ngb, MAX_N * sizeof(int), cudaMemcpyHostToDevice);
   //----------
 
+
   //------------------------------------------------------
   //------------------- ngbDB_new_v3 ---------------------
   //------------------------------------------------------
@@ -667,6 +566,10 @@ int main()
   cout << "T_ngb_new = " << elapsed_ngb_new.count() * 1e-9 << endl;
 
   cudaMemcpy(&flag, dev_flag, sizeof(int), cudaMemcpyDeviceToHost);
+  
+  //cout << "Flaging index i = " << flag << endl;
+  //exit(0);
+  
   if (flag == 1)
   {
     std::cerr << "Exiting program: nSplit value is large - decrease it !!!" << std::endl;
@@ -674,17 +577,67 @@ int main()
     exit(EXIT_FAILURE);
   }
 
+  
+  /*
+  // Copy data from device to host and check for errors
+  cudaError_t err = cudaMemcpy(ngb, d_ngb, N * MAX_ngb * sizeof(float), cudaMemcpyDeviceToHost);
+  if (err != cudaSuccess) {
+      cerr << "CUDA Error at ngb during cudaMemcpy (DeviceToHost): " << cudaGetErrorString(err) << endl;
+      // Handle error or exit
+  }
+  
+  writeArrayToFile(ngb, N * MAX_ngb, "ngb_data.txt");
+
+  cout << "Hey Hassan You exited after ngbDB_new_v3" << endl;
+  exit(0);
+  */
+
+
+
+
   //-----------------------------------------------
   //-------------- Smoothing Length_ngb ---------------
   //-----------------------------------------------
   auto T_hh = std::chrono::high_resolution_clock::now();
+
+  // Launch the kernel and check for errors
   smoothing_h_ngb<<<gridSize, blockSize>>>(d_Typ, d_x, d_y, d_z, d_h,
                                            N, Ndown, Nup, coeff,
                                            Nngb_f, d_Nngb_previous, d_divV, d_ngb, MAX_ngb, dt);
-  cudaDeviceSynchronize();
+  cudaError_t err = cudaGetLastError();
+  if (err != cudaSuccess) {
+      cerr << "CUDA Error after kernel launch: " << cudaGetErrorString(err) << endl;
+      // Handle error or exit
+  }
+
+  // Synchronize and check for errors
+  err = cudaDeviceSynchronize();
+  if (err != cudaSuccess) {
+      cerr << "CUDA Error after cudaDeviceSynchronize: " << cudaGetErrorString(err) << endl;
+      // Handle error or exit
+  }
+
   auto end_hh = std::chrono::high_resolution_clock::now();
   auto elapsed_hh = std::chrono::duration_cast<std::chrono::nanoseconds>(end_hh - T_hh);
-  cout << "T_h = " << elapsed_hh.count() * 1e-9 << endl;
+  cout << "T_h = " << elapsed_hh.count() * 1e-9 << " seconds" << endl;
+
+  // Copy data from device to host and check for errors
+  err = cudaMemcpy(h, d_h, N * sizeof(float), cudaMemcpyDeviceToHost);
+  if (err != cudaSuccess) {
+      cerr << "CUDA Error during cudaMemcpy (DeviceToHost): " << cudaGetErrorString(err) << endl;
+      // Handle error or exit
+  }
+
+  
+  /*
+  for (int i = 100; i < 200; i++)
+  {
+    cout << "h[" << i << "] = " << h[i] << endl;
+  }
+  
+  cout << "1111111" << endl;
+  exit(0);
+  */
   
   //-----------------------------------------------
   //----------------- getDensity ------------------
@@ -704,6 +657,25 @@ int main()
   //-----------------------------------------------
   getCsound_Adiabatic<<<gridSize, blockSize>>>(d_Typ, d_csnd, d_u, gammah, N);
   cudaDeviceSynchronize();
+  
+  
+  /*
+  // Copy data from device to host and check for errors
+  err = cudaMemcpy(u, d_u, N * sizeof(float), cudaMemcpyDeviceToHost);
+  if (err != cudaSuccess) {
+      cerr << "CUDA Error during cudaMemcpy (DeviceToHost): " << cudaGetErrorString(err) << endl;
+      // Handle error or exit
+  }
+  
+  for (int i = 0; i < 10; i++)
+  {
+    cout << u[i] << endl;
+  }
+  
+  cout << "Exit 33 for u" << endl;
+  exit(0);
+  */
+  
 
   //-----------------------------------------------
   //----------------- div_curlV -------------------
@@ -712,6 +684,10 @@ int main()
                                            d_rho, d_mass, d_ngb, MAX_ngb, d_h, N);
   cudaDeviceSynchronize();
   
+  
+  
+  
+  
   //-----------------------------------------------
   //------------------ acc_sph --------------------
   //-----------------------------------------------
@@ -719,6 +695,8 @@ int main()
                                        d_divV, d_curlV, d_mass, d_P, d_accx_sph, d_accy_sph,
                                        d_accz_sph, d_ngb, MAX_ngb, visc_alpha, N);
   cudaDeviceSynchronize();
+
+
 
 
   //-----------------------------------------------
@@ -737,7 +715,7 @@ int main()
   cout << "nBodies = " << nBodies << endl;
   
   numParticles = nBodies; // nBodies is the number of patticles with Typ != -1.
-  int eXtraSpace = 10000000;
+  int eXtraSpace = 20000000;
   numNodes = 2 * numParticles + eXtraSpace;
 
   blockSize_bh = blockSize;
@@ -848,6 +826,19 @@ int main()
   printf("\n");
   printf("initial index = %d\n", h_index[0]);
   printf("\n");
+
+
+  cout << "HERE 1" << endl;
+  
+
+  cudaMemcpy(h_x, dev_x, numNodes * sizeof(float), cudaMemcpyDeviceToHost);
+  for (int i = 0; i < 100; i++)
+  {
+    cout << "h_x = " << h_x[i] << endl;
+  }
+  
+  
+
 
   auto T_build_tree_kernel = std::chrono::high_resolution_clock::now();
   build_tree_kernel<<< 1, 256 >>>(dev_x, dev_y, dev_z, dev_mass, d_count, d_start, d_child, d_index, d_left, d_right, d_bottom, d_top, d_front, d_back,
@@ -965,8 +956,6 @@ int main()
   cudaMalloc((void **)&d_leftover_mass, sizeof(float));
   cudaMemcpy(d_leftover_mass, &leftover_mass, sizeof(float), cudaMemcpyHostToDevice);
 
-  float RR0 = maxRange - 0.02; // particles at this radius will not be moved.... my boundary condition to avoid very low density and nspli problem!!!
-
   // **************************************************************
   // *********************** MAIN LOOP ****************************
   // **************************************************************
@@ -990,17 +979,26 @@ int main()
     auto elapsed_MovingData_1 = std::chrono::duration_cast<std::chrono::nanoseconds>(end_MovingData_1 - T_MovingData_1);
     cout << "T_MovingData_1 = " << elapsed_MovingData_1.count() * 1e-9 << endl;
     //----------
+    
+    
+    
 
     //****************** velocity evolution *******************
     v_evolve<<<gridSize, blockSize>>>(d_Typ, d_vx, d_vy, d_vz, d_accx_tot, d_accy_tot,
                                       d_accz_tot, dt, N);
     cudaDeviceSynchronize();
 
+
+
     //****************** position evolution (BH fixed at [0, 0, 0]) *******************
+
+    r_evolve<<<gridSize, blockSize>>>(d_Typ, d_x, d_y, d_z, d_vx, d_vy, d_vz, dt, N);
+    cudaDeviceSynchronize();
     
-    //r_evolve<<<gridSize, blockSize>>>(d_Typ, d_x, d_y, d_z, d_vx, d_vy, d_vz, dt, ndx_BH, N);!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-    r_evolve_fixPos_atRadiusRR0<<<gridSize, blockSize>>>(d_Typ, d_x, d_y, d_z, d_vx, d_vy, d_vz, dt, ndx_BH, N, RR0); //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-    cudaDeviceSynchronize(); //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+    
+    
+    
+    
     
     
     //------- For ngb_new -----
@@ -1113,6 +1111,11 @@ int main()
     cudaMemcpy(d_offSet, offSet, (Ncell+1) * sizeof(int), cudaMemcpyHostToDevice);
     //---------------------------
 
+    
+    
+    
+    
+
     //------------------------------------------------------
     //------------------- ngbDB_new_v3 ---------------------
     //------------------------------------------------------
@@ -1127,15 +1130,16 @@ int main()
     cout << "T_ngb_new = " << elapsed_ngb_new.count() * 1e-9 << endl;
 
     cudaMemcpy(&flag, dev_flag, sizeof(int), cudaMemcpyDeviceToHost);
-    /*
+    
     if (flag == 1)
     {
       std::cerr << "Exiting program: nSplit value is large - decrease it !!!" << std::endl;
       cudaFree(dev_flag);
       exit(EXIT_FAILURE);
     }
-    */
- 
+    
+    //cout << "Check Exit 3 " << endl;
+    //exit(0); 
 
     //****************** Smoothing Length *********************
     auto T_hh = std::chrono::high_resolution_clock::now();
@@ -1143,7 +1147,7 @@ int main()
                                              N, Ndown, Nup, coeff,
                                              Nngb_f, d_Nngb_previous, d_divV, d_ngb, MAX_ngb, dt);
     cudaDeviceSynchronize();
-    cudaError_t err = cudaGetLastError();
+    err = cudaGetLastError();
     if (err != cudaSuccess) 
     {
         printf("Error: %s\n", cudaGetErrorString(err));
@@ -1154,6 +1158,8 @@ int main()
     cout << "T_h = " << elapsed_hh.count() * 1e-9 << endl;
 
 
+    //cout << "AAAAAAAAAAAA" << endl;
+    //exit(0);
 
 
     //****************** Set eps of Gas equal to h ******************
@@ -1174,48 +1180,6 @@ int main()
     auto end_density = std::chrono::high_resolution_clock::now();
     auto elapsed_density = std::chrono::duration_cast<std::chrono::nanoseconds>(end_density - T_density);
     cout << "T_density = " << elapsed_density.count() * 1e-9 << endl;
-    
-    
-    
-    
-    //****************** grad_rho_norm_ngb ***********************
-    auto T_grad_rho = std::chrono::high_resolution_clock::now();
-    grad_rho_norm_ngb<<<gridSize, blockSize>>>(d_Typ, d_x, d_y, d_z, d_rho, d_mass,
-                                               d_ngb, MAX_ngb, d_h, d_gradRhoNorm, N);
-    cudaDeviceSynchronize();
-    
-    cudaMemcpy(rho, d_rho, N * sizeof(float), cudaMemcpyDeviceToHost);
-    cudaMemcpy(gradRhoNorm, d_gradRhoNorm, N * sizeof(float), cudaMemcpyDeviceToHost);
-    cudaMemcpy(h, d_h, N * sizeof(float), cudaMemcpyDeviceToHost);
-    
-    float NH_tmp = 0.0, h_inter = 0.0, nH_tmp = 0.0;
-    
-    for (int i = 0; i < N; i++)
-    {
-      nH_tmp = rho[i] * UnitDensity_in_cgs * XH / mH;
-    
-      h_inter = h[i] / cbrtf(Nngb_f); // cbrtf is CUDA function to get cube root for single-precision floating-point numbers!
-      
-      NH_tmp = 0.5 * (h_inter + rho[i] / gradRhoNorm[i]) * unitLength_in_cm * nH_tmp;
-      NH[i] = log10(NH_tmp);
-    }
-    
-    cudaMemcpy(d_NH, NH, N * sizeof(float), cudaMemcpyHostToDevice);
-    auto end_grad_rho = std::chrono::high_resolution_clock::now();
-    auto elapsed_grad_rho = std::chrono::duration_cast<std::chrono::nanoseconds>(end_grad_rho - T_grad_rho);
-    cout << "T_grad_rho = " << elapsed_grad_rho.count() * 1e-9 << endl;
-
-    cout << endl;
-    for (int i = 0; i < 10; i++)
-    {
-      cout << "NH = " << NH[i] << endl;
-    }
-    cout << endl;
-    
-    
-    
-    
-    
     
     //****************** getPressure **********************
     getPressure_Adiabatic<<<gridSize, blockSize>>>(d_Typ, d_P, d_rho, d_u, gammah, N);
@@ -1471,12 +1435,6 @@ int main()
     auto elapsed_acc_tot = std::chrono::duration_cast<std::chrono::nanoseconds>(end_acc_tot - T_acc_tot);
     cout << "T_acc_tot = " << elapsed_acc_tot.count() * 1e-9 << endl;
 
-    
-    //******* Isothermal Gravity (Richings et al - 2018) ********
-    galaxy_isothermal_potential<<<gridSize, blockSize>>>(d_Typ, d_x, d_y, d_z, d_accx_tot,
-                                                         d_accy_tot, d_accz_tot, sigma, G, N);
-    cudaDeviceSynchronize();
-    
 
     //****************** velocity evolution *******************
     v_evolve<<<gridSize, blockSize>>>(d_Typ, d_vx, d_vy, d_vz, d_accx_tot, d_accy_tot,
@@ -1504,21 +1462,7 @@ int main()
     u_updater<<<gridSize, blockSize>>>(d_Typ, d_u, d_dudt, d_utprevious, dt, N);
     cudaDeviceSynchronize();
     
-    
-    //****************** Heating & Cooling ********************
-    auto T_cool = std::chrono::high_resolution_clock::now();
-    doCooling<<<gridSize, blockSize>>>(d_Typ, d_x, d_y, d_z, d_rho, d_u, d_NH,
-                                       d_nHGrid, d_rGrid, d_NHGrid, d_dtGrid, d_uarr, 
-                                       N_nH, N_T, N_r, N_NH, N_t, gamma, kB, mH,
-                                       nHLowBound, nHUpBound, rLowBound, rUpBound,
-                                       NHLowBound, NHUpBound, timeLowBound, timeUpBound, dt,
-                                       unitTime_in_s, UnitDensity_in_cgs, unitLength_in_cm, Unit_u_in_cgs, N);
-    cudaDeviceSynchronize();
-    auto end_cool = std::chrono::high_resolution_clock::now();
-    auto elapsed_cool = std::chrono::duration_cast<std::chrono::nanoseconds>(end_cool - T_cool);
-    cout << "T_cool = " << elapsed_cool.count() * 1e-9 << endl;
-    
-    
+
     //-------------------------------------------------
 
     cudaMemcpy(rho, d_rho, N * sizeof(float), cudaMemcpyDeviceToHost);
@@ -1530,7 +1474,7 @@ int main()
     auto T_SaveFile = std::chrono::high_resolution_clock::now();
     //------------ SAVING SNAP-SHOTS ------------
     cudaMemcpy(h, d_h, N * sizeof(float), cudaMemcpyDeviceToHost); // Moved outside so that it can be used by nSplit calculator in ach time step.
-    if (!(counter % 200))
+    if (!(counter % 100))
     //if (counter > -1)
     {
       cudaMemcpy(Typ, d_Typ, N * sizeof(int), cudaMemcpyDeviceToHost);
@@ -1544,17 +1488,16 @@ int main()
       cudaMemcpy(vz, d_vz, N * sizeof(float), cudaMemcpyDeviceToHost);
 
       cudaMemcpy(rho, d_rho, N * sizeof(float), cudaMemcpyDeviceToHost);
-      
-      cudaMemcpy(NH, d_NH, N * sizeof(float), cudaMemcpyDeviceToHost);
+      //cudaMemcpy(h, d_h, N * sizeof(float), cudaMemcpyDeviceToHost);
 
       cudaMemcpy(u, d_u, N * sizeof(float), cudaMemcpyDeviceToHost);
       
       cudaMemcpy(mass, d_mass, N * sizeof(float), cudaMemcpyDeviceToHost);
 
       // Specify the output file name
-      std::string filename = "./Outputs/G-" + to_string(t * 10) + ".bin";
+      std::string filename = "./Outputs/KH-" + to_string(t * 10) + ".bin";
       // Save the arrays to binary format
-      saveArraysToBinary(filename, x, y, z, vx, vy, vz, rho, h, u, mass, NH, Typ, N);
+      saveArraysToBinary(filename, x, y, z, vx, vy, vz, rho, h, u, mass, Typ, N);
     }
     auto end_SaveFile = std::chrono::high_resolution_clock::now();
     auto elapsed_SaveFile = std::chrono::duration_cast<std::chrono::nanoseconds>(end_SaveFile - T_SaveFile);
@@ -1580,26 +1523,7 @@ int main()
     */
 
     t += dt;
-
-    // dt = min_finder(Typ, dt_particles, N);
-
-    //***********************************************************
-    //*************** Outflow particle injection ****************
-    //***********************************************************
-    // Generate a seed using the high resolution clock
-    auto now = std::chrono::high_resolution_clock::now();
-    auto nanos = std::chrono::duration_cast<std::chrono::nanoseconds>(now.time_since_epoch()).count();
-    unsigned long long seed = counter; //static_cast<unsigned long long>(nanos); //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-    //------------
-    outflow_injector2<<<gridSize, blockSize>>>(d_Typ, d_x, d_y, d_z,
-                                              d_vx, d_vy, d_vz,
-                                              d_h, d_eps, d_mass,
-                                              Nngb_f, d_Nngb_previous,
-                                              d_u, M_dot_in, v_in,
-                                              m_sph_high_res, u_for_10K_Temp,
-                                              d_leftover_mass, dt, ndx_BH, N,
-                                              seed);
-    cudaDeviceSynchronize();
+    
 
     if (!(counter % 1))
     {

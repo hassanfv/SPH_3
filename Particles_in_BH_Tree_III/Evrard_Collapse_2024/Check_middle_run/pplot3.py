@@ -5,7 +5,7 @@ import struct
 import pickle
 import csv
 
-filename = 'KH-8.003675.bin'
+filename = 'KH-7.615075.bin'
 
 gamma = 5./3.
 

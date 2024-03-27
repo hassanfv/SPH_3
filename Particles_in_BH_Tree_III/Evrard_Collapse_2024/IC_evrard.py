@@ -24,7 +24,7 @@ def createGrid(size):
   return x, y, z
   
 
-Grid = 131; # size of the grid
+Grid = 161; # size of the grid
 Mtot = 1.0; # total mass of the sphere
 
 size = Grid * Grid * Grid
@@ -66,7 +66,7 @@ Uthermal = np.zeros(Npart)
 particle_mass = Mtot / Npart
 
 
-pert = 0.015
+pert = 0.003
 
 k = 0;
 for i in range(size):

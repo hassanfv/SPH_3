@@ -52,7 +52,7 @@ using namespace std;
 int main()
 {
 
-  float dt = 2e-4; //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! This is only the first time step !!
+  float dt = 1e-4; //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! This is only the first time step !!
 
   const float Nngb_f = 64.0f; // used in smoothing func.
   const int Nngb = 64;
@@ -60,14 +60,14 @@ int main()
   const int Nup = Nngb + 5;
   const float coeff = 0.005f; // used for smoothing length.
 
-  int N = 1030301; //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+  int N = 2248091; //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
   
   //*********************************************************************
   //******************** Reading the IC file ****************************
   //*********************************************************************
 
   // Open the binary file
-  std::ifstream file("IC_SedovBlast_1030k.bin", std::ios::binary);
+  std::ifstream file("IC_SedovBlast_2248k.bin", std::ios::binary);
   if (!file.is_open()) {
       // Handle error
       return -1;
@@ -1080,6 +1080,13 @@ int main()
                                                     nBodies);
     cudaDeviceSynchronize();
     
+    cudaMemcpy(h_leftX, d_leftX, sizeof(float), cudaMemcpyDeviceToHost);
+    cudaMemcpy(h_rightX, d_rightX, sizeof(float), cudaMemcpyDeviceToHost);
+    cudaMemcpy(h_bottomX, d_bottomX, sizeof(float), cudaMemcpyDeviceToHost);
+    cudaMemcpy(h_topX, d_topX, sizeof(float), cudaMemcpyDeviceToHost);
+    cudaMemcpy(h_frontX, d_frontX, sizeof(float), cudaMemcpyDeviceToHost);
+    cudaMemcpy(h_backX, d_backX, sizeof(float), cudaMemcpyDeviceToHost);
+    
     float maxRange = fmax(abs(*h_leftX), fmax(abs(*h_rightX), fmax(abs(*h_bottomX), fmax(abs(*h_topX), fmax(abs(*h_frontX), abs(*h_backX))))));
     W_cell = ceil(2.0 * maxRange) / nSplit;
     
@@ -1480,7 +1487,7 @@ int main()
     auto T_SaveFile = std::chrono::high_resolution_clock::now();
     //------------ SAVING SNAP-SHOTS ------------
     cudaMemcpy(h, d_h, N * sizeof(float), cudaMemcpyDeviceToHost); // Moved outside so that it can be used by nSplit calculator in ach time step.
-    if (!(counter % 10))
+    if (!(counter % 100))
     //if (counter > -1)
     {
       cudaMemcpy(Typ, d_Typ, N * sizeof(int), cudaMemcpyDeviceToHost);

@@ -27,7 +27,7 @@ import matplotlib.pyplot as plt
 # Parameters
 periodic= 1      # 1 For periodic box
 boxSize = 10.
-L = 101           # Number of particles along one axis
+L = 131           # Number of particles along one axis
 rho = 1.          # Density
 P = 1.e-5         # Pressure
 E0= 1.e2          # Energy of the explosion
