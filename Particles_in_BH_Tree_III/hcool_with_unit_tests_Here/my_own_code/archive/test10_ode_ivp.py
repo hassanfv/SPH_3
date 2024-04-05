@@ -3,6 +3,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 from scipy.integrate import odeint
 import pickle
+from scipy.integrate import solve_ivp
 
 
 #===== Gam_e_H0
@@ -128,34 +129,35 @@ X = 0.76
 Y = 0.24
 y = Y / (4. - 4. * Y)
 
-y0_0 = 1e6 # initial T
-y1_0 = 0.001 # initial nH0
-y2_0 = 1e-6 # initial nHe0
-y3_0 = 0.01 # initial nHep
+#y0_0 = 1e6 # initial T
+#y1_0 = 2e-3 # initial nH0
+#y2_0 = 1e-4 # initial nHe0
+#y3_0 = 0.1 # initial nHep
 
-S_0 = (y0_0, y1_0, y2_0, y3_0)
+#S_0 = (y0_0, y1_0, y2_0, y3_0)
 
-t = np.linspace(1, 3000, 1000) * 3.16e7
+#t = np.linspace(1, 3000, 1000) * 3.16e7
 
-print(t)
+#print(t)
 
-sol = odeint(dSdt, y0 = S_0, t = t, tfirst = True)
+#sol = odeint(dSdt, y0 = S_0, t = t, tfirst = True)
 
-T = sol[:, 0]
-nH0 = sol[:, 1]
-nHe0 = sol[:, 2]
-nHep = sol[:, 3]
+y0 = [1e6, 2e-3, 1e-4, 1e-1]
+t_span = (1*3.16e7, 3000*3.16e7)
+solution = solve_ivp(dSdt, t_span, y0, method='LSODA', dense_output=True)
+
+t = np.linspace(t_span[0], t_span[1], 1000)
+yy = solution.sol(t)
+
+print(yy.shape)
+
+t_yrs = t / 3.16e7
+
+nH0 = yy[1, :]
+T = yy[0, :]
 
 nHp = nH - nH0
-nHepp = nH * y - (nHe0 + nHep)
-ne = (nH - nH0) + nHep + 2. * (nH * y - (nHe0 + nHep))
-
-print(sol)
-
-print()
-print(f'nH0/nH = {(nH0[-1]/(nH0[-1]+nHp[-1])):.4f}, nHp/nH = {(nHp[-1]/(nH0[-1]+nHp[-1])):.4f}')
-print(f'log(nH0/nH) = {np.log10(nH0[-1]/(nH0[-1]+nHp[-1])):.4f}, log(nHp/nH) = {np.log10(nHp[-1]/(nH0[-1]+nHp[-1])):.4f}')
-print()
+ne = nHp
 
 
 #------ Result from "test_primordial_hdf5_v2.py" code -----
@@ -170,9 +172,6 @@ nHeppx = df['nHepp']
 #----------------------------------------------------------
 
 
-
-t_yrs = t/3.16e7
-
 plt.figure(figsize = (12, 6))
 
 plt.subplot(1, 2, 1)
@@ -183,16 +182,16 @@ plt.ylim(3, 8)
 plt.legend()
 
 plt.subplot(1, 2, 2)
-plt.scatter(t_yrs, nHe0/nH, s = 5, color = 'orange', label = 'nHe0 - hfv')
-#plt.scatter(t_Arr_in_yrsx, nHe0x, s = 1, color = 'orange', label = 'nHe0 - chimes')
-plt.scatter(t_yrs, nHep/nH, s = 5, color = 'lime', label = 'nHep')
-plt.scatter(t_yrs, nHepp/nH, s = 5, color = 'yellow', label = 'nHepp')
-
-#plt.scatter(t_yrs, ne/nH, s = 5, color = 'orange', label = 'ne')
+plt.scatter(t_yrs, nHp, s = 5, color = 'k', label = 'nHp')
+plt.scatter(t_yrs, nH0, s = 5, color = 'b', label = 'nH0')
+plt.scatter(t_yrs, ne, s = 5, color = 'orange', label = 'ne')
 plt.yscale('log')
+plt.title('solve_ivp')
 plt.legend()
 
-plt.savefig('myfig.png')
+
+
+plt.savefig('myOnlyH.png')
 
 plt.show()
 

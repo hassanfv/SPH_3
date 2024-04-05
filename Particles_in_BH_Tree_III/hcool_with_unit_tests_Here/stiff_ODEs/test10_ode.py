@@ -2,7 +2,6 @@
 import numpy as np
 import matplotlib.pyplot as plt
 from scipy.integrate import odeint
-import pickle
 
 
 #===== Gam_e_H0
@@ -130,7 +129,7 @@ y = Y / (4. - 4. * Y)
 
 y0_0 = 1e6 # initial T
 y1_0 = 0.001 # initial nH0
-y2_0 = 1e-6 # initial nHe0
+y2_0 = 0.001 # initial nHe0
 y3_0 = 0.01 # initial nHep
 
 S_0 = (y0_0, y1_0, y2_0, y3_0)
@@ -158,35 +157,23 @@ print(f'log(nH0/nH) = {np.log10(nH0[-1]/(nH0[-1]+nHp[-1])):.4f}, log(nHp/nH) = {
 print()
 
 
-#------ Result from "test_primordial_hdf5_v2.py" code -----
-with open('chimesRes.pkl', 'rb') as f:
-  df = pickle.load(f)
-# dictx = {'t_Arr_in_yrs': t_Arr_in_yrs, 'TEvol': TEvol, 'nHe0': nHe0, 'nHep': nHep, 'nHepp': nHepp}
-t_Arr_in_yrsx = df['t_Arr_in_yrs']
-TEvolx = df['TEvol']
-nHe0x = df['nHe0']
-nHepx = df['nHep']
-nHeppx = df['nHepp']
-#----------------------------------------------------------
-
-
-
 t_yrs = t/3.16e7
 
 plt.figure(figsize = (12, 6))
 
 plt.subplot(1, 2, 1)
-plt.scatter(t_yrs, np.log10(T), s = 5, color = 'k', label = 'my own code')
-plt.scatter(t_Arr_in_yrsx, np.log10(TEvolx), s = 2, color = 'orange', label = 'chimes result', linestyle = '--')
-plt.xlim(0, 3000)
+plt.scatter(t_yrs, np.log10(T), s = 5, color = 'k')
+#plt.xlim(0, max(t_yrs))
 plt.ylim(3, 8)
-plt.legend()
 
 plt.subplot(1, 2, 2)
-plt.scatter(t_yrs, nHe0/nH, s = 5, color = 'orange', label = 'nHe0 - hfv')
-#plt.scatter(t_Arr_in_yrsx, nHe0x, s = 1, color = 'orange', label = 'nHe0 - chimes')
+#plt.scatter(t_yrs, nHp/nH, s = 5, color = 'k', label = 'nHp')
+#plt.scatter(t_yrs, nH0/nH, s = 5, color = 'b', label = 'nH0')
+
+plt.scatter(t_yrs, nHe0/nH, s = 5, color = 'orange', label = 'nHe0')
 plt.scatter(t_yrs, nHep/nH, s = 5, color = 'lime', label = 'nHep')
 plt.scatter(t_yrs, nHepp/nH, s = 5, color = 'yellow', label = 'nHepp')
+
 
 #plt.scatter(t_yrs, ne/nH, s = 5, color = 'orange', label = 'ne')
 plt.yscale('log')

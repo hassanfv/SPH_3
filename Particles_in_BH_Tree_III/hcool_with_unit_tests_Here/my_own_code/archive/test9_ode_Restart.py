@@ -4,6 +4,7 @@ import matplotlib.pyplot as plt
 from scipy.integrate import odeint
 
 
+# Reaction: (H0 + e ---> Hp + 2e) ::: H0 Collisional ionization
 #===== Gam_e_H0
 def Gam_e_H0(T):
   return 5.85e-11 * T**0.5 * np.exp(-157809.1/T) / (1.0 + (T/1e5)**0.5)
@@ -13,6 +14,7 @@ def a_Hp(T):
   return 8.4e-11 / T**0.5 / (T/1e3)**0.2 / (1.0 + (T/1e6)**0.7)
 
 
+
 #===== LambColExcH0 ---> erg.s^-1.cm^-3
 def LambColExcH0(T, ne, nH0):
   return 7.50e-19 * np.exp(-118348/T) / (1.0 + (T/1e5)**0.5) * ne * nH0
@@ -20,6 +22,7 @@ def LambColExcH0(T, ne, nH0):
 #===== LambColIonH0 ---> erg.s^-1.cm^-3
 def LambColIonH0(T, ne, nH0):
   return 1.27e-21 * T**0.5 * np.exp(-157809.1/T) / (1.0 + (T/1e5)**0.5) * ne * nH0
+  #return 13.5984 * 1.60218e-12 * k1(T) * ne * nH0
 
 #===== LamRecHp ---> erg.s^-1.cm^-3
 def LamRecHp(T, ne, nHp):
@@ -31,6 +34,15 @@ def Lambda(T, nH0):
   nHp = nH - nH0
   ne = nHp
   return LambColExcH0(T, ne, nH0) + LambColIonH0(T, ne, nH0) + LamRecHp(T, ne, nHp)
+
+
+T = 1e6
+
+nH = 1.0
+nHp = 1.0
+ne = 1.0
+nH0 = 1.0
+print(LambColExcH0(T, ne, nH0), LambColIonH0(T, ne, nH0), LamRecHp(T, ne, nHp))
 
 
 #===== dSdt

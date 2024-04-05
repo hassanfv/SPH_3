@@ -33,6 +33,17 @@ def Lambda(T, nH0):
   return LambColExcH0(T, ne, nH0) + LambColIonH0(T, ne, nH0) + LamRecHp(T, ne, nHp)
 
 
+T = 1e6
+
+nH = 1.0
+nHp = 1.0
+ne = 1.0
+nH0 = 1.0
+print(LambColExcH0(T, ne, nH0), LambColIonH0(T, ne, nH0), LamRecHp(T, ne, nHp))
+
+#s()
+
+
 #===== dSdt
 def dSdt(t, S):
   y1, y2 = S

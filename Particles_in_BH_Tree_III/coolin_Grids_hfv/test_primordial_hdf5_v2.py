@@ -17,7 +17,7 @@ TimeArray_seconds
 '''
 
 
-f = h5py.File('grid_noneq_evolution_primordial.hdf5', 'r')
+f = h5py.File('grid_noneq_evolution_primordialX.hdf5', 'r')
 
 # Print the attributes of HDF5 objects
 for name, obj in f.items():
@@ -49,9 +49,9 @@ temperatures = f['TableBins/Temperatures'][:]
 
 print('temperatures = ', temperatures)
 
-inH = 6
+inH = 3
 print('nH = ', 10**densities[inH])
-iTemp = 40
+iTemp = 0
 print('T = ', 10**temperatures[iTemp])
 iZ = 0
 print('Z = ', metallicities[iZ])
@@ -59,24 +59,38 @@ print('Z = ', metallicities[iZ])
 
 TEvol = TemperatureEvolution[iTemp, inH, iZ, :]
 
-nH0 = AbundanceEvolution[iTemp, inH, iZ, 1, :]
-nHp = AbundanceEvolution[iTemp, inH, iZ, 2, :]
+nH0 = AbundanceEvolution[iTemp, inH, iZ, 1, :] * 10**densities[inH]
+nHp = AbundanceEvolution[iTemp, inH, iZ, 2, :] * 10**densities[inH]
 
-nHe0 = AbundanceEvolution[iTemp, inH, iZ, 4, :]
-nHep = AbundanceEvolution[iTemp, inH, iZ, 5, :]
-nHepp= AbundanceEvolution[iTemp, inH, iZ, 6, :]
+nHe0 = AbundanceEvolution[iTemp, inH, iZ, 4, :] * 10**densities[inH]
+nHep = AbundanceEvolution[iTemp, inH, iZ, 5, :] * 10**densities[inH]
+nHepp= AbundanceEvolution[iTemp, inH, iZ, 6, :] * 10**densities[inH]
 
 print()
 print(f'nH0/nH = {(nH0[-1]/(nH0[-1]+nHp[-1])):.4f}, nHp/nH = {(nHp[-1]/(nH0[-1]+nHp[-1])):.4f}')
 print(f'log(nH0/nH) = {np.log10(nH0[-1]/(nH0[-1]+nHp[-1])):.4f}, log(nHp/nH) = {np.log10(nHp[-1]/(nH0[-1]+nHp[-1])):.4f}')
 print()
 
-s()
+
+T = TEvol
+nHeTot = nHe0 + nHep + nHepp
+plt.plot(T, nHe0/nHeTot, label = 'nHe0')
+plt.plot(T, nHep/nHeTot, label = 'nHep')
+plt.plot(T, nHepp/nHeTot,label = 'nHepp')
+plt.yscale('log')
+plt.xscale('log')
+plt.ylim(2e-3, 1.2)
+plt.xlim(1e4, 5e6)
+plt.legend()
+plt.show()
+
+
 
 plt.figure(figsize = (12, 6))
 
 plt.subplot(1, 2, 1)
 plt.scatter(t_Arr_in_yrs, np.log10(TEvol), s = 5, color = 'k')
+plt.xlim(0, 10000)
 plt.ylim(3, 8)
 
 
@@ -87,6 +101,10 @@ plt.scatter(t_Arr_in_yrs, nHepp, s = 5, color = 'yellow', label = 'nHepp')
 plt.yscale('log')
 plt.legend()
 
+dictx = {'t_Arr_in_yrs': t_Arr_in_yrs, 'TEvol': TEvol, 'nHe0': nHe0, 'nHep': nHep, 'nHepp': nHepp}
+
+with open('chimesRes.pkl', 'wb') as f:
+  pickle.dump(dictx, f)
 
 plt.savefig('primordial.png')
 
