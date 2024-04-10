@@ -359,7 +359,7 @@ plt.ylim(-25, -21.5)
 
 plt.tight_layout()
 
-plt.savefig('myOnlyH.png')
+plt.savefig('myHeH.png')
 
 plt.show()
 
