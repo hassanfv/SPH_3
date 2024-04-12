@@ -11,27 +11,50 @@ from scipy.integrate import odeint
 import pickle
 
 
-
+kB = 1.3807e-16 # erg/K
 kB_in_eV_K = 8.61733326e-05 # eV/K
 
-CVI_IP = 489.99334 * 1.60218e-12 # erg. IP of ionizaing CV to CVI (i.e. fully ionized Carbon).
-C_rec = [6.556e-10, 65.23, 2.446e7, 0.7567]
-C_col = [6.85e-8, 0, 11.3, 0.193, 0.25]
+
+# Ref: Voronov - 1997 (parameters used for collisional ionization)
+#                  dE    P      A        X      K
+C_colIparams = [
+                 [11.3, 0.0, 0.685e-7, 0.193, 0.25], # CI
+                 [24.4, 1.0, 0.186e-7, 0.286, 0.24], # CII
+                 [47.9, 1.0, 0.635e-8, 0.427, 0.21], # CIII
+                 [64.5, 1.0, 0.150e-8, 0.416, 0.13], # CIV
+                 [392.1,1.0, 0.299e-9, 0.666, 0.02], # CV
+                 [490.0,1.0, 0.123e-9, 0.620, 0.16]  # CVI
+               ]
+          
 
 
-#----- phi_col (in cm^3.s^-1) (T in K, dE in eV) - It should be multiplied by ionization energy to become cooling rate!
-# Z + e ---> Zp + 2e (collisional ionization)
-def phi_col(T, Zcol):
+#-----------------------------------------------------------
 
-  A, P, dE, X, K = Zcol
+C_IP = np.array([11.3, 24.4, 47.9, 64.5, 392.1, 490.0]) * 1.60218e-12 # erg
 
-  T_eV = kB_in_eV_K * T
-  U = dE / T_eV
+# Ref: Shull & Steenberg - 1982. - Acol and Tcol are used for ionization BUT we use tables from Voronov - 1997 for collisional ionization rates!
+# For Recombination       Acol      Tcol    Arad      Xrad     Adi      Bdi      T0      T1
+C_RRparams = np.array([
+                        [1.44e-10, 1.31e5, 4.70e-13, 6.24e-1, 2.54e-3, 4.42e-2, 1.57e5, 3.74e5], # CI
+                        [4.20e-11, 2.83e5, 2.30e-12, 6.45e-1, 6.15e-3, 5.88e-2, 1.41e5, 1.41e5], # CII
+                        [1.92e-11, 5.56e5, 3.20e-12, 7.70e-1, 1.62e-3, 3.43e-1, 8.19e4, 1.59e5], # CIII
+                        [5.32e-12, 7.48e5, 7.50e-12, 8.17e-1, 4.78e-2, 3.62e-1, 3.44e6, 5.87e5], # CIV
+                        [2.87e-13, 4.55e6, 1.70e-11, 7.21e-1, 3.22e-2, 3.15e-1, 4.06e6, 8.31e5], # CV
+                        [9.16e-14, 5.68e6, 3.30e-11, 7.26e-1, 0.00e-0, 0.00e-0, 0.00e0, 0.00e0]  # CVI
+                      ])
 
-  return A * ((1. + P * U**0.5) / (X + U)) * U**K * np.exp(-U)
 
+#----- ColI_rate (Collisional Ionization rate) NOTE: I just have this here for comparison with Voronov - 1997 rates (as unit test!)!
+def ColI_rate(T, P):
+  
+  Acol = P[0]
+  Tcol = P[1]
 
-#----- phi_rec (in cm^3.s^-1) It should be multiplied by kB*T to become cooling rate!
+  ai = 0.1
+  
+  return Acol * T**0.5 / (1.0 + ai * T / Tcol) * np.exp(-Tcol/T)
+
+#----- phi_rec (in cm^3.s^-1) It should be multiplied by kB*T to become cooling rate! Used just for testing!
 def phi_rec(T, Zrec):
 
   A, tou0, tou1, b = Zrec
@@ -40,18 +63,66 @@ def phi_rec(T, Zrec):
   T1 = (T/tou1)**0.5
 
   return A / (T0 * (1. + T0)**(1. - b) * (1. + T1)**(1. + b))
+#---------------------------------------------------------------------------------------
 
 
-#----- cool_phi_col
-def cool_phi_col(T, IP, Z_col):
+# Ref: Vonorov - 1997.
+#----- phi_col (in cm^3.s^-1) (T in K, dE in eV) - It should be multiplied by ionization energy to become cooling rate!
+# Z + e ---> Zp + 2e (collisional ionization)
+def phi_col(T, i, j, params):
   
-  return IP * phi_col(T, C_col)
+  dE, P, A, X, K = params[i]
+
+  T_eV = kB_in_eV_K * T
+  U = dE / T_eV
+
+  return A * ((1. + P * U**0.5) / (X + U)) * U**K * np.exp(-U)
 
 
-#----- cool_phi_rec
-def cool_phi_rec(T, Z_rec):
+# Ref: Shull & Steenberg - 1982.
+#----- RR_rate (Radiative Recombination rate)
+def RR_rate(T, i, j, params):
 
-  return kB * T * phi_rec(T, Z_rec)
+  P = params[j]
+
+  Arad = P[2]
+  Xrad = P[3]
+  
+  Adi = P[4]
+  Bdi = P[5]
+  
+  T0 = P[6]
+  T1 = P[7]
+  
+  a_r = Arad * (T / 1e4)**-Xrad
+  a_d = Adi * T**-(3./2.) * np.exp(-T0/T) * (1. + Bdi * np.exp(-T1/T))
+
+  return a_r + a_d
+
+
+#----- getCarbonRates
+def getCarbonRates(T, C_colIparams, C_RRparams):
+
+  C_0_1 = phi_col(T, 0, 1, C_colIparams) # ionization of neutral Carbon CI to CII via collision:: CI + e ---> CII + 2e
+  C_1_2 = phi_col(T, 1, 2, C_colIparams) # CII + e ---> CIII + 2e
+  C_2_3 = phi_col(T, 2, 3, C_colIparams) # CIII + e ---> CIV + 2e
+  C_3_4 = phi_col(T, 3, 4, C_colIparams) # CVI + e ---> CV + 2e
+  C_4_5 = phi_col(T, 4, 5, C_colIparams) # CV + e ---> CVI + 2e
+  C_5_6 = phi_col(T, 5, 6, C_colIparams) # CVI + e ---> CVII + 2e
+
+  C_1_0 = RR_rate(T, 1, 0, C_RRparams) # recombination of singly ionized Carbon (CII) to neutral Carbon (CI):: CII + e ---> CI + photon
+  C_2_1 = RR_rate(T, 2, 1, C_RRparams) # CIII + e ---> CII + photon
+  C_3_2 = RR_rate(T, 3, 2, C_RRparams) # CIV + e ---> CIII + photon
+  C_4_3 = RR_rate(T, 4, 3, C_RRparams) # CV + e ---> CIV + photon
+  C_5_4 = RR_rate(T, 5, 4, C_RRparams) # CVI + e ---> CV + photon
+  C_6_5 = RR_rate(T, 6, 5, C_RRparams) # CVII + e ---> CVI + photon
+
+  return [
+           C_0_1, C_1_2, C_2_3, C_3_4, C_4_5, C_5_6,
+           C_1_0, C_2_1, C_3_2, C_4_3, C_5_4, C_6_5
+         ]
+
+
 
 
 #----------------------------------------------------------------------------------------------------------------------
@@ -210,15 +281,17 @@ def g10(T):
 
 
 # Total cooling rate in erg.s^-1.cm^-3 ===>NOTE that Hep and Hepp is excluded in free-free here as we are only considering H in this code!
-def Lambda(T, nH, nH0, nHe0, nHep, nC, nC0):
+def Lambda(T, nH, nH0, nHe0, nHep, nC, nC0, nC1, nC2, nC3, nC4, nC5):
 
   nHp = nH - nH0
   y = Y / 4.0 / (1.0 - Y) # Eq. 32 in Katz & Weinberg - 1996 (Y = 0.24, i.e. He mass fraction. X = 1.0 - Y)
   nHepp = y * nH - nHe0 - nHep
   
-  nCp = nC - nC0
+  nC6 = nC - (nC0 + nC1 + nC2 + nC3 + nC4 + nC5)
   
-  ne = nHp + nHep + 2.0 * nHepp + 6.0 * nCp
+  ne = nHp + (nHep + 2.0 * nHepp) + (nC1 + 2.0 * nC2 + 3.0 * nC3 + 4.0 * nC4 + 5.0 * nC5 + 6.0 * nC6)
+  
+  C_0_1, C_1_2, C_2_3, C_3_4, C_4_5, C_5_6, C_1_0, C_2_1, C_3_2, C_4_3, C_5_4, C_6_5  = getCarbonRates(T, C_colIparams, C_RRparams)
   
   Lamb = (
            g1(T) * ne * nH0 # collisional ionization of hydrogen ::::::: (H0 + e ---> Hp + 2e).
@@ -231,27 +304,30 @@ def Lambda(T, nH, nH0, nHe0, nHep, nC, nC0):
          + g8(T) * nHep * ne # Hep recombination to He0
          + g9(T) * nHepp * ne# Hepp recombination to Hep
          + g10(T) * nHep * ne# Hep di-electric recombination to He0
-         + cool_phi_col(T, CVI_IP, C_col) * nC0 * ne
-         + cool_phi_rec(T, C_rec) * nCp * ne
-        )
-  
+         + C_0_1 * ne * nC0 * C_IP[0] + C_1_0 * ne * nC1 * kB * T
+         + C_1_2 * ne * nC1 * C_IP[1] + C_2_1 * ne * nC2 * kB * T
+         + C_2_3 * ne * nC2 * C_IP[2] + C_3_2 * ne * nC3 * kB * T
+         + C_3_4 * ne * nC3 * C_IP[3] + C_4_3 * ne * nC4 * kB * T
+         + C_4_5 * ne * nC4 * C_IP[4] + C_5_4 * ne * nC5 * kB * T
+         + C_5_6 * ne * nC5 * C_IP[5] + C_6_5 * ne * nC6 * kB * T
+         )
   return Lamb
 
 
 
-
-def n_tot(nH, nH0, nHe0, nHep, nC, nC0):
+#----- n_tot
+def n_tot(nH, nH0, nHe0, nHep, nC, nC0, nC1, nC2, nC3, nC4, nC5):
   
   nHp = nH - nH0
 
   y = Y / 4.0 / (1.0 - Y) # Eq. 32 in Katz & Weinberg - 1996 (Y = 0.24, i.e. He mass fraction. X = 1.0 - Y)
   nHepp = y * nH - nHe0 - nHep
   
-  nCp = nC - nC0
+  nC6 = nC - (nC0 + nC1 + nC2 + nC3 + nC4 + nC5)
   
-  ne = nHp + nHep + 2.0 * nHepp + 6.0 * nCp
+  ne = nHp + (nHep + 2.0 * nHepp) + (nC1 + 2.0 * nC2 + 3.0 * nC3 + 4.0 * nC4 + 5.0 * nC5 + 6.0 * nC6)
   
-  ntot = nH0 + nHp + nHe0 + nHep + nHepp + ne
+  ntot = ne + (nH0 + nHp) + (nHe0 + nHep + nHepp) + (nC0 + nC1 + nC2 + nC3 + nC4 + nC5 + nC6)
   
   return ntot
 
@@ -262,38 +338,37 @@ def n_tot(nH, nH0, nHe0, nHep, nC, nC0):
 #-----------------------------------------
 def func(t, y):
 
-  nH0, nHe0, nHep, nC0, T = y
+  nH0, nHe0, nHep, nC0, nC1, nC2, nC3, nC4, nC5, T = y
   
   nHp = nH - nH0
   
-  nCp = nC - nC0
+  nC6 = nC - (nC0 + nC1 + nC2 + nC3 + nC4 + nC5)
   
   y = Y / 4.0 / (1.0 - Y) # Eq. 32 in Katz & Weinberg - 1996 (Y = 0.24, i.e. He mass fraction. X = 1.0 - Y)
   nHepp = y * nH - nHe0 - nHep
   
-  ne = nHp + nHep + 2.0 * nHepp
+  ne = nHp + (nHep + 2.0 * nHepp) + (nC1 + 2.0 * nC2 + 3.0 * nC3 + 4.0 * nC4 + 5.0 * nC5 + 6.0 * nC6)
+  
+  C_0_1, C_1_2, C_2_3, C_3_4, C_4_5, C_5_6, C_1_0, C_2_1, C_3_2, C_4_3, C_5_4, C_6_5  = getCarbonRates(T, C_colIparams, C_RRparams)
   
   dnH0_dt = k2(T) * nHp * ne - k1(T) * nH0 * ne
-  
   dnHe0_dt = k5(T) * nHep * ne + k7(T) * nHep * ne - k3(T) * nHe0 * ne
-  
   dnHep_dt = k6(T) * nHepp * ne + k3(T) * nHe0 * ne - k4(T) * nHep * ne - k5(T) * nHep * ne - k7(T) * nHep * ne
   
-  dnC0_dt = phi_rec(T, C_rec) * nCp * ne - phi_col(T, C_col) * nC0 * ne
+  dnC0_dt = C_1_0 * ne * nC1 - C_0_1 * ne * nC0
+  dnC1_dt = C_0_1 * ne * nC0 + C_2_1 * ne * nC2 - C_1_0 * ne * nC1 - C_1_2 * ne * nC1
+  dnC2_dt = C_1_2 * ne * nC1 + C_3_2 * ne * nC3 - C_2_1 * ne * nC2 - C_2_3 * ne * nC2
+  dnC3_dt = C_2_3 * ne * nC2 + C_4_3 * ne * nC4 - C_3_2 * ne * nC3 - C_3_4 * ne * nC3
+  dnC4_dt = C_3_4 * ne * nC3 + C_5_4 * ne * nC5 - C_4_3 * ne * nC4 - C_4_5 * ne * nC4
+  dnC5_dt = C_4_5 * ne * nC4 + C_6_5 * ne * nC6 - C_5_4 * ne * nC5 - C_5_6 * ne * nC5
   
-  Lamb = Lambda(T, nH, nH0, nHe0, nHep, nC, nC0)
+  Lamb = Lambda(T, nH, nH0, nHe0, nHep, nC, nC0, nC1, nC2, nC3, nC4, nC5)
   
-  ntot = n_tot(nH, nH0, nHe0, nHep, nC, nC0)
-  
-  #------- Grassi et al - 2014 - eq. 8. - I excluded the nH2 (molecular) part. Add it if you consider molecules!!!!
-  #nHe = nHe0 + nHep + nHepp
-  #gamma = (5.*nH + 5.*nHe + 5.*ne) / (3.*nH + 3.*nHe + 3.*ne)
-  #print(gamma)
-  #-------
+  ntot = n_tot(nH, nH0, nHe0, nHep, nC, nC0, nC1, nC2, nC3, nC4, nC5)
 
   dT_dt = -1.0 * (gamma - 1.0) / kB / ntot * Lamb
   
-  return [dnH0_dt, dnHe0_dt, dnHep_dt, dnC0_dt, dT_dt]
+  return [dnH0_dt, dnHe0_dt, dnHep_dt, dnC0_dt, dnC1_dt, dnC2_dt, dnC3_dt, dnC4_dt, dnC5_dt, dT_dt]
 
 
 
@@ -309,7 +384,11 @@ nC = C_solar * nH
 
 print('nC (cm^-3) = ', nC)
 
-y0 = [1e-4, 1.3e-8, 4e-4, 0.1, 5e6]
+print()
+print('H, C before = ', nH, nC)
+
+#      nH0   nHe0   nHep   nC0  nC1    nC2   nC3   nC4  nC5    T
+y0 = [1e-4, 1.3e-8, 4e-4, 1e-5, 1e-5, 1e-5, 1e-2, 1e-2, 1e-2, 1e6]
 
 t_span = (1*3.16e7, 20000*3.16e7)
 
@@ -326,20 +405,26 @@ nH0 = y[0, :]
 nHe0 = y[1, :]
 nHep = y[2, :]
 nC0 = y[3, :]
-T = y[4, :]
+nC1 = y[4, :]
+nC2 = y[5, :]
+nC3 = y[6, :]
+nC4 = y[7, :]
+nC5 = y[8, :]
+nC6 = nC - (nC0 + nC1 + nC2 + nC3 + nC4 + nC5)
+T = y[9, :]
 
 yy = Y / 4.0 / (1.0 - Y) # Eq. 32 in Katz & Weinberg - 1996 (Y = 0.24, i.e. He mass fraction. X = 1.0 - Y)
 nHepp = (yy * nH - nHe0 - nHep)
 
 nHp = (nH - nH0)
-nCp = nC - nC0
 
 
 #----- Preparing cooling rate for plotting -----
-res = []
-for Tx, nH0x, nHe0x, nHepx, nC0x in zip(T, nH0, nHe0, nHep, nC0):
 
-  lmb = Lambda(Tx, nH, nH0x, nHe0x, nHepx, nC, nC0x)
+res = []
+for Tx, nH0x, nHe0x, nHepx, nC0x, nC1x, nC2x, nC3x, nC4x, nC5x in zip(T, nH0, nHe0, nHep, nC0, nC1, nC2, nC3, nC4, nC5):
+
+  lmb = Lambda(Tx, nH, nH0x, nHe0x, nHepx, nC, nC0x, nC1x, nC2x, nC3x, nC4x, nC5x)
   
   res.append([Tx, lmb])
 
@@ -348,15 +433,29 @@ res = np.array(res)
 Tx = res[:, 0]
 lmb = res[:, 1]
 
+
 #------ Result from "test_primordial_hdf5_v2.py" code -----
 with open('chimesRes.pkl', 'rb') as f:
   df = pickle.load(f)
 # dictx = {'t_Arr_in_yrs': t_Arr_in_yrs, 'TEvol': TEvol, 'nHe0': nHe0, 'nHep': nHep, 'nHepp': nHepp}
 t_Arr_in_yrsx = df['t_Arr_in_yrs']
 TEvolx = df['TEvol']
+nH0x = df['nH0']
+nHpx = df['nHp']
+nHx = nH0x + nHpx
 nHe0x = df['nHe0']
 nHepx = df['nHep']
 nHeppx = df['nHepp']
+nHeTotx = nHe0x + nHepx + nHeppx
+
+nC0x = df['nC0']
+nC1x = df['nC1']
+nC2x = df['nC2']
+nC3x = df['nC3']
+nC4x = df['nC4']
+nC5x = df['nC5']
+nC6x = df['nC6']
+nCx = nC0x + nC1x + nC2x + nC3x + nC4x + nC5x + nC6x
 #----------------------------------------------------------
 
 
@@ -365,18 +464,22 @@ plt.figure(figsize = (16, 14))
 plt.subplot(2, 3, 1)
 plt.scatter(t_yrs, np.log10(T), s = 5, color = 'k', label = 'my own code')
 plt.scatter(t_Arr_in_yrsx, np.log10(TEvolx), s = 2, color = 'orange', label = 'chimes result', linestyle = '--')
-plt.xlim(0, 20000)
+plt.xlim(0, 3000)
 plt.ylim(3, 8)
 plt.legend()
 
 plt.subplot(2, 3, 2)
-#plt.scatter(t_yrs, nHp, s = 5, color = 'k', label = 'nHp')
-#plt.scatter(t_yrs, nH0, s = 5, color = 'b', label = 'nH0')
-#plt.scatter(t_yrs, ne, s = 5, color = 'orange', label = 'ne')
 
-plt.scatter(t_yrs, nHe0, s = 5, color = 'orange', label = 'nHe0')
-plt.scatter(t_yrs, nHep, s = 5, color = 'lime', label = 'nHep')
-plt.scatter(t_yrs, nHepp, s = 5, color = 'yellow', label = 'nHepp')
+plt.plot(t_yrs, nHe0, color = 'r', label = 'nHe0')
+plt.plot(t_yrs, nHep, color = 'g', label = 'nHep')
+plt.plot(t_yrs, nHepp, color = 'b', label = 'nHepp')
+
+plt.plot(t_Arr_in_yrsx, nHe0x, color = 'r', label = 'nHe0 - chimes', linestyle = ':')
+plt.plot(t_Arr_in_yrsx, nHepx, color = 'g', label = 'nHep - chimes', linestyle = ':')
+plt.plot(t_Arr_in_yrsx, nHeppx, color = 'b', label = 'nHepp - chimes', linestyle = ':')
+
+plt.xlim(0, 5000)
+
 plt.yscale('log')
 plt.title('solve_ivp')
 plt.legend()
@@ -384,15 +487,22 @@ plt.legend()
 
 plt.subplot(2, 3, 3)
 nHeTot = nHe0 + nHep + nHepp
-#plt.plot(T, nH0/nH, label = 'nH0')
-#plt.plot(T, nHp/nH, label = 'nHp')
-plt.plot(T, nHe0/nHeTot, label = 'nHe0')
-plt.plot(T, nHep/nHeTot, label = 'nHep')
-plt.plot(T, nHepp/nHeTot,label = 'nHepp')
+plt.plot(T, nH0/nH, label = 'nH0', color = 'r')
+plt.plot(T, nHp/nH, label = 'nHp', color = 'g')
+plt.plot(T, nHe0/nHeTot, label = 'nHe0', color = 'b')
+plt.plot(T, nHep/nHeTot, label = 'nHep', color = 'orange')
+plt.plot(T, nHepp/nHeTot,label = 'nHepp', color = 'purple')
+
+plt.plot(TEvolx, nH0x/nHx, label = 'nH0 - chimes', color = 'r', linestyle = ':')
+plt.plot(TEvolx, nHpx/nHx, label = 'nHp - chimes', color = 'g', linestyle = ':')
+plt.plot(TEvolx, nHe0x/nHeTotx, label = 'nHe0 - chimes', color = 'b', linestyle = ':')
+plt.plot(TEvolx, nHepx/nHeTotx, label = 'nHep - chimes', color = 'orange', linestyle = ':')
+plt.plot(TEvolx, nHeppx/nHeTotx,label = 'nHepp - chimes', color = 'purple', linestyle = ':')
+
 plt.yscale('log')
 plt.xscale('log')
 plt.ylim(2e-3, 1.2)
-plt.xlim(1e4, 5e6)
+plt.xlim(1e4, 1e6)
 plt.legend()
 
 plt.subplot(2, 3, 4)
@@ -400,9 +510,34 @@ plt.scatter(np.log10(Tx), np.log10(lmb/nH/nH), s = 5, color = 'k')
 plt.xlim(3.5, 8.25)
 plt.ylim(-25, -21.5)
 
+print('nH after = ', nH)
+
+plt.subplot(2, 3, 5)
+plt.plot(T, nC0/nC, label = 'nC0', color = 'r')
+plt.plot(T, nC1/nC, label = 'nC1', color = 'g')
+plt.plot(T, nC2/nC, label = 'nC2', color = 'b')
+plt.plot(T, nC3/nC, label = 'nC3', color = 'orange')
+plt.plot(T, nC4/nC, label = 'nC4', color = 'purple')
+plt.plot(T, nC5/nC, label = 'nC5', color = 'lime')
+plt.plot(T, nC6/nC, label = 'nC6', color = 'pink')
+
+plt.plot(TEvolx, nC0x/nCx, label = 'nC0', color = 'r', linestyle = ':')
+plt.plot(TEvolx, nC1x/nCx, label = 'nC1', color = 'g', linestyle = ':')
+plt.plot(TEvolx, nC2x/nCx, label = 'nC2', color = 'b', linestyle = ':')
+plt.plot(TEvolx, nC3x/nCx, label = 'nC3', color = 'orange', linestyle = ':')
+plt.plot(TEvolx, nC4x/nCx, label = 'nC4', color = 'purple', linestyle = ':')
+plt.plot(TEvolx, nC5x/nCx, label = 'nC5', color = 'lime', linestyle = ':')
+plt.plot(TEvolx, nC6x/nCx, label = 'nC6', color = 'pink', linestyle = ':')
+
+plt.yscale('log')
+plt.xscale('log')
+plt.ylim(2e-3, 1.2)
+plt.xlim(1e4, 1e6)
+plt.legend()
+
 plt.tight_layout()
 
-plt.savefig('myOnlyH.png')
+plt.savefig('myHeH.png')
 
 plt.show()
 

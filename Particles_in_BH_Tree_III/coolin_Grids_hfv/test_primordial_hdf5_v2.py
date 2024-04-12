@@ -66,6 +66,14 @@ nHe0 = AbundanceEvolution[iTemp, inH, iZ, 4, :] * 10**densities[inH]
 nHep = AbundanceEvolution[iTemp, inH, iZ, 5, :] * 10**densities[inH]
 nHepp= AbundanceEvolution[iTemp, inH, iZ, 6, :] * 10**densities[inH]
 
+nC0= AbundanceEvolution[iTemp, inH, iZ, 7, :] * 10**densities[inH]
+nC1= AbundanceEvolution[iTemp, inH, iZ, 8, :] * 10**densities[inH]
+nC2= AbundanceEvolution[iTemp, inH, iZ, 9, :] * 10**densities[inH]
+nC3= AbundanceEvolution[iTemp, inH, iZ, 10, :] * 10**densities[inH]
+nC4= AbundanceEvolution[iTemp, inH, iZ, 11, :] * 10**densities[inH]
+nC5= AbundanceEvolution[iTemp, inH, iZ, 12, :] * 10**densities[inH]
+nC6= AbundanceEvolution[iTemp, inH, iZ, 13, :] * 10**densities[inH]
+
 print()
 print(f'nH0/nH = {(nH0[-1]/(nH0[-1]+nHp[-1])):.4f}, nHp/nH = {(nHp[-1]/(nH0[-1]+nHp[-1])):.4f}')
 print(f'log(nH0/nH) = {np.log10(nH0[-1]/(nH0[-1]+nHp[-1])):.4f}, log(nHp/nH) = {np.log10(nHp[-1]/(nH0[-1]+nHp[-1])):.4f}')
@@ -101,7 +109,8 @@ plt.scatter(t_Arr_in_yrs, nHepp, s = 5, color = 'yellow', label = 'nHepp')
 plt.yscale('log')
 plt.legend()
 
-dictx = {'t_Arr_in_yrs': t_Arr_in_yrs, 'TEvol': TEvol, 'nHe0': nHe0, 'nHep': nHep, 'nHepp': nHepp, 'nH0': nH0, 'nHp': nHp}
+dictx = {'t_Arr_in_yrs': t_Arr_in_yrs, 'TEvol': TEvol, 'nHe0': nHe0, 'nHep': nHep, 'nHepp': nHepp, 'nH0': nH0, 'nHp': nHp,
+         'nC0': nC0, 'nC1': nC1, 'nC2': nC2, 'nC3': nC3, 'nC4': nC4, 'nC5': nC5, 'nC6': nC6}
 
 with open('chimesRes.pkl', 'wb') as f:
   pickle.dump(dictx, f)

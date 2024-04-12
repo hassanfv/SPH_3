@@ -9,14 +9,14 @@ output_file    ./cooling_rates.hdf5
 UV_field       None
 dust_depletion None 
 
-log_T_min      2.0  
-log_T_max      9.0
+log_T_min      4.0  
+log_T_max      7.0
 delta_log_T    0.1
-log_nH_min     -4.0 
+log_nH_min     2.0 
 log_nH_max     4.0 
 delta_log_nH   1.0
-log_Z_min      -3.0 
-log_Z_max      -1.0
+log_Z_min      -2.0 
+log_Z_max       0.0
 delta_log_Z    1.0
 
 shield_length_factor  1.0 

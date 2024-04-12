@@ -306,12 +306,12 @@ nHeTotx = nHe0x + nHepx + nHeppx
 #----------------------------------------------------------
 
 
-plt.figure(figsize = (16, 8))
+plt.figure(figsize = (16, 14))
 
 plt.subplot(2, 3, 1)
 plt.scatter(t_yrs, np.log10(T), s = 5, color = 'k', label = 'my own code')
 plt.scatter(t_Arr_in_yrsx, np.log10(TEvolx), s = 2, color = 'orange', label = 'chimes result', linestyle = '--')
-plt.xlim(0, 5000)
+plt.xlim(0, 3000)
 plt.ylim(3, 8)
 plt.legend()
 

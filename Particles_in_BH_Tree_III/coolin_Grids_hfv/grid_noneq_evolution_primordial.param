@@ -16,8 +16,8 @@ delta_log_T    1.0
 log_nH_min     0.0 
 log_nH_max     4.0 
 delta_log_nH   1.0
-log_Z_min     -11.0 
-log_Z_max      0.0
+log_Z_min      0.0 
+log_Z_max      1.0
 delta_log_Z    1.0
 
 shield_length_factor  1.0 
@@ -35,7 +35,7 @@ relativeTolerance         1.0e-4
 absoluteTolerance         1.0e-10 
 explicitTolerance         0.05 
 scale_metal_tolerances    1 
-IncludeCarbon             0 
+IncludeCarbon             1
 IncludeNitrogen           0 
 IncludeOxygen             0 
 IncludeNeon               0 
