@@ -262,8 +262,8 @@ def g10(T):
 def Lambda(T, nH, nH0, nHe0, nHep, nC, nC0, nC1, nC2, nC3, nC4, nC5):
 
   nHp = nH - nH0
-  y = Y / 4.0 / (1.0 - Y) # Eq. 32 in Katz & Weinberg - 1996 (Y = 0.24, i.e. He mass fraction. X = 1.0 - Y)
-  nHepp = y * nH - nHe0 - nHep
+  #y = Y / 4.0 / (1.0 - Y) # Eq. 32 in Katz & Weinberg - 1996 (Y = 0.24, i.e. He mass fraction. X = 1.0 - Y)
+  nHepp = nHe - nHe0 - nHep
   
   nC6 = nC - (nC0 + nC1 + nC2 + nC3 + nC4 + nC5)
   
@@ -271,13 +271,11 @@ def Lambda(T, nH, nH0, nHe0, nHep, nC, nC0, nC1, nC2, nC3, nC4, nC5):
   
   C_0_1, C_1_2, C_2_3, C_3_4, C_4_5, C_5_6, C_1_0, C_2_1, C_3_2, C_4_3, C_5_4, C_6_5  = getCarbonRates(T, C_colIparams, C_RRparams)
   
-  ff_coeff = nC1 + 2**2*nC2 + 3**2*nC3 + 4**2*nC4 + 5**2*nC5 + 6**2*nC6
-  
   Lamb = (
            g1(T) * ne * nH0 # collisional ionization of hydrogen ::::::: (H0 + e ---> Hp + 2e).
          + g2(T)  * ne * nHp # photo-recombination of Hp with electron :: (Hp + e ---> H0 + γ).
          + g3(T)  * ne * nH0 # collisional excitaion of H0.
-         + g4(T) * ne * (nHp + nHep + 4.0 * nHepp + ff_coeff) # free-free emission !!!!!!!!! How to incorporate metals contribution??????????
+         + g4(T) * ne * (nHp + nHep + 4.0 * nHepp) # free-free emission !!!!!!!!!!!!!!!!!!!!!!!!!! How to incorporate metals contribution??????????
          + g5(T) * nHep * ne # collisional excitation of Hep.
          + g6(T) * nHe0 * ne # He0 collisional ionization
          + g7(T) * nHep * ne # Hep collisional ionization
@@ -324,8 +322,8 @@ def func(t, y):
   
   nC6 = nC - (nC0 + nC1 + nC2 + nC3 + nC4 + nC5)
   
-  y = Y / 4.0 / (1.0 - Y) # Eq. 32 in Katz & Weinberg - 1996 (Y = 0.24, i.e. He mass fraction. X = 1.0 - Y)
-  nHepp = y * nH - nHe0 - nHep
+  #y = Y / 4.0 / (1.0 - Y) # Eq. 32 in Katz & Weinberg - 1996 (Y = 0.24, i.e. He mass fraction. X = 1.0 - Y)
+  nHepp = nHe - nHe0 - nHep
   
   ne = nHp + (nHep + 2.0 * nHepp) + (nC1 + 2.0 * nC2 + 3.0 * nC3 + 4.0 * nC4 + 5.0 * nC5 + 6.0 * nC6)
   
@@ -359,16 +357,20 @@ Y = 1.0 - X
 
 nH = 1000.0
 
+He_solar = 10**(-1.07)
+nHe = He_solar * nH
+print('nHe (cm^-3) = ', nHe)
+
 C_solar = 10**(-3.57)
 nC = C_solar * nH
-
 print('nC (cm^-3) = ', nC)
 
 print()
 print('H, C before = ', nH, nC)
 
 #      nH0   nHe0   nHep   nC0  nC1    nC2   nC3   nC4  nC5    T
-y0 = [1e-4, 1.3e-8, 4e-4, 1e-5, 1e-5, 1e-5, 1e-2, 1e-2, 1e-2, 1e6]
+#y0 = [1e-4, 1.3e-8, 4e-4, 1e-5, 1e-5, 1e-5, 1e-2, 1e-2, 1e-2, 1e6]
+y0 = [5.0,    1.0,   2.0, 1e-2, 1e-2, 1e-2, 1e-2, 1e-2, 1e-2, 1e6]
 
 t_span = (1*3.16e7, 20000*3.16e7)
 
@@ -393,8 +395,8 @@ nC5 = y[8, :]
 nC6 = nC - (nC0 + nC1 + nC2 + nC3 + nC4 + nC5)
 T = y[9, :]
 
-yy = Y / 4.0 / (1.0 - Y) # Eq. 32 in Katz & Weinberg - 1996 (Y = 0.24, i.e. He mass fraction. X = 1.0 - Y)
-nHepp = (yy * nH - nHe0 - nHep)
+#yy = Y / 4.0 / (1.0 - Y) # Eq. 32 in Katz & Weinberg - 1996 (Y = 0.24, i.e. He mass fraction. X = 1.0 - Y)
+nHepp = nHe - nHe0 - nHep
 
 nHp = (nH - nH0)
 

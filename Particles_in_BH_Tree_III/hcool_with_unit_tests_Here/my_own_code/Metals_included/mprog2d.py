@@ -9,6 +9,7 @@ import matplotlib.pyplot as plt
 from scipy.integrate import solve_ivp
 from scipy.integrate import odeint
 import pickle
+import pandas as pd
 
 
 kB = 1.3807e-16 # erg/K
@@ -268,29 +269,31 @@ def Lambda(T, nH, nH0, nHe0, nHep, nC, nC0, nC1, nC2, nC3, nC4, nC5):
   nC6 = nC - (nC0 + nC1 + nC2 + nC3 + nC4 + nC5)
   
   ne = nHp + (nHep + 2.0 * nHepp) + (nC1 + 2.0 * nC2 + 3.0 * nC3 + 4.0 * nC4 + 5.0 * nC5 + 6.0 * nC6)
-  
-  C_0_1, C_1_2, C_2_3, C_3_4, C_4_5, C_5_6, C_1_0, C_2_1, C_3_2, C_4_3, C_5_4, C_6_5  = getCarbonRates(T, C_colIparams, C_RRparams)
-  
-  ff_coeff = nC1 + 2**2*nC2 + 3**2*nC3 + 4**2*nC4 + 5**2*nC5 + 6**2*nC6
+
+  nnt = closestx(Temp, T)
+  T = Temp[nnt]
   
   Lamb = (
            g1(T) * ne * nH0 # collisional ionization of hydrogen ::::::: (H0 + e ---> Hp + 2e).
          + g2(T)  * ne * nHp # photo-recombination of Hp with electron :: (Hp + e ---> H0 + γ).
          + g3(T)  * ne * nH0 # collisional excitaion of H0.
-         + g4(T) * ne * (nHp + nHep + 4.0 * nHepp + ff_coeff) # free-free emission !!!!!!!!! How to incorporate metals contribution??????????
+         + g4(T) * ne * (nHp + nHep + 4.0 * nHepp) # free-free emission !!!!!!!!!!!!!!!!!!!!!!!!!! How to incorporate metals contribution??????????
          + g5(T) * nHep * ne # collisional excitation of Hep.
          + g6(T) * nHe0 * ne # He0 collisional ionization
          + g7(T) * nHep * ne # Hep collisional ionization
          + g8(T) * nHep * ne # Hep recombination to He0
          + g9(T) * nHepp * ne# Hepp recombination to Hep
          + g10(T) * nHep * ne# Hep di-electric recombination to He0
-         + C_0_1 * ne * nC0 * C_IP[0] + C_1_0 * ne * nC1 * kB * T
-         + C_1_2 * ne * nC1 * C_IP[1] + C_2_1 * ne * nC2 * kB * T
-         + C_2_3 * ne * nC2 * C_IP[2] + C_3_2 * ne * nC3 * kB * T
-         + C_3_4 * ne * nC3 * C_IP[3] + C_4_3 * ne * nC4 * kB * T
-         + C_4_5 * ne * nC4 * C_IP[4] + C_5_4 * ne * nC5 * kB * T
-         + C_5_6 * ne * nC5 * C_IP[5] + C_6_5 * ne * nC6 * kB * T
+         + C0_LAMBDA[nnt] * ne * nC0
+         + C1_LAMBDA[nnt] * ne * nC1
+         + C2_LAMBDA[nnt] * ne * nC2
+         + C3_LAMBDA[nnt] * ne * nC3
+         + C4_LAMBDA[nnt] * ne * nC4
+         + C5_LAMBDA[nnt] * ne * nC5
+         + C6_LAMBDA[nnt] * ne * nC6
          )
+         
+  #print('XXXX = ', T, Temp[nnt], nnt, Lamb)
   return Lamb
 
 
@@ -312,6 +315,29 @@ def n_tot(nH, nH0, nHe0, nHep, nC, nC0, nC1, nC2, nC3, nC4, nC5):
   return ntot
 
 
+#----- closestx
+def closestx(arr, x0):
+  
+  nt = np.argmin(np.abs(arr - x0))
+  
+  return nt
+
+#--------------------------------
+file_path = 'CarbonCoolingRates.txt'
+df = pd.read_csv(file_path, delim_whitespace=True, skiprows=19) # Adjust skiprows as necessary
+df.columns = ['Temp', 'C0', 'C1', 'C2', 'C3', 'C4', 'C5', 'C6', 'CCIE-only-C']
+Temp = df['Temp'].values
+C0_LAMBDA = df['C0'].values
+C1_LAMBDA = df['C1'].values
+C2_LAMBDA = df['C2'].values
+C3_LAMBDA = df['C3'].values
+C4_LAMBDA = df['C4'].values
+C5_LAMBDA = df['C5'].values
+C6_LAMBDA = df['C6'].values
+#---------------------------------
+
+
+
 
 #-----------------------------------------
 #------ Solution of the ODE Section ------
@@ -319,6 +345,9 @@ def n_tot(nH, nH0, nHe0, nHep, nC, nC0, nC1, nC2, nC3, nC4, nC5):
 def func(t, y):
 
   nH0, nHe0, nHep, nC0, nC1, nC2, nC3, nC4, nC5, T = y
+  
+  nnt = closestx(Temp, T)
+  T = Temp[nnt]
   
   nHp = nH - nH0
   
@@ -347,6 +376,8 @@ def func(t, y):
   ntot = n_tot(nH, nH0, nHe0, nHep, nC, nC0, nC1, nC2, nC3, nC4, nC5)
 
   dT_dt = -1.0 * (gamma - 1.0) / kB / ntot * Lamb
+  
+  print('ZZZZ = ', T, nH, nH0, nHe0, nHep, nC, nC0, nC1, nC2, nC3, nC4, nC5)
   
   return [dnH0_dt, dnHe0_dt, dnHep_dt, dnC0_dt, dnC1_dt, dnC2_dt, dnC3_dt, dnC4_dt, dnC5_dt, dT_dt]
 
