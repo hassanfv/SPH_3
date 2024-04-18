@@ -1,5 +1,9 @@
 
+#Ref: https://www.youtube.com/watch?v=vNoFdtcPFdk
+
 import numpy as np
+import matplotlib.pyplot as plt
+import pickle
 
 #----------------------------------------------------------------------------------------------------------------------
 #----------------------------------------------------------------------------------------------------------------------
@@ -193,3 +197,126 @@ def n_tot(nH, nH0, nHe0, nHep):
   ntot = nH0 + nHp + nHe0 + nHep + nHepp + ne
   
   return ntot
+
+
+
+#===== rk4SingleStep
+def rk4SingleStep(func, dt, t0, y0):
+
+  f1 = func(t0, y0)
+  f2 = func(t0 + dt/2.0, y0 + (dt/2.0) * f1)
+  f3 = func(t0 + dt/2.0, y0 + (dt/2.0) * f2)
+  f4 = func(t0 + dt, y0 + dt * f3)
+  
+  yout = y0 + (dt / 6.0) * (f1 + 2.0 * f2 + 2.0 * f3 + f4)
+  
+  return yout
+
+
+
+#-----------------------------------------
+#------ Solution of the ODE Section ------
+#-----------------------------------------
+def func(t, y):
+
+  nH0, nHe0, nHep, T = y
+  
+  nHp = nH - nH0
+
+  nHepp = nHe - nHe0 - nHep
+  
+  ne = nHp + nHep + 2.0 * nHepp
+  
+  dnH0_dt = k2(T) * nHp * ne - k1(T) * nH0 * ne
+  
+  dnHe0_dt = k5(T) * nHep * ne + k7(T) * nHep * ne - k3(T) * nHe0 * ne
+  
+  dnHep_dt = k6(T) * nHepp * ne + k3(T) * nHe0 * ne - k4(T) * nHep * ne - k5(T) * nHep * ne - k7(T) * nHep * ne
+  
+  Lamb = Lambda(T, nH, nH0, nHe0, nHep)
+  
+  ntot = n_tot(nH, nH0, nHe0, nHep)
+
+  dT_dt = -1.0 * (gamma - 1.0) / kB / ntot * Lamb
+  
+  return np.array([dnH0_dt, dnHe0_dt, dnHep_dt, dT_dt])
+
+
+
+
+#----- p_interp
+def g_interp(Tref, T0, gx):
+
+  nt = -1
+  
+  N = len(Tref)
+  
+  for j in range(N):
+    
+    if (Tref[j] >= T0) & (nt == -1):
+      nt = j
+  
+  if nt == -1:
+    nt = N - 1 
+  
+  diff = Tref[nt] - Tref[nt - 1]
+  fhi = (T0 - Tref[nt - 1]) / diff
+  flow = 1.0 - fhi
+  
+  gnew = flow * np.log10(gx[nt - 1]) + fhi * np.log10(gx[nt])
+  
+  return 10**gnew
+  
+
+
+
+
+gamma = 5./3.
+kB = 1.3807e-16
+X = 0.76
+Y = 1.0 - X
+
+nH = 1000.0
+
+Tref = np.logspace(4, 8, 100)
+
+g1x = np.zeros(len(Tref))
+g2x = np.zeros(len(Tref))
+g3x = np.zeros(len(Tref))
+g4x = np.zeros(len(Tref))
+g5x = np.zeros(len(Tref))
+g6x = np.zeros(len(Tref))
+g7x = np.zeros(len(Tref))
+g8x = np.zeros(len(Tref))
+g9x = np.zeros(len(Tref))
+g10x = np.zeros(len(Tref))
+
+for i in range(len(Tref)):
+  g1x[i] = g1(Tref[i])
+  g2x[i] = g2(Tref[i])
+  g3x[i] = g3(Tref[i])
+  g4x[i] = g4(Tref[i])
+  g5x[i] = g5(Tref[i])
+  g6x[i] = g6(Tref[i])
+  g7x[i] = g7(Tref[i])
+  g8x[i] = g8(Tref[i])
+  g9x[i] = g9(Tref[i])
+  g10x[i] = g10(Tref[i])
+
+
+T0 = 11213.0
+g1new = g_interp(Tref, T0, g1x)
+
+print(T0, g1(T0), g1new)
+
+dictx = {'Tref': Tref, 'g1': g1x, 'g2': g2x, 'g3': g3x, 'g4': g4x, 'g5': g5x, 'g6': g6x, 'g7': g7x, 'g8': g8x, 'g9': g9x, 'g10': g10x}
+
+with open('HeH_cooling_rates.pkl', 'wb') as f:
+  pickle.dump(dictx, f)
+
+
+
+
+
+
+
