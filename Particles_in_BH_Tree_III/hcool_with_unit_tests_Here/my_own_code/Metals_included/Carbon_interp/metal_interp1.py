@@ -1,5 +1,4 @@
 
-# In this version (i.e. mprog1.1.py) I used technique in Draine book section 27.3.1 for recombination cooling rates (Thanks to T. Grassi).
 # This version (i.e. prog7.0.py) uses kB * T * k2(T) as the cooling due to recombination of Hp. We can convert recomb. rate to cooling rate by multiplying kB*T!
 # This version (i.e. prog6.0.py) also includs cooling due to He atom and ions.
 # This version also includes Free-Free cooling (So we have cooling due to Hydrogen atoms and free-free emission).
@@ -10,6 +9,8 @@ import matplotlib.pyplot as plt
 from scipy.integrate import solve_ivp
 from scipy.integrate import odeint
 import pickle
+import pandas as pd
+from scipy.interpolate import interp1d
 
 
 kB = 1.3807e-16 # erg/K
@@ -99,45 +100,6 @@ def getCarbonRates(T, C_colIparams, C_RRparams):
   return [
            C_0_1, C_1_2, C_2_3, C_3_4, C_4_5, C_5_6,
            C_1_0, C_2_1, C_3_2, C_4_3, C_5_4, C_6_5
-         ]
-
-
-
-#----- gamma_numeric
-def gamma_numeric(T, i, j, params): # Only scalar T
-  dT = T/10
-  T1 = T - dT
-  T2 = T + dT
-  return (np.log(RR_rate(T2, i, j, params)) - np.log(RR_rate(T1, i, j, params))) / (np.log(T2) - np.log(T1)) - 0.5
-
-
-#----- getKE_numeric
-def getKE_numeric(T, i, j, params):
-  gam = gamma_numeric(T, i, j, params)
-  return (2.0 + gam) * kB * T
-
-
-#----- getCarbonCoolingRates
-def getCarbonCoolingRates(T, C_colIparams, C_RRparams):
-
-  G_0_1 = phi_col(T, 0, 1, C_colIparams) * C_IP[0] # CI + e ---> CII + 2e
-  G_1_2 = phi_col(T, 1, 2, C_colIparams) * C_IP[1] # CII + e ---> CIII + 2e
-  G_2_3 = phi_col(T, 2, 3, C_colIparams) * C_IP[2] # CIII + e ---> CIV + 2e
-  G_3_4 = phi_col(T, 3, 4, C_colIparams) * C_IP[3] # CVI + e ---> CV + 2e
-  G_4_5 = phi_col(T, 4, 5, C_colIparams) * C_IP[4] # CV + e ---> CVI + 2e
-  G_5_6 = phi_col(T, 5, 6, C_colIparams) * C_IP[5] # CVI + e ---> CVII + 2e
-
-
-  G_1_0 = RR_rate(T, 1, 0, C_RRparams) * getKE_numeric(T, 1, 0, C_RRparams) # CII + e ---> CI + photon
-  G_2_1 = RR_rate(T, 2, 1, C_RRparams) * getKE_numeric(T, 2, 1, C_RRparams) # CIII + e ---> CII + photon
-  G_3_2 = RR_rate(T, 3, 2, C_RRparams) * getKE_numeric(T, 3, 2, C_RRparams) # CIV + e ---> CIII + photon
-  G_4_3 = RR_rate(T, 4, 3, C_RRparams) * getKE_numeric(T, 4, 3, C_RRparams) # CV + e ---> CIV + photon
-  G_5_4 = RR_rate(T, 5, 4, C_RRparams) * getKE_numeric(T, 5, 4, C_RRparams) # CVI + e ---> CV + photon
-  G_6_5 = RR_rate(T, 6, 5, C_RRparams) * getKE_numeric(T, 6, 5, C_RRparams) # CVII + e ---> CVI + photon
-
-  return [
-           G_0_1, G_1_2, G_2_3, G_3_4, G_4_5, G_5_6,
-           G_1_0, G_2_1, G_3_2, G_4_3, G_5_4, G_6_5
          ]
 
 
@@ -297,6 +259,28 @@ def g10(T):
 
 
 
+#--------------------------------
+file_path = 'CarbonCoolingRates.txt'
+df = pd.read_csv(file_path, delim_whitespace=True, skiprows=19) # Adjust skiprows as necessary
+df.columns = ['Temp', 'C0', 'C1', 'C2', 'C3', 'C4', 'C5', 'C6', 'CCIE-only-C']
+Temp = df['Temp'].values
+C0_LAMBDA = df['C0'].values
+C1_LAMBDA = df['C1'].values
+C2_LAMBDA = df['C2'].values
+C3_LAMBDA = df['C3'].values
+C4_LAMBDA = df['C4'].values
+C5_LAMBDA = df['C5'].values
+C6_LAMBDA = df['C6'].values
+#---------------------------------
+
+C_0_rate = interp1d(Temp, C0_LAMBDA, kind='linear', fill_value="extrapolate")
+C_1_rate = interp1d(Temp, C1_LAMBDA, kind='linear', fill_value="extrapolate")
+C_2_rate = interp1d(Temp, C2_LAMBDA, kind='linear', fill_value="extrapolate")
+C_3_rate = interp1d(Temp, C3_LAMBDA, kind='linear', fill_value="extrapolate")
+C_4_rate = interp1d(Temp, C4_LAMBDA, kind='linear', fill_value="extrapolate")
+C_5_rate = interp1d(Temp, C5_LAMBDA, kind='linear', fill_value="extrapolate")
+C_6_rate = interp1d(Temp, C6_LAMBDA, kind='linear', fill_value="extrapolate")
+
 
 # Total cooling rate in erg.s^-1.cm^-3 ===>NOTE that Hep and Hepp is excluded in free-free here as we are only considering H in this code!
 def Lambda(T, nH, nH0, nHe0, nHep, nC, nC0, nC1, nC2, nC3, nC4, nC5):
@@ -310,7 +294,6 @@ def Lambda(T, nH, nH0, nHe0, nHep, nC, nC0, nC1, nC2, nC3, nC4, nC5):
   ne = nHp + (nHep + 2.0 * nHepp) + (nC1 + 2.0 * nC2 + 3.0 * nC3 + 4.0 * nC4 + 5.0 * nC5 + 6.0 * nC6)
   
   C_0_1, C_1_2, C_2_3, C_3_4, C_4_5, C_5_6, C_1_0, C_2_1, C_3_2, C_4_3, C_5_4, C_6_5  = getCarbonRates(T, C_colIparams, C_RRparams)
-  G_0_1, G_1_2, G_2_3, G_3_4, G_4_5, G_5_6, G_1_0, G_2_1, G_3_2, G_4_3, G_5_4, G_6_5  = getCarbonCoolingRates(T, C_colIparams, C_RRparams)
   
   ff_coeff = nC1 + 2**2*nC2 + 3**2*nC3 + 4**2*nC4 + 5**2*nC5 + 6**2*nC6
   
@@ -325,12 +308,13 @@ def Lambda(T, nH, nH0, nHe0, nHep, nC, nC0, nC1, nC2, nC3, nC4, nC5):
          + g8(T) * nHep * ne # Hep recombination to He0
          + g9(T) * nHepp * ne# Hepp recombination to Hep
          + g10(T) * nHep * ne# Hep di-electric recombination to He0
-         + G_0_1 * ne * nC0 + G_1_0 * ne * nC1
-         + G_1_2 * ne * nC1 + G_2_1 * ne * nC2
-         + G_2_3 * ne * nC2 + G_3_2 * ne * nC3
-         + G_3_4 * ne * nC3 + G_4_3 * ne * nC4
-         + G_4_5 * ne * nC4 + G_5_4 * ne * nC5
-         + G_5_6 * ne * nC5 + G_6_5 * ne * nC6
+         + C_0_rate(T) * ne * nC0
+         + C_1_rate(T) * ne * nC1
+         + C_2_rate(T) * ne * nC2
+         + C_3_rate(T) * ne * nC3
+         + C_4_rate(T) * ne * nC4
+         + C_5_rate(T) * ne * nC5
+         + C_6_rate(T) * ne * nC6
          )
   return Lamb
 
@@ -390,11 +374,6 @@ def func(t, y):
   dT_dt = -1.0 * (gamma - 1.0) / kB / ntot * Lamb
   
   return [dnH0_dt, dnHe0_dt, dnHep_dt, dnC0_dt, dnC1_dt, dnC2_dt, dnC3_dt, dnC4_dt, dnC5_dt, dT_dt]
-
-
-
-
-
 
 
 
@@ -551,13 +530,13 @@ plt.plot(T, nC4/nC, label = 'nC4', color = 'purple')
 plt.plot(T, nC5/nC, label = 'nC5', color = 'lime')
 plt.plot(T, nC6/nC, label = 'nC6', color = 'pink')
 
-plt.plot(TEvolx, nC0x/nCx, color = 'r', linestyle = ':')
-plt.plot(TEvolx, nC1x/nCx, color = 'g', linestyle = ':')
-plt.plot(TEvolx, nC2x/nCx, color = 'b', linestyle = ':')
-plt.plot(TEvolx, nC3x/nCx, color = 'orange', linestyle = ':')
-plt.plot(TEvolx, nC4x/nCx, color = 'purple', linestyle = ':')
-plt.plot(TEvolx, nC5x/nCx, color = 'lime', linestyle = ':')
-plt.plot(TEvolx, nC6x/nCx, color = 'pink', linestyle = ':')
+plt.plot(TEvolx, nC0x/nCx, label = 'nC0', color = 'r', linestyle = ':')
+plt.plot(TEvolx, nC1x/nCx, label = 'nC1', color = 'g', linestyle = ':')
+plt.plot(TEvolx, nC2x/nCx, label = 'nC2', color = 'b', linestyle = ':')
+plt.plot(TEvolx, nC3x/nCx, label = 'nC3', color = 'orange', linestyle = ':')
+plt.plot(TEvolx, nC4x/nCx, label = 'nC4', color = 'purple', linestyle = ':')
+plt.plot(TEvolx, nC5x/nCx, label = 'nC5', color = 'lime', linestyle = ':')
+plt.plot(TEvolx, nC6x/nCx, label = 'nC6', color = 'pink', linestyle = ':')
 
 plt.yscale('log')
 plt.xscale('log')
