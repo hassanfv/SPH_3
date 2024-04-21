@@ -49,7 +49,7 @@ print()
 #print(np.sort(reactants[:, 0]))
 
 
-nt = np.where(reactants[:, 0] == 13)[0]   # Change the index here to see the reactions and products of that element
+nt = np.where(reactants[:, 0] == 7)[0]   # Change the index here to see the reactions and products of that element
 print('******** reactants ****************')
 print('nt = ', nt)
 print(reactants[nt, :])
