@@ -41,6 +41,10 @@ print()
 print(cooling_rates)
 print()
 
+C0_rates = cooling_rates[0, :]
+print('***************************')
+print('C0_rates.shape = ', C0_rates.shape)
+
 nt = np.where(coolants == 7)[0]   # Change the index here to see the reactions and products of that element
 print('******** coolants ****************')
 print('nt = ', nt)
