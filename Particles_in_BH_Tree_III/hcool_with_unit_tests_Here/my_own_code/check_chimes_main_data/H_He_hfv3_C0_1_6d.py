@@ -99,14 +99,14 @@ def C0_cooling_rate(T, nHI, nelec, nHII, Temp_4d, HIDensity_4d, elecDensity_4d, 
   nelec = np.log10(nelec)
   nHII = np.log10(nHII)
 
-  if T <= 4:
+  if T <= -4:
     C0_rates = rates_4d[0, :]
     interp_4d = RegularGridInterpolator((Temp_4d, HIDensity_4d, elecDensity_4d, HIIDensity_4d), C0_rates)
     res = interp_4d(np.array([T, nHI, nelec, nHII]))[0]
   else:
     C0_rates = rates_hiT_4d[0, :]
     interp_4d = interp1d(Temp_hiT_4d, C0_rates, kind='linear', fill_value="extrapolate")
-    res = interp_4d(T)
+    res = -10.0 + interp_4d(T)
 
   return res
 
@@ -117,14 +117,14 @@ def Cp_cooling_rate(T, nelec, Temp_2d, elecDensity_2d): # include Temp_hiT here 
   T = np.log10(T)
   nelec = np.log10(nelec)
 
-  if T <= 4:
+  if T <= -4:
     Cp_rates = rates_2d[0, :]
     interp_2d = RegularGridInterpolator((Temp_2d, elecDensity_2d), Cp_rates)
     res = interp_2d(np.array([T, nelec]))[0]
   else:
     Cp_rates = rates_hiT_2d[0, :]
     interp_2d = interp1d(Temp_hiT_2d, Cp_rates, kind='linear', fill_value="extrapolate")
-    res = interp_2d(T)
+    res = -10.0 + interp_2d(T)
 
   return res
 
@@ -256,7 +256,7 @@ He_solar = 10**(-1.07)
 nHe = He_solar * nH
 print('nHe (cm^-3) = ', nHe)
 
-y0 = [1e-6, 0.6e-6, 1e-6, 1e-9, 1e-5, 1e-5, 1e-5, 1e-5, 1e-5, 0.2, 1e6] #!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+y0 = [1e-6, 0.6e-6, 1e-6, 1e-5, 1e-4, 1e-4, 1e-4, 1e-4, 0.06, 0.20, 1e6] #!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 #y0 = [1e-3, 1.6e-6, 6e-3, 1e-7, 1e-7, 1e-4, 1e-4, 5e-2, 5e-2, 5e-2, 1e6] #!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
 t_span = (1*3.16e7, 5000*3.16e7)

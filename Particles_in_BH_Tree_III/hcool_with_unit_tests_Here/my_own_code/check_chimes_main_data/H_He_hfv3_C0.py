@@ -14,7 +14,9 @@ def Lambda(T, nH, nH0, nHe0, nHep, nC0):
   nHp = nH - nH0
   nHepp = nHe - nHe0 - nHep
   
-  ne = nHp + nHep + 2.0 * nHepp
+  nC1 = nC - nC0
+  
+  ne = nHp + nHep + 2.0 * nHepp + nC1
   
   Lamb = (
            10**g1(Tx) * ne * nH0  # H0
@@ -23,21 +25,24 @@ def Lambda(T, nH, nH0, nHe0, nHep, nC0):
          + 10**g4(Tx) * nHep * ne # Hep 
          + 10**g5(Tx) * nHepp * ne# Hepp
          + 10**C0_cooling_rate(T, nH0, ne, nHp, Temp_4d, HIDensity_4d, elecDensity_4d, HIIDensity_4d) * nC0 * ne # cooling via C0
+         + 10**Cp_cooling_rate(T, ne, Temp_2d, elecDensity_2d) * nC1 * ne # cooling via Cp or C1
         )
   
   return Lamb
 
 
 #----- n_tot
-def n_tot(nH, nH0, nHe0, nHep, nC):
+def n_tot(nH, nH0, nHe0, nHep, nC0):
   
   nHp = nH - nH0
 
   nHepp = nHe - nHe0 - nHep
   
-  ne = nHp + nHep + 2.0 * nHepp
+  nC1 = nC - nC0
   
-  ntot = nH0 + nHp + nHe0 + nHep + nHepp + ne + nC
+  ne = nHp + nHep + 2.0 * nHepp + nC1
+  
+  ntot = nH0 + nHp + nHe0 + nHep + nHepp + ne + nC0 + nC1
   
   return ntot
 
@@ -56,7 +61,9 @@ def func(t, y):
 
   nHepp = nHe - nHe0 - nHep
   
-  ne = nHp + nHep + 2.0 * nHepp
+  nC1 = nC - nC0
+  
+  ne = nHp + nHep + 2.0 * nHepp + nC1
   
   dnH0_dt = 10**k2(Tx) * nHp * ne - 10**k1(Tx) * nH0 * ne
   
@@ -64,13 +71,13 @@ def func(t, y):
   
   dnHep_dt = 10**k6(Tx) * nHepp * ne + 10**k3(Tx) * nHe0 * ne - 10**k4(Tx) * nHep * ne - 10**k5(Tx) * nHep * ne
   
-  dnC0_dt = -10**C_0_1(Tx) * ne * nC0
+  dnC0_dt = 10**C_1_0(Tx) * ne * nC1 - 10**C_0_1(Tx) * ne * nC0
   
-  print(T, Tx, dnH0_dt, dnHe0_dt, dnHep_dt, dnC0_dt, -10**C_0_1(Tx))
+  #print(T, Tx, dnH0_dt, dnHe0_dt, dnHep_dt, dnC0_dt, -10**C_0_1(Tx))
   
   Lamb = Lambda(T, nH, nH0, nHe0, nHep, nC0)
   
-  ntot = n_tot(nH, nH0, nHe0, nHep, nC)
+  ntot = n_tot(nH, nH0, nHe0, nHep, nC0)
 
   dT_dt = -1.0 * (gamma - 1.0) / kB / ntot * Lamb
   
@@ -96,6 +103,25 @@ def C0_cooling_rate(T, nHI, nelec, nHII, Temp_4d, HIDensity_4d, elecDensity_4d, 
     res = interp_4d(T)
 
   return res
+
+
+#----- Cp_cooling_rate 
+def Cp_cooling_rate(T, nelec, Temp_2d, elecDensity_2d): # include Temp_hiT here !!!!!!!!!!!
+
+  T = np.log10(T)
+  nelec = np.log10(nelec)
+
+  if T <= 4:
+    Cp_rates = rates_2d[0, :]
+    interp_2d = RegularGridInterpolator((Temp_2d, elecDensity_2d), Cp_rates)
+    res = interp_2d(np.array([T, nelec]))[0]
+  else:
+    Cp_rates = rates_hiT_2d[0, :]
+    interp_2d = interp1d(Temp_hiT_2d, Cp_rates, kind='linear', fill_value="extrapolate")
+    res = interp_2d(T)
+
+  return res
+
 
 
 with h5py.File('chimes_main_data.hdf5', 'r') as file:
@@ -167,13 +193,10 @@ g5 = interp1d(Temp, g5x, kind='linear', fill_value="extrapolate")
 
 
 C_0_1x = rates[220, :]
+C_1_0x = rates[216, :]
 C_0_1 = interp1d(Temp, C_0_1x, kind='linear', fill_value="extrapolate")
+C_1_0 = interp1d(Temp, C_1_0x, kind='linear', fill_value="extrapolate")
 
-
-plt.plot(Temp, C_0_1x)
-plt.ylim(-24, -17)
-plt.show()
-s()
 
 gamma = 5./3.
 kB = 1.3807e-16
@@ -189,13 +212,13 @@ He_solar = 10**(-1.07)
 nHe = He_solar * nH
 print('nHe (cm^-3) = ', nHe)
 
-y0 = [1e-3, 1.6e-6, 6e-3, nC, 1e6]
+y0 = [1e-3, 1.6e-6, 6e-3, 1e-6, 1e6]
 
 print('nC = ', nC)
 
 t_span = (1*3.16e7, 5000*3.16e7)
 
-solution = solve_ivp(func, t_span, y0, method='LSODA', dense_output=True)
+solution = solve_ivp(func, t_span, y0, method='LSODA', max_step = 1e6, dense_output=True)
 
 t = np.linspace(t_span[0], t_span[1], 5000) # This 10000 is not years, it is the number of points in linspace !!!!
 y = solution.sol(t)
@@ -209,7 +232,7 @@ nHe0 = y[1, :]
 nHep = y[2, :]
 nC0 = y[3, :]
 
-#print('nC0 = ', nC0)
+print('nC0 = ', nC0)
 print()
 
 nHepp = nHe - nHe0 - nHep

@@ -285,6 +285,21 @@ nC5 = y[8, :]
 nC6 = nC - (nC0 + nC1 + nC2 + nC3 + nC4 + nC5)
 T = y[9, :]
 
+print(nC0)
+print()
+print(nC1)
+print()
+print(nC2)
+print()
+print(nC3)
+print()
+print(nC4)
+print()
+print(nC5)
+print()
+print(nC6)
+print()
+
 yy = Y / 4.0 / (1.0 - Y) # Eq. 32 in Katz & Weinberg - 1996 (Y = 0.24, i.e. He mass fraction. X = 1.0 - Y)
 nHepp = (yy * nH - nHe0 - nHep)
 

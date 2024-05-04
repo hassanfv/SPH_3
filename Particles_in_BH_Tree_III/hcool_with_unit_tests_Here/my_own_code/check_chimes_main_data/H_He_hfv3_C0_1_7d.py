@@ -164,10 +164,10 @@ def C0_cooling_rate(T, nHI, nelec, nHII, Temp_4d, HIDensity_4d, elecDensity_4d, 
   nelec = np.log10(nelec)
   nHII = np.log10(nHII)
 
-  if T <= 4:
+  if T <= -4:
     C0_rates = rates_4d[0, :]
     interp_4d = RegularGridInterpolator((Temp_4d, HIDensity_4d, elecDensity_4d, HIIDensity_4d), C0_rates)
-    res = -25.0#interp_4d(np.array([T, nHI, nelec, nHII]))[0]
+    res = interp_4d(np.array([T, nHI, nelec, nHII]))[0]
   else:
     C0_rates = rates_hiT_4d[0, :]
     interp_4d = interp1d(Temp_hiT_4d, C0_rates, kind='linear', fill_value="extrapolate")
@@ -182,7 +182,7 @@ def Cp_cooling_rate(T, nelec, Temp_2d, elecDensity_2d): # include Temp_hiT here 
   T = np.log10(T)
   nelec = np.log10(nelec)
 
-  if T <= 4:
+  if T <= -4:
     Cp_rates = rates_2d[0, :]
     interp_2d = RegularGridInterpolator((Temp_2d, elecDensity_2d), Cp_rates)
     res = interp_2d(np.array([T, nelec]))[0]
@@ -292,19 +292,19 @@ def getCarbonRates(T, C_colIparams, C_RRparams):
   C_5_4 = RR_rate(T, 5, 4, C_RRparams) # CVI + e ---> CV + photon
   C_6_5 = RR_rate(T, 6, 5, C_RRparams) # CVII + e ---> CVI + photon
 
-  return C_2_1
+  return C_6_5
 
 
 T = 10**Temp
 Cxy = getCarbonRates(T, C_colIparams, C_RRparams)
 
-
-plt.plot(Temp, C_2_1x, color = 'k')
+'''
+plt.plot(Temp, C_6_5x, color = 'k')
 plt.plot(Temp, np.log10(Cxy+1e-40), color = 'lime', linestyle = '--')
 plt.ylim(-17, -7)
 plt.show()
 s()
-
+'''
 
 C_0_1 = interp1d(Temp, C_0_1x, kind='linear', fill_value="extrapolate")
 C_1_0 = interp1d(Temp, C_1_0x, kind='linear', fill_value="extrapolate")
@@ -351,13 +351,13 @@ nHe = He_solar * nH
 print('nHe (cm^-3) = ', nHe)
 
 #y0 = [1e-6, 0.6e-6, 0e-3, 0e-7, 0e-7, 0e-4, 0e-4, 0e-2, 0e-2, 0e-2, 1e6] #!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-y0 = [1e-2, 1.6e-3, 6e-2, nC/8, 0/8, 0/8, 0/8, 0/8, 0/8, 0/8, 1e6] #!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+y0 = [1e-2, 1.6e-3, 6e-2, nC/7, nC/7, nC/7, nC/7, nC/7, nC/7, nC/7, 1e6] #!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
-t_span = (1*3.16e7, 3000*3.16e7)
+t_span = (1*3.16e7, 2000*3.16e7)
 
 solution = solve_ivp(func, t_span, y0, method='LSODA', dense_output=True)
 
-t = np.linspace(t_span[0], t_span[1], 3000) # This 10000 is not years, it is the number of points in linspace !!!!
+t = np.linspace(t_span[0], t_span[1], 2000) # This 10000 is not years, it is the number of points in linspace !!!!
 y = solution.sol(t)
 
 print(y.shape)
@@ -423,7 +423,7 @@ lmb = res[:, 1]
 
 
 #------ Result from "test_primordial_hdf5_v2.py" code -----
-with open('chimesRes.pkl', 'rb') as f:
+with open('chimesRes_C.pkl', 'rb') as f:
   df = pickle.load(f)
 # dictx = {'t_Arr_in_yrs': t_Arr_in_yrs, 'TEvol': TEvol, 'nHe0': nHe0, 'nHep': nHep, 'nHepp': nHepp}
 t_Arr_in_yrsx = df['t_Arr_in_yrs']
@@ -453,7 +453,7 @@ plt.figure(figsize = (16, 8))
 plt.subplot(2, 3, 1)
 plt.scatter(t_yrs, np.log10(T), s = 5, color = 'k', label = 'my own code')
 plt.scatter(t_Arr_in_yrsx, np.log10(TEvolx), s = 2, color = 'orange', label = 'chimes result', linestyle = '--')
-plt.xlim(0, 3000)
+plt.xlim(0, 2000)
 plt.ylim(3, 8)
 plt.legend()
 

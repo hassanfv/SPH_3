@@ -1,3 +1,6 @@
+
+# The difference with H_He_hfv3_C0_1_6.py is that here we also plot Carbon ionic ratios.
+
 import h5py
 import numpy as np
 import matplotlib.pyplot as plt
@@ -102,7 +105,7 @@ def C0_cooling_rate(T, nHI, nelec, nHII, Temp_4d, HIDensity_4d, elecDensity_4d, 
   if T <= 4:
     C0_rates = rates_4d[0, :]
     interp_4d = RegularGridInterpolator((Temp_4d, HIDensity_4d, elecDensity_4d, HIIDensity_4d), C0_rates)
-    res = -25.0#interp_4d(np.array([T, nHI, nelec, nHII]))[0]
+    res = interp_4d(np.array([T, nHI, nelec, nHII]))[0]
   else:
     C0_rates = rates_hiT_4d[0, :]
     interp_4d = interp1d(Temp_hiT_4d, C0_rates, kind='linear', fill_value="extrapolate")
@@ -211,12 +214,6 @@ C_5_6x = rates[226, :]
 C_6_5x = rates[241, :]
 
 
-plt.plot(Temp, C_1_2x, color = 'lime')
-plt.ylim(-12, -6)
-plt.show()
-s()
-
-
 C_0_1 = interp1d(Temp, C_0_1x, kind='linear', fill_value="extrapolate")
 C_1_0 = interp1d(Temp, C_1_0x, kind='linear', fill_value="extrapolate")
 C_1_2 = interp1d(Temp, C_1_2x, kind='linear', fill_value="extrapolate")
@@ -262,11 +259,11 @@ nHe = He_solar * nH
 print('nHe (cm^-3) = ', nHe)
 
 #y0 = [1e-6, 0.6e-6, 0e-3, 0e-7, 0e-7, 0e-4, 0e-4, 0e-2, 0e-2, 0e-2, 1e6] #!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-y0 = [1e-2, 1.6e-3, 6e-2, nC/8, 0/8, 0/8, 0/8, 0/8, 0/8, 0/8, 1e6] #!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+y0 = [1e-2, 1.6e-3, 6e-2, nC/7, nC/7, nC/7, nC/7, nC/7, nC/7, nC/7, 1e6] #!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
 t_span = (1*3.16e7, 3000*3.16e7)
 
-solution = solve_ivp(func, t_span, y0, method='LSODA', dense_output=True)
+solution = solve_ivp(func, t_span, y0, method='LSODA', max_step = 1e6, dense_output=True)
 
 t = np.linspace(t_span[0], t_span[1], 3000) # This 10000 is not years, it is the number of points in linspace !!!!
 y = solution.sol(t)
