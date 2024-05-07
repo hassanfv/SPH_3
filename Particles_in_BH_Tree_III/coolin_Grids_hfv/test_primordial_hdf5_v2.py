@@ -59,6 +59,8 @@ print('Z = ', metallicities[iZ])
 
 TEvol = TemperatureEvolution[iTemp, inH, iZ, :]
 
+nelec = AbundanceEvolution[iTemp, inH, iZ, 0, :] * 10**densities[inH]
+
 nH0 = AbundanceEvolution[iTemp, inH, iZ, 1, :] * 10**densities[inH]
 nHp = AbundanceEvolution[iTemp, inH, iZ, 2, :] * 10**densities[inH]
 
@@ -77,6 +79,8 @@ nC6= AbundanceEvolution[iTemp, inH, iZ, 13, :] * 10**densities[inH]
 print()
 print(f'nH0/nH = {(nH0[-1]/(nH0[-1]+nHp[-1])):.4f}, nHp/nH = {(nHp[-1]/(nH0[-1]+nHp[-1])):.4f}')
 print(f'log(nH0/nH) = {np.log10(nH0[-1]/(nH0[-1]+nHp[-1])):.4f}, log(nHp/nH) = {np.log10(nHp[-1]/(nH0[-1]+nHp[-1])):.4f}')
+print()
+print(f'sort nelec = {np.sort(nelec)}')
 print()
 
 
