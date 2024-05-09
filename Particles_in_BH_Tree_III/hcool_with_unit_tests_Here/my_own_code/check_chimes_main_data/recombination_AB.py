@@ -135,6 +135,9 @@ with h5py.File('chimes_main_data.hdf5', 'r') as file:
   rateCaseA = file['recombination_AB/rates_caseA'][:]
   print('rateCaseA.shape', rateCaseA.shape)
   
+  rateCaseB = file['recombination_AB/rates_caseB'][:]
+  print('rateCaseB.shape', rateCaseB.shape)
+  
   Temp = file['TableBins/Temperatures'][:]
   print('Temp.shape', Temp.shape)
   print()
@@ -166,6 +169,9 @@ print('-------------------')
 
 rateA_HII = rateCaseA[0, :]
 rateA_HeII = rateCaseA[1, :]
+
+rateB_HII = rateCaseB[0, :]
+rateB_HeII = rateCaseB[1, :]
 
 
 #-------> Cent - 1992 <-------
@@ -213,17 +219,21 @@ plt.figure(figsize = (14, 6))
 plt.subplot(1, 2, 1)
 plt.scatter(Temp, rateA_HII, color = 'k', s = 3, label = 'HII + e ---> HI + 2e')
 plt.scatter(Temp, rateA_HeII, color = 'b',s = 3, label = 'HeII + e ---> HeI + 2e')
+
+plt.plot(Temp, rateB_HII, color = 'k', label = 'Case B - HII + e ---> HI + 2e', linestyle = '--')
+plt.plot(Temp, rateB_HeII, color = 'b', label = 'Case B - HeII + e ---> HeI + 2e', linestyle = '--')
+
 #plt.scatter(Temp, r_HII, color = 'orange', s = 3, label = 'RR_HII from Cen - 1992')
 #plt.scatter(Temp, r_HeII, color = 'lime', s = 3, label = 'RR_HeII from Cen - 1992')
 plt.legend()
 
 
 plt.subplot(1, 2, 2)
-plt.scatter(Temp, G_H, color = 'k', s = 3, label = 'cooling vis H')
+plt.scatter(Temp, G_H, color = 'k', s = 3, label = 'cooling via H')
 plt.scatter(Temp, G_He, color = 'b',s = 3, label = 'cooling via He')
 
-plt.scatter(Temp, gH, color = 'orange', s = 3, label = 'Cen-1992 - cooling vis H')
-plt.scatter(Temp, gHe, color = 'lime', s = 3, label = 'Cen-1992 - cooling vis He')
+plt.scatter(Temp, gH, color = 'orange', s = 3, label = 'Cen-1992 - cooling via H')
+plt.scatter(Temp, gHe, color = 'lime', s = 3, label = 'Cen-1992 - cooling via He')
 
 plt.legend()
 

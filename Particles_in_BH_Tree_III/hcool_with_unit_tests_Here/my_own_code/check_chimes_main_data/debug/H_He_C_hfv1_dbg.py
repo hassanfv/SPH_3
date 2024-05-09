@@ -144,14 +144,15 @@ with h5py.File('chimes_main_data.hdf5', 'r') as file:
   HIIDensity_4d = file['TableBins/cool_4d_HIIDensities'][:] # only used for low T
   rates_4d = file['cooling/rates_4d'][:] # NOTE it is rates_4d for low Temp
   
-  print(Temp_4d)
-  print()
-  print(HIDensity_4d)
-  print()
-  print(elecDensity_4d)
-  print()
-  print(HIIDensity_4d)
-  print()
+  if False:
+    print(Temp_4d)
+    print()
+    print(HIDensity_4d)
+    print()
+    print(elecDensity_4d)
+    print()
+    print(HIIDensity_4d)
+    print()
   
   
   #-------- hiT_4d ---------------
@@ -262,7 +263,7 @@ print('H, C before = ', nH, nC)
 #      nH0   nHe0   nHep   nC0  nC1    nC2   nC3   nC4  nC5    T
 y0 = [1e-4, 1.3e-8, 4e-4, 1e-5, 1e-5, 1e-5, 1e-2, 1e-2, 1e-2, 1e6]
 
-t_span = (1*3.16e7, 1150*3.16e7)
+t_span = (1*3.16e7, 2000*3.16e7)
 
 solution = solve_ivp(func, t_span, y0, method='LSODA', dense_output=True)
 
@@ -346,6 +347,13 @@ nCx = nC0x + nC1x + nC2x + nC3x + nC4x + nC5x + nC6x
 #----------------------------------------------------------
 
 
+ne = nHp + (nHep + 2.0 * nHepp) + (nC1 + 2.0 * nC2 + 3.0 * nC3 + 4.0 * nC4 + 5.0 * nC5 + 6.0 * nC6)
+#nCC = (nC0 + nC1 + nC2 + nC3 + nC4 + nC5 + nC6)
+print('nH after = ', nH)
+print('sort ne after (one ne for each T) = ', np.sort(ne))
+#print('nC after (one nC for each T) = ', nCC)
+
+
 ne = nHp + (nHep + 2.0 * nHepp) #+ (nC1 + 2.0 * nC2 + 3.0 * nC3 + 4.0 * nC4 + 5.0 * nC5 + 6.0 * nC6)
 nex = nHpx + (nHepx + 2.0 * nHeppx) + (nC1x + 2.0 * nC2x + 3.0 * nC3x + 4.0 * nC4x + 5.0 * nC5x + 6.0 * nC6x)
 plt.scatter(t_yrs, ne, s = 5, color = 'k')
@@ -406,7 +414,7 @@ plt.plot(TEvolx, nHeppx/nHeTotx,label = 'nHepp - chimes', color = 'purple', line
 
 plt.yscale('log')
 plt.xscale('log')
-plt.ylim(2e-3, 1.2)
+#plt.ylim(1e-5, 1.2)
 plt.xlim(1e4, 1e6)
 plt.legend()
 
@@ -415,11 +423,6 @@ plt.scatter(np.log10(Tx), np.log10(lmb/nH/nH), s = 5, color = 'k')
 plt.xlim(3.5, 8.25)
 plt.ylim(-25, -21.5)
 
-ne = nHp + (nHep + 2.0 * nHepp) + (nC1 + 2.0 * nC2 + 3.0 * nC3 + 4.0 * nC4 + 5.0 * nC5 + 6.0 * nC6)
-#nCC = (nC0 + nC1 + nC2 + nC3 + nC4 + nC5 + nC6)
-print('nH after = ', nH)
-print('sort ne after (one ne for each T) = ', np.sort(ne))
-#print('nC after (one nC for each T) = ', nCC)
 
 plt.subplot(2, 3, 5)
 plt.plot(T, nC0/nC, label = 'nC0', color = 'r')
@@ -440,9 +443,9 @@ plt.plot(TEvolx, nC6x/nCx, color = 'pink', linestyle = ':')
 
 plt.yscale('log')
 plt.xscale('log')
-plt.ylim(2e-3, 1.2)
+#plt.ylim(1e-5, 1.2)
 plt.xlim(1e4, 1e6)
-plt.legend()
+#plt.legend()
 
 plt.tight_layout()
 

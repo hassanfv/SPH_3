@@ -1,5 +1,6 @@
 import h5py
 import numpy as np
+import matplotlib.pyplot as plt
 
 
 elmList = [
@@ -23,51 +24,29 @@ elmList = [
           ]
 
 
-
-# Open the HDF5 file
+#-----------------------------------------------------------
+#------------> Cooling rates from CHIMES table <------------
+#-----------------------------------------------------------
 with h5py.File('chimes_main_data.hdf5', 'r') as file:
 
-  N_reactions = file['reactants/N_reactions'][:]
-  print('N_reactions = ', N_reactions)
-  print()
-  
-  reactants = file['reactants/reactants'][:]
-  print("reactants.shape':", reactants.shape)
-  products = file['reactants/products'][:]
-  print("products.shape':", reactants.shape)
-  print()
+  coolants = file['cooling/coolants_2d'][:]
+  cooling_rates = file['cooling/rates_hiT_2d'][:]
 
-
-if False:
-  print('----> reactants <----')
-  print(reactants[:, :])
-  print()
-  print('----> products <----')
-  print(products[:, :])
-  print()
-
-
-#print(np.sort(reactants[:, 0]))
-
-
-nt = np.where(reactants[:, 0] == 1)[0]   # Change the index here to see the reactions and products of that element
-print('******** reactants ****************')
-print('nt = ', nt)
-print(reactants[nt, :])
-print('************************')
+print()
+print('coolants.shape: ', coolants.shape)
+print(coolants)
+print()
+print('cooling_rates.shape: ', cooling_rates.shape)
+print()
+print(cooling_rates)
 print()
 
-print('******** products ****************')
-print(products[nt, :])
+nt = np.where(coolants == 1)[0]   # Change the index here to see the reactions and products of that element
+print('******** coolants ****************')
+print('nt = ', nt)
+print(coolants[nt])
 print('************************')
-
-
-#i = 2
-#N = np.sum(reactants[i, :] != -1)
-#for j in range(N):
-#  print(f'Reactant_{i} = {elmList[reactants[i, j]]}')
-
-
+print()
 
 
 

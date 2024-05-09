@@ -1,3 +1,6 @@
+
+# The difference with H_He_C_hfv1.py is that here we include dnC6_dt !!
+
 import h5py
 import numpy as np
 import matplotlib.pyplot as plt
@@ -7,14 +10,14 @@ from scipy.integrate import solve_ivp
 import pickle
 
 # Total cooling rate in erg.s^-1.cm^-3 ===>NOTE that Hep and Hepp is excluded in free-free here as we are only considering H in this code!
-def Lambda(T, nH, nH0, nHe0, nHep, nC, nC0, nC1, nC2, nC3, nC4, nC5):
+def Lambda(T, nH, nH0, nHe0, nHep, nC, nC0, nC1, nC2, nC3, nC4, nC5, nC6):
 
   Tx = np.log10(T)
 
   nHp = nH - nH0
   nHepp = nHe - nHe0 - nHep
   
-  nC6 = nC - (nC0 + nC1 + nC2 + nC3 + nC4 + nC5)
+  #nC6 = nC - (nC0 + nC1 + nC2 + nC3 + nC4 + nC5)
   
   ne = nHp + (nHep + 2.0 * nHepp) + (nC1 + 2.0 * nC2 + 3.0 * nC3 + 4.0 * nC4 + 5.0 * nC5 + 6.0 * nC6)
   
@@ -24,8 +27,8 @@ def Lambda(T, nH, nH0, nHe0, nHep, nC, nC0, nC1, nC2, nC3, nC4, nC5):
          + 10**g3(Tx) * nHe0 * ne  # He0 
          + 10**g4(Tx) * nHep * ne  # Hep 
          + 10**g5(Tx) * nHepp * ne # Hepp
-         + 10**C0_cooling_rate(T, nH0, ne, nHp, Temp_4d, HIDensity_4d, elecDensity_4d, HIIDensity_4d) * nC0 * ne # cooling via C0
-         + 10**Cp_cooling_rate(T, ne, Temp_2d, elecDensity_2d) * nC1 * ne # cooling via Cp or C1
+         + 10**C0_cooling_rate(T, nH0, ne, nHp, Temp_4d, HIDensity_4d, elecDensity_4d, HIIDensity_4d) * nC0 # * ne # cooling via C0
+         + 10**Cp_cooling_rate(T, ne, Temp_2d, elecDensity_2d) * nC1 # * ne # cooling via Cp or C1
          + 10**gC2(Tx) * nC2 * ne # C2
          + 10**gC3(Tx) * nC3 * ne # C3
          + 10**gC4(Tx) * nC4 * ne # C4
@@ -37,13 +40,13 @@ def Lambda(T, nH, nH0, nHe0, nHep, nC, nC0, nC1, nC2, nC3, nC4, nC5):
 
 
 #----- n_tot
-def n_tot(nH, nH0, nHe0, nHep, nC, nC0, nC1, nC2, nC3, nC4, nC5):
+def n_tot(nH, nH0, nHe0, nHep, nC, nC0, nC1, nC2, nC3, nC4, nC5, nC6):
   
   nHp = nH - nH0
 
   nHepp = nHe - nHe0 - nHep
   
-  nC6 = nC - (nC0 + nC1 + nC2 + nC3 + nC4 + nC5)
+  #nC6 = nC - (nC0 + nC1 + nC2 + nC3 + nC4 + nC5)
   
   ne = nHp + (nHep + 2.0 * nHepp) + (nC1 + 2.0 * nC2 + 3.0 * nC3 + 4.0 * nC4 + 5.0 * nC5 + 6.0 * nC6)
   
@@ -61,14 +64,14 @@ def C0_cooling_rate(T, nHI, nelec, nHII, Temp_4d, HIDensity_4d, elecDensity_4d, 
   nelec = np.log10(nelec)
   nHII = np.log10(nHII)
 
-  if T <= 4:
+  if T <= -4:
     C0_rates = rates_4d[0, :]
     interp_4d = RegularGridInterpolator((Temp_4d, HIDensity_4d, elecDensity_4d, HIIDensity_4d), C0_rates)
     res = interp_4d(np.array([T, nHI, nelec, nHII]))[0]
   else:
     C0_rates = rates_hiT_4d[0, :]
     interp_4d = interp1d(Temp_hiT_4d, C0_rates, kind='linear', fill_value="extrapolate")
-    res = interp_4d(T)
+    res = np.log10(10**interp_4d(T) * 10**nelec)
 
   return res
 
@@ -79,14 +82,14 @@ def Cp_cooling_rate(T, nelec, Temp_2d, elecDensity_2d): # include Temp_hiT here 
   T = np.log10(T)
   nelec = np.log10(nelec)
 
-  if T <= 4:
+  if T <= -4:
     Cp_rates = rates_2d[0, :]
     interp_2d = RegularGridInterpolator((Temp_2d, elecDensity_2d), Cp_rates)
     res = interp_2d(np.array([T, nelec]))[0]
   else:
     Cp_rates = rates_hiT_2d[0, :]
     interp_2d = interp1d(Temp_hiT_2d, Cp_rates, kind='linear', fill_value="extrapolate")
-    res = interp_2d(T)
+    res = np.log10(10**interp_2d(T) * 10**nelec)
 
   return res
 
@@ -96,7 +99,7 @@ def Cp_cooling_rate(T, nelec, Temp_2d, elecDensity_2d): # include Temp_hiT here 
 #-----------------------------------------
 def func(t, y):
 
-  nH0, nHe0, nHep, nC0, nC1, nC2, nC3, nC4, nC5, T = y
+  nH0, nHe0, nHep, nC0, nC1, nC2, nC3, nC4, nC5, nC6, T = y
   
   Tx= np.log10(T)
   
@@ -104,7 +107,7 @@ def func(t, y):
 
   nHepp = nHe - nHe0 - nHep
   
-  nC6 = nC - (nC0 + nC1 + nC2 + nC3 + nC4 + nC5)
+  #nC6 = nC - (nC0 + nC1 + nC2 + nC3 + nC4 + nC5)
   
   ne = nHp + (nHep + 2.0 * nHepp) + (nC1 + 2.0 * nC2 + 3.0 * nC3 + 4.0 * nC4 + 5.0 * nC5 + 6.0 * nC6)
   
@@ -118,14 +121,15 @@ def func(t, y):
   dnC3_dt = 10**C_2_3(Tx) * ne * nC2 + 10**C_4_3(Tx) * ne * nC4 - 10**C_3_2(Tx) * ne * nC3 - 10**C_3_4(Tx) * ne * nC3
   dnC4_dt = 10**C_3_4(Tx) * ne * nC3 + 10**C_5_4(Tx) * ne * nC5 - 10**C_4_3(Tx) * ne * nC4 - 10**C_4_5(Tx) * ne * nC4
   dnC5_dt = 10**C_4_5(Tx) * ne * nC4 + 10**C_6_5(Tx) * ne * nC6 - 10**C_5_4(Tx) * ne * nC5 - 10**C_5_6(Tx) * ne * nC5
+  dnC6_dt = 10**C_5_6(Tx) * ne * nC5 - 10**C_6_5(Tx) * ne * nC6
   
-  Lamb = Lambda(T, nH, nH0, nHe0, nHep, nC, nC0, nC1, nC2, nC3, nC4, nC5)
+  Lamb = Lambda(T, nH, nH0, nHe0, nHep, nC, nC0, nC1, nC2, nC3, nC4, nC5, nC6)
   
-  ntot = n_tot(nH, nH0, nHe0, nHep, nC, nC0, nC1, nC2, nC3, nC4, nC5)
+  ntot = n_tot(nH, nH0, nHe0, nHep, nC, nC0, nC1, nC2, nC3, nC4, nC5, nC6)
 
   dT_dt = -1.0 * (gamma - 1.0) / kB / ntot * Lamb
   
-  return [dnH0_dt, dnHe0_dt, dnHep_dt, dnC0_dt, dnC1_dt, dnC2_dt, dnC3_dt, dnC4_dt, dnC5_dt, dT_dt]
+  return [dnH0_dt, dnHe0_dt, dnHep_dt, dnC0_dt, dnC1_dt, dnC2_dt, dnC3_dt, dnC4_dt, dnC5_dt, dnC6_dt, dT_dt]
 
 
 
@@ -242,8 +246,8 @@ gC6 = interp1d(Temp, gC6x, kind='linear', fill_value="extrapolate")
 
 gamma = 5./3.
 kB = 1.3807e-16
-X = 0.76
-Y = 1.0 - X
+#X = 0.76
+#Y = 1.0 - X
 
 nH = 1000.0
 
@@ -259,8 +263,9 @@ print('nC (cm^-3) = ', nC)
 print()
 print('H, C before = ', nH, nC)
 
-#      nH0   nHe0   nHep   nC0  nC1    nC2   nC3   nC4  nC5    T
-y0 = [1e-4, 1.3e-8, 4e-4, 1e-5, 1e-5, 1e-5, 1e-2, 1e-2, 1e-2, 1e6]
+#      nH0   nHe0   nHep   nC0  nC1    nC2   nC3   nC4  nC5   nC6    T
+y0 = [1e-4, 1.3e-8, 4e-4, 0./7., 0./7., 0./7., 0./7., 0./7., nC, 0./7., 1e6]
+#y0 = [1e-4, 1.3e-8, 4e-4, 1e-5, 1e-5, 1e-5, 1e-2, 2e-1, 1e-2, 1e-3, 1e6]
 
 t_span = (1*3.16e7, 2000*3.16e7)
 
@@ -282,39 +287,45 @@ nC2 = y[5, :]
 nC3 = y[6, :]
 nC4 = y[7, :]
 nC5 = y[8, :]
-nC6 = nC - (nC0 + nC1 + nC2 + nC3 + nC4 + nC5)
-T = y[9, :]
+nC6 = y[9, :] #nC - (nC0 + nC1 + nC2 + nC3 + nC4 + nC5)
+T = y[10, :]
 
-print(nC0)
+print('nC0 = ', nC0)
 print()
-print(nC1)
+print('nC1 = ', nC1)
 print()
-print(nC2)
+print('nC2 = ', nC2)
 print()
-print(nC3)
+print('nC3 = ', nC3)
 print()
-print(nC4)
+print('nC4 = ', nC4)
 print()
-print(nC5)
+print('nC5 = ', nC5)
 print()
-print(nC6)
-print()
-print()
-print('C_tot by summing up y0[3: 9] = ', np.sum(y0[3:9]))
+print('nC6 = ', nC6)
 print()
 
-yy = Y / 4.0 / (1.0 - Y) # Eq. 32 in Katz & Weinberg - 1996 (Y = 0.24, i.e. He mass fraction. X = 1.0 - Y)
-nHepp = (yy * nH - nHe0 - nHep)
+print('C_before = ', nC)
+print('C_tot after = ', ((nC0 + nC1 + nC2 + nC3 + nC4 + nC5 + nC6)))
+print('C_tot after SORTED = ', np.sort((nC0 + nC1 + nC2 + nC3 + nC4 + nC5 + nC6)))
+print()
+print('C_tot by summing up y0[3: 10] = ', np.sum(y0[3:10]))
+print()
+
+
+#yy = Y / 4.0 / (1.0 - Y) # Eq. 32 in Katz & Weinberg - 1996 (Y = 0.24, i.e. He mass fraction. X = 1.0 - Y)
+nHepp = (nHe - nHe0 - nHep)
 
 nHp = (nH - nH0)
+
 
 
 #----- Preparing cooling rate for plotting -----
 
 res = []
-for Tx, nH0x, nHe0x, nHepx, nC0x, nC1x, nC2x, nC3x, nC4x, nC5x in zip(T, nH0, nHe0, nHep, nC0, nC1, nC2, nC3, nC4, nC5):
+for Tx, nH0x, nHe0x, nHepx, nC0x, nC1x, nC2x, nC3x, nC4x, nC5x, nC6x in zip(T, nH0, nHe0, nHep, nC0, nC1, nC2, nC3, nC4, nC5, nC6):
 
-  lmb = Lambda(Tx, nH, nH0x, nHe0x, nHepx, nC, nC0x, nC1x, nC2x, nC3x, nC4x, nC5x)
+  lmb = Lambda(Tx, nH, nH0x, nHe0x, nHepx, nC, nC0x, nC1x, nC2x, nC3x, nC4x, nC5x, nC6x)
   
   res.append([Tx, lmb])
 
@@ -347,6 +358,18 @@ nC5x = df['nC5']
 nC6x = df['nC6']
 nCx = nC0x + nC1x + nC2x + nC3x + nC4x + nC5x + nC6x
 #----------------------------------------------------------
+
+
+
+ne = nHp + (nHep + 2.0 * nHepp) + (nC1 + 2.0 * nC2 + 3.0 * nC3 + 4.0 * nC4 + 5.0 * nC5 + 6.0 * nC6)
+nex = nHpx + (nHepx + 2.0 * nHeppx) + (nC1x + 2.0 * nC2x + 3.0 * nC3x + 4.0 * nC4x + 5.0 * nC5x + 6.0 * nC6x)
+
+plt.loglog(T, ne)
+plt.loglog(TEvolx, nex)
+plt.show()
+#s()
+
+
 
 
 plt.figure(figsize = (16, 8))
