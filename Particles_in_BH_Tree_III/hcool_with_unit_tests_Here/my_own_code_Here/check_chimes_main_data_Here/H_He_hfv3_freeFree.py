@@ -5,6 +5,17 @@ from scipy.interpolate import interp1d
 from scipy.integrate import solve_ivp
 import pickle
 
+# Cooling due to free-free emission ::: will be multiplied by (nHp+nHep+nHepp)*ne later in the code.
+def gfree(T):
+
+  gff = 1.1 + 0.34 * np.exp(-(5.5 - np.log10(T))**2/3.0)
+  g4_val = 1.42e-27 * gff * T**0.5
+  
+  return g4_val
+
+
+
+
 # Total cooling rate in erg.s^-1.cm^-3 ===>NOTE that Hep and Hepp is excluded in free-free here as we are only considering H in this code!
 def Lambda(T, nH, nH0, nHe0, nHep):
 
@@ -21,6 +32,7 @@ def Lambda(T, nH, nH0, nHe0, nHep):
          + 10**g3(Tx) * nHe0 * ne # He0 
          + 10**g4(Tx) * nHep * ne # Hep 
          + 10**g5(Tx) * nHepp * ne# Hepp
+         + gfree(T) * ne * (nHp + nHep + 4.0 * nHepp) # free-free emission
         )
   
   return Lamb
@@ -162,7 +174,7 @@ lmb = res[:, 1]
 
 
 #------ Result from "test_primordial_hdf5_v2.py" code -----
-with open('chimesRes.pkl', 'rb') as f:
+with open('chimesRes_H.pkl', 'rb') as f:
   df = pickle.load(f)
 # dictx = {'t_Arr_in_yrs': t_Arr_in_yrs, 'TEvol': TEvol, 'nHe0': nHe0, 'nHep': nHep, 'nHepp': nHepp}
 t_Arr_in_yrsx = df['t_Arr_in_yrs']

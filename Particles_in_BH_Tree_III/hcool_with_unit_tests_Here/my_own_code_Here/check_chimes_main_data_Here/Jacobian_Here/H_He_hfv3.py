@@ -147,6 +147,8 @@ nHp = (nH - nH0)
 
 print('tot He = ', nHe0 + nHep + nHepp)
 
+
+
 #----- Preparing cooling rate for plotting -----
 res = []
 for Tx, nH0x, nHe0x, nHepx in zip(T, nH0, nHe0, nHep):
@@ -162,7 +164,7 @@ lmb = res[:, 1]
 
 
 #------ Result from "test_primordial_hdf5_v2.py" code -----
-with open('chimesRes.pkl', 'rb') as f:
+with open('chimesRes_H.pkl', 'rb') as f:
   df = pickle.load(f)
 # dictx = {'t_Arr_in_yrs': t_Arr_in_yrs, 'TEvol': TEvol, 'nHe0': nHe0, 'nHep': nHep, 'nHepp': nHepp}
 t_Arr_in_yrsx = df['t_Arr_in_yrs']
@@ -223,10 +225,6 @@ plt.ylim(2e-3, 1.2)
 plt.xlim(1e4, 5e6)
 plt.legend()
 
-plt.subplot(2, 3, 4)
-plt.scatter(np.log10(Tx), np.log10(lmb/nH/nH), s = 5, color = 'k')
-plt.xlim(3.5, 8.25)
-plt.ylim(-25, -21.5)
 
 plt.tight_layout()
 
