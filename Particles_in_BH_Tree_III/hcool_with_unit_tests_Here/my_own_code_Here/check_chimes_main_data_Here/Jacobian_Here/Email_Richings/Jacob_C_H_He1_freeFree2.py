@@ -160,7 +160,7 @@ def Lambda(T, nH0, nHp, nHe0, nHep, nHepp, nC0, nC1, nC2, nC3, nC4, nC5, nC6):
         + 10**g3(Tx) * nHe0 * ne # He0 
         + 10**g4(Tx) * nHep * ne # Hep 
         + 10**g5(Tx) * nHepp * ne# Hepp
-        + 10**C0_cooling_rate(T, nH0, ne, nHp, Temp_4d, HIDensity_4d, elecDensity_4d, HIIDensity_4d) * nC0 * ne # cooling via C0
+        + 10**C0_cooling_rate(T, nH0, ne, nHp, Temp_4d, HIDensity_4d, elecDensity_4d, HIIDensity_4d) * nC0 * ne * 1./8. # cooling via C0
         + 10**Cp_cooling_rate(T, ne, Temp_2d, elecDensity_2d) * nC1 * ne # cooling via Cp or C1
         + 10**gC2(Tx) * nC2 * ne # C2
         + 10**gC3(Tx) * nC3 * ne # C3
@@ -197,11 +197,11 @@ def func(t, y):
 
 nH = 1000.0
 
-He_solar = 10**(-1.0) # See Table_1 in Wiersma et al - 2009, 393, 99–107
+He_solar = 10**(-1.07)
 nHe = He_solar * nH
 print('nHe (cm^-3) = ', nHe)
 
-C_solar = 10**(-3.61) # See Table_1 in Wiersma et al - 2009, 393, 99–107
+C_solar = 10**(-3.57)
 nC = C_solar * nH
 
 print('nC (cm^-3) = ', nC)
@@ -230,7 +230,6 @@ y0 = [nH0_i, nHp_i, nHe0_i, nHep_i, nHepp_i, nC0_i, nC1_i, nC2_i, nC3_i, nC4_i, 
 
 t_span = (1*3.16e7, 3000*3.16e7)
 
-#solution = solve_ivp(func, t_span, y0, method='LSODA', dense_output=True, max_step = 3.16e6)
 solution = solve_ivp(func, t_span, y0, method='LSODA', dense_output=True)
 #solution = solve_ivp(func, t_span, y0, method='LSODA', jac = jacobian, dense_output=True)
 
@@ -277,7 +276,7 @@ print()
 
 
 #------ Result from "test_primordial_hdf5_v2.py" code -----
-with open('chimesRes_C.pkl', 'rb') as f:
+with open('chimesRes.pkl', 'rb') as f:
   df = pickle.load(f)
 # dictx = {'t_Arr_in_yrs': t_Arr_in_yrs, 'TEvol': TEvol, 'nHe0': nHe0, 'nHep': nHep, 'nHepp': nHepp}
 t_Arr_in_yrsx = df['t_Arr_in_yrs']
@@ -312,6 +311,16 @@ plt.figure(figsize = (16, 8))
 plt.subplot(2, 3, 1)
 plt.scatter(t_yrs, np.log10(T), s = 5, color = 'k', label = 'my own code')
 plt.scatter(t_Arr_in_yrsx, np.log10(TEvolx), s = 2, color = 'orange', label = 'chimes result', linestyle = '--')
+
+plt.text(100, 2, 'C+6', color = 'pink', size = 15)
+plt.text(500, 2, 'C+5', color = 'lime', size = 15)
+plt.text(900, 2, 'C+4', color = 'purple', size = 15)
+plt.text(1300, 2, 'C+3', color = 'orange', size = 15)
+plt.text(1700, 2, 'C+2', color = 'b', size = 15)
+plt.text(2100, 2, 'C+1', color = 'g', size = 15)
+plt.text(2500, 2, 'C0', color = 'r', size = 15)
+
+
 plt.xlim(0, 3000)
 plt.ylim(1, 8)
 plt.legend()

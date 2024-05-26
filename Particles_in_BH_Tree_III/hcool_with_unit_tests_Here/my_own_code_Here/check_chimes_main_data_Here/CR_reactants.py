@@ -1,6 +1,5 @@
 import h5py
 import numpy as np
-import matplotlib.pyplot as plt
 
 
 elmList = [
@@ -24,29 +23,56 @@ elmList = [
           ]
 
 
-#print(len(elmList))
 
-#-----------------------------------------------------------
-#------------> Cooling rates from CHIMES table <------------
-#-----------------------------------------------------------
+# Open the HDF5 file
 with h5py.File('chimes_main_data.hdf5', 'r') as file:
 
-  reactants = file['constant/reactants'][:]
-  products = file['constant/products'][:]
-  rates = file['constant/rates'][:]
+  N_reactions = file['cosmic_ray/N_reactions'][:]
+  print('N_reactions = ', N_reactions)
+  print()
+  
+  reactants = file['cosmic_ray/reactants'][:]
+  print("reactants.shape':", reactants.shape)
+  products = file['cosmic_ray/products'][:]
+  print("products.shape':", reactants.shape)
+  print()
 
-print('------> reactants <-------------')
-print(reactants)
-print()
-print('------> products <-------------')
-print(products)
+  rates = file['cosmic_ray/rates'][:]
+  print('rates.shape = ', rates.shape)
+  print('rates = ', rates)
+  print()
 
-print()
-print('------> rates <-------')
-print(rates)
+if True:
+  print('----> reactants <----')
+  print(reactants)
+  print()
+  print('----> products <----')
+  print(products)
+  print()
+
+
+#print(np.sort(reactants[:, 0]))
+
+
+nt = np.where(reactants[:, 0] == 4)[0]   # Change the index here to see the reactions and products of that element
+print('******** reactants ****************')
+print('nt = ', nt)
+print(reactants[nt, :])
+print('************************')
 print()
 
-print()
-print(elmList[142])
-print(elmList[58])
+print('******** products ****************')
+print(products[nt, :])
+print('************************')
+
+
+#i = 2
+#N = np.sum(reactants[i, :] != -1)
+#for j in range(N):
+#  print(f'Reactant_{i} = {elmList[reactants[i, j]]}')
+
+
+
+
+
 

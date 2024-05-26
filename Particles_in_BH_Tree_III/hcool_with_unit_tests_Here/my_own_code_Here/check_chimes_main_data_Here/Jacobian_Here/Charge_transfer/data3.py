@@ -2,6 +2,7 @@ import h5py
 from scipy.interpolate import interp1d
 import numpy as np
 from scipy.interpolate import RegularGridInterpolator
+from scipy.interpolate import interp2d
 
 gamma = 5./3.
 kB = 1.3807e-16
@@ -32,7 +33,6 @@ with h5py.File('chimes_main_data.hdf5', 'r') as file:
   #-------- C0_cooling_ratehiT_2d ---------------
   Temp_hiT_2d = file['TableBins/cool_hiT_2d_Temperatures'][:]
   rates_hiT_2d = file['cooling/rates_hiT_2d'][:] # NOTE it is rates_2d for high Temp
-  
 
 
 # NOTE: I used "T_dependent_reactants.py" code to find indices 111, 0, 108, etc!!!
@@ -56,6 +56,22 @@ C_4_5x = rates[206, :]
 C_5_4x = rates[243, :]
 C_5_6x = rates[226, :]
 C_6_5x = rates[241, :]
+
+ct_C_0_1_Hepx = rates[218, :] # C0 + Hep ---> C1 + He0
+ct_C_0_1_Hpx  = rates[219, :] # C0 + Hp  ---> C1 + H0
+
+ct_C_1_0_H0x  = rates[214, :] # C1 + H0  ---> C0 + Hp
+ct_C_1_2_Hepx = rates[215, :] # C1 + Hep ---> C2 + He0 
+
+ct_C_2_1_H0x  = rates[211, :] # C2 + H0 ---> C1 + Hp
+
+ct_C_3_2_He0x = rates[207, :] # C3 + He0 ---> C2 + Hep
+ct_C_3_2_H0x  = rates[208, :] # C3 + H0  ---> C2 + Hp
+
+ct_C_4_3_H0x  = rates[225, :] # C4 + H0  ---> C3 + Hp
+ct_C_4_3_He0x = rates[244, :] # C4 + He0 ---> C3 + Hep
+
+ct_C_5_4_H0x  = rates[242, :] # C5 + H0  ---> C4 + Hp
 
 #---- Cooling rates ------
 g1x = cooling_rates[0, :] # cooling via H0
@@ -93,6 +109,23 @@ C_5_6 = interp1d(Temp, C_5_6x, kind='linear', fill_value="extrapolate")
 C_6_5 = interp1d(Temp, C_6_5x, kind='linear', fill_value="extrapolate")
 
 
+ct_C_0_1_Hep = interp1d(Temp, ct_C_0_1_Hepx, kind='linear', fill_value="extrapolate") # C0 + Hep ---> C1 + He0
+ct_C_0_1_Hp  = interp1d(Temp, ct_C_0_1_Hpx, kind='linear', fill_value="extrapolate") # C0 + Hp  ---> C1 + H0
+
+ct_C_1_0_H0  = interp1d(Temp, ct_C_1_0_H0x, kind='linear', fill_value="extrapolate") # C1 + H0  ---> C0 + Hp
+ct_C_1_2_Hep = interp1d(Temp, ct_C_1_2_Hepx, kind='linear', fill_value="extrapolate") # C1 + Hep ---> C2 + He0 
+
+ct_C_2_1_H0  = interp1d(Temp, ct_C_2_1_H0x, kind='linear', fill_value="extrapolate") # C2 + H0 ---> C1 + Hp
+
+ct_C_3_2_He0 = interp1d(Temp, ct_C_3_2_He0x, kind='linear', fill_value="extrapolate") # C3 + He0 ---> C2 + Hep
+ct_C_3_2_H0  = interp1d(Temp, ct_C_3_2_H0x, kind='linear', fill_value="extrapolate") # C3 + H0  ---> C2 + Hp
+
+ct_C_4_3_H0  = interp1d(Temp, ct_C_4_3_H0x, kind='linear', fill_value="extrapolate") # C4 + H0  ---> C3 + Hp
+ct_C_4_3_He0 = interp1d(Temp, ct_C_4_3_He0x, kind='linear', fill_value="extrapolate") # C4 + He0 ---> C3 + Hep
+
+ct_C_5_4_H0  = interp1d(Temp, ct_C_5_4_H0x, kind='linear', fill_value="extrapolate") # C5 + H0  ---> C4 + Hp
+
+
 g1 = interp1d(Temp, g1x, kind='linear', fill_value="extrapolate")
 g2 = interp1d(Temp, g2x, kind='linear', fill_value="extrapolate")
 g3 = interp1d(Temp, g3x, kind='linear', fill_value="extrapolate")
@@ -115,15 +148,16 @@ def C0_cooling_rate(T, nHI, nelec, nHII, Temp_4d, HIDensity_4d, elecDensity_4d, 
   nHII = np.log10(nHII)
 
   if T <= 4:
-    #return -30
     C0_rates = rates_4d[0, :]
     interp_4d = RegularGridInterpolator((Temp_4d, HIDensity_4d, elecDensity_4d, HIIDensity_4d), C0_rates)
     res = interp_4d(np.array([T, nHI, nelec, nHII]))[0]
-    res = np.log10(10**res / 10**nelec) # because ne is added later so should be cancelled by this. Intrinsically ne included!!!
+    #print(T, nelec, np.log10(10**res / 10**nelec))
+    res = np.log10(10**res / 10**nelec) # because ne is multiplied later so should be cancelled by this. Intrinsically ne was included in chimes Table!!!
   else:
     C0_rates = rates_hiT_4d[0, :]
     interp_4d = interp1d(Temp_hiT_4d, C0_rates, kind='linear', fill_value="extrapolate")
     res = interp_4d(T)
+    #print(T, nelec, res)
 
   return res
 
@@ -134,14 +168,17 @@ def Cp_cooling_rate(T, nelec, Temp_2d, elecDensity_2d): # include Temp_hiT here 
   T = np.log10(T)
   nelec = np.log10(nelec)
 
-  if T <= 4:
+  if T <= 4.95:
     Cp_rates = rates_2d[0, :]
     interp_2d = RegularGridInterpolator((Temp_2d, elecDensity_2d), Cp_rates)
     res = interp_2d(np.array([T, nelec]))[0]
+    #print(T, nelec, res, np.log10(10**res / 10**nelec))
+    #res = np.log10(10**res / 10**nelec)
   else:
     Cp_rates = rates_hiT_2d[0, :]
     interp_2d = interp1d(Temp_hiT_2d, Cp_rates, kind='linear', fill_value="extrapolate")
     res = interp_2d(T)
+    #print(T, nelec, res)
 
   return res
 

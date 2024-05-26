@@ -24,29 +24,30 @@ elmList = [
           ]
 
 
-#print(len(elmList))
-
 #-----------------------------------------------------------
 #------------> Cooling rates from CHIMES table <------------
 #-----------------------------------------------------------
 with h5py.File('chimes_main_data.hdf5', 'r') as file:
 
-  reactants = file['constant/reactants'][:]
-  products = file['constant/products'][:]
-  rates = file['constant/rates'][:]
-
-print('------> reactants <-------------')
-print(reactants)
-print()
-print('------> products <-------------')
-print(products)
+  coolants = file['cooling/coolants_4d'][:]
+  cooling_rates = file['cooling/rates_4d'][:]
 
 print()
-print('------> rates <-------')
-print(rates)
+print('coolants.shape: ', coolants.shape)
+print(coolants)
+print()
+print('cooling_rates.shape: ', cooling_rates.shape)
+print()
+print(cooling_rates)
 print()
 
+nt = np.where(coolants == 8)[0]   # Change the index here to see the reactions and products of that element
+print('******** coolants ****************')
+print('nt = ', nt)
+print(coolants[nt])
+print('************************')
 print()
-print(elmList[142])
-print(elmList[58])
+
+
+
 

@@ -47,11 +47,11 @@ densities = f['TableBins/Densities'][:]
 metallicities = f['TableBins/Metallicities'][:]
 temperatures = f['TableBins/Temperatures'][:]
 
-print('temperatures = ', temperatures)
+print()
 
 inH = 0
 print('nH = ', 10**densities[inH])
-iTemp = 20
+iTemp = 20 #!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 print('T = ', 10**temperatures[iTemp])
 iZ = 0
 print('Z = ', metallicities[iZ])
@@ -77,11 +77,6 @@ nC5= AbundanceEvolution[iTemp, inH, iZ, 12, :] * 10**densities[inH]
 nC6= AbundanceEvolution[iTemp, inH, iZ, 13, :] * 10**densities[inH]
 
 print()
-print('nC0 + ... + nC6 = ', (nC0 + nC1 + nC2 + nC3 + nC4 + nC5 + nC6)[0])
-print('expected nC_tot = ', 10**-3.61 * 10**densities[inH])
-print()
-
-print()
 print(f'nH0/nH = {(nH0[-1]/(nH0[-1]+nHp[-1])):.4f}, nHp/nH = {(nHp[-1]/(nH0[-1]+nHp[-1])):.4f}')
 print(f'log(nH0/nH) = {np.log10(nH0[-1]/(nH0[-1]+nHp[-1])):.4f}, log(nHp/nH) = {np.log10(nHp[-1]/(nH0[-1]+nHp[-1])):.4f}')
 print()
@@ -91,48 +86,61 @@ print()
 
 T = TEvol
 nHeTot = nHe0 + nHep + nHepp
-plt.plot(T, nHe0/nHeTot, label = 'nHe0')
-plt.plot(T, nHep/nHeTot, label = 'nHep')
-plt.plot(T, nHepp/nHeTot,label = 'nHepp')
-plt.yscale('log')
-plt.xscale('log')
-plt.ylim(2e-3, 1.2)
-plt.xlim(1e4, 5e6)
-plt.legend()
-plt.show()
-
-
-
-plt.figure(figsize = (12, 6))
-
-plt.subplot(1, 2, 1)
-plt.scatter(t_Arr_in_yrs, np.log10(TEvol), s = 5, color = 'k')
-plt.xlim(0, 10000)
-plt.ylim(3, 8)
-
-
-plt.subplot(1, 2, 2)
-plt.scatter(t_Arr_in_yrs, nHe0, s = 5, color = 'orange', label = 'nHe0')
-plt.scatter(t_Arr_in_yrs, nHep, s = 5, color = 'lime', label = 'nHep')
-plt.scatter(t_Arr_in_yrs, nHepp, s = 5, color = 'yellow', label = 'nHepp')
-plt.yscale('log')
-plt.legend()
 
 dictx = {'t_Arr_in_yrs': t_Arr_in_yrs, 'TEvol': TEvol, 'nHe0': nHe0, 'nHep': nHep, 'nHepp': nHepp, 'nH0': nH0, 'nHp': nHp,
          'nC0': nC0, 'nC1': nC1, 'nC2': nC2, 'nC3': nC3, 'nC4': nC4, 'nC5': nC5, 'nC6': nC6}
 
-dicLOG= {'t_Arr_in_yrs': t_Arr_in_yrs, 'TEvol': np.log10(TEvol), 'nHe0': np.log10(nHe0+1e-30), 'nHep': np.log10(nHep+1e-30),
-         'nHepp': np.log10(nHepp+1e-30), 'nH0': np.log10(nH0+1e-30), 'nHp': np.log10(nHp+1e-30), 'nC0': np.log10(nC0+1e-30),
-         'nC1': np.log10(nC1+1e-30), 'nC2': np.log10(nC2+1e-30), 'nC3': np.log10(nC3+1e-30), 'nC4': np.log10(nC4+1e-30),
-         'nC5': np.log10(nC5+1e-30), 'nC6': np.log10(nC6+1e-30)}
-
 with open('chimesRes.pkl', 'wb') as f:
   pickle.dump(dictx, f)
 
-with open('chimesResLOG.pkl', 'wb') as f:
-  pickle.dump(dicLOG, f)
 
-plt.savefig('primordial.png')
+
+#------ Result from "test_primordial_hdf5_v2.py" code -----
+with open('chimesRes.pkl', 'rb') as f:
+  df = pickle.load(f)
+# dictx = {'t_Arr_in_yrs': t_Arr_in_yrs, 'TEvol': TEvol, 'nHe0': nHe0, 'nHep': nHep, 'nHepp': nHepp}
+t_Arr_in_yrsx = df['t_Arr_in_yrs']
+TEvolx = df['TEvol']
+nH0x = df['nH0']
+nHpx = df['nHp']
+nHx = nH0x + nHpx
+nHe0x = df['nHe0']
+nHepx = df['nHep']
+nHeppx = df['nHepp']
+nHeTotx = nHe0x + nHepx + nHeppx
+
+nC0x = df['nC0']
+nC1x = df['nC1']
+nC2x = df['nC2']
+nC3x = df['nC3']
+nC4x = df['nC4']
+nC5x = df['nC5']
+nC6x = df['nC6']
+nCx = nC0x + nC1x + nC2x + nC3x + nC4x + nC5x + nC6x
+#----------------------------------------------------------
+
+nex = nHpx + (nHepx + 2.0 * nHeppx) + (nC1x + 2.0 * nC2x + 3.0 * nC3x + 4.0 * nC4x + 5.0 * nC5x + 6.0 * nC6x)
+
+plt.plot(TEvolx, nC0x/nCx, color = 'r', )
+plt.plot(TEvolx, nC1x/nCx, color = 'g', )
+plt.plot(TEvolx, nC2x/nCx, color = 'b', )
+plt.plot(TEvolx, nC3x/nCx, color = 'orange', )
+plt.plot(TEvolx, nC4x/nCx, color = 'purple', )
+plt.plot(TEvolx, nC5x/nCx, color = 'lime', )
+plt.plot(TEvolx, nC6x/nCx, color = 'pink', )
+
+plt.yscale('log')
+plt.xscale('log')
+plt.ylim(2e-3, 1.2)
+plt.xlim(1e4, 1e6)
+
+plt.title('Z = ' + str(metallicities[iZ]))
+
+#plt.legend()
+
+plt.tight_layout()
+
+plt.savefig('C_ion_ratio.png')
 
 plt.show()
 

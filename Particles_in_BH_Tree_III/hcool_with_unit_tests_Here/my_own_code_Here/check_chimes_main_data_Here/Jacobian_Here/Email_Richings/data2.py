@@ -135,9 +135,10 @@ def Cp_cooling_rate(T, nelec, Temp_2d, elecDensity_2d): # include Temp_hiT here 
   nelec = np.log10(nelec)
 
   if T <= 4:
-    Cp_rates = rates_2d[0, :]
-    interp_2d = RegularGridInterpolator((Temp_2d, elecDensity_2d), Cp_rates)
-    res = interp_2d(np.array([T, nelec]))[0]
+    return -30
+    #Cp_rates = rates_2d[0, :]
+    #interp_2d = RegularGridInterpolator((Temp_2d, elecDensity_2d), Cp_rates)
+    #res = interp_2d(np.array([T, nelec]))[0]
   else:
     Cp_rates = rates_hiT_2d[0, :]
     interp_2d = interp1d(Temp_hiT_2d, Cp_rates, kind='linear', fill_value="extrapolate")

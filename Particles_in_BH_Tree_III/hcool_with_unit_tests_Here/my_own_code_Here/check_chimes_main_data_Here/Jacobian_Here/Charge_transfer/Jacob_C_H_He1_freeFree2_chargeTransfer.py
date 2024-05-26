@@ -7,7 +7,7 @@ import matplotlib.pyplot as plt
 #from scipy.interpolate import interp1d
 from scipy.integrate import solve_ivp
 import pickle
-from data2 import *
+from data3 import *
 from scipy.interpolate import RegularGridInterpolator
 
 
@@ -20,13 +20,20 @@ def gfree(T):
   return g4_val
 
 
-#----- dT_dt
-def dT_dt(nH0, nHp, nHe0, nHep, nHepp, nC0, nC1, nC2, nC3, nC4, nC5, nC6, T):
+
+#----- Lambda
+def Lambda(T, nH0, nHp, nHe0, nHep, nHepp, nC0, nC1, nC2, nC3, nC4, nC5, nC6):
     Tx = np.log10(T)
     ne = nHp + (nHep + 2.0 * nHepp) + (nC1 + 2.0 * nC2 + 3.0 * nC3 + 4.0 * nC4 + 5.0 * nC5 + 6.0 * nC6)
-    ntot = ne + (nH0 + nHp) + (nHe0 + nHep + nHepp) + (nC0 + nC1 + nC2 + nC3 + nC4 + nC5 + nC6)
     
     cFree = nHp + nHep + 4.0 * nHepp + nC1 + 4.0*nC2 + 9.*nC3 + 16. * nC4 + 25.0 * nC5 + 36.0 * nC6
+    
+    #----- # Glover & Jappsen - 2007 -----
+    z = 0.0 # current time redshift!
+    TCMB_0 = 2.7255
+    TCMB = TCMB_0 * (1.0 + z)
+    LCompton = 1.017e-37 * TCMB**4 * (T - TCMB) * ne
+    #--------------------------------------
     
     Lamb = (
           10**g1(Tx) * ne * nH0  # H0
@@ -42,6 +49,41 @@ def dT_dt(nH0, nHp, nHe0, nHep, nHepp, nC0, nC1, nC2, nC3, nC4, nC5, nC6, T):
         + 10**gC5(Tx) * nC5 * ne # C5
         + 10**gC6(Tx) * nC6 * ne # C6
         + gfree(T) * ne * cFree # free-free emission
+        + LCompton
+    )
+    return Lamb
+
+
+#----- dT_dt
+def dT_dt(nH0, nHp, nHe0, nHep, nHepp, nC0, nC1, nC2, nC3, nC4, nC5, nC6, T):
+    Tx = np.log10(T)
+    ne = nHp + (nHep + 2.0 * nHepp) + (nC1 + 2.0 * nC2 + 3.0 * nC3 + 4.0 * nC4 + 5.0 * nC5 + 6.0 * nC6)
+    ntot = ne + (nH0 + nHp) + (nHe0 + nHep + nHepp) + (nC0 + nC1 + nC2 + nC3 + nC4 + nC5 + nC6)
+    
+    cFree = nHp + nHep + 4.0 * nHepp + nC1 + 4.0*nC2 + 9.*nC3 + 16. * nC4 + 25.0 * nC5 + 36.0 * nC6
+    
+    #----- # Glover & Jappsen - 2007 -----
+    z = 0.0 # current time redshift!
+    TCMB_0 = 2.7255
+    TCMB = TCMB_0 * (1.0 + z)
+    LCompton = 1.017e-37 * TCMB**4 * (T - TCMB) * ne
+    #--------------------------------------
+    
+    Lamb = (
+          10**g1(Tx) * ne * nH0  # H0
+        + 10**g2(Tx) * ne * nHp # Hp
+        + 10**g3(Tx) * nHe0 * ne # He0 
+        + 10**g4(Tx) * nHep * ne # Hep 
+        + 10**g5(Tx) * nHepp * ne# Hepp
+        + 10**C0_cooling_rate(T, nH0, ne, nHp, Temp_4d, HIDensity_4d, elecDensity_4d, HIIDensity_4d) * nC0 * ne # cooling via C0
+        + 10**Cp_cooling_rate(T, ne, Temp_2d, elecDensity_2d) * nC1 * ne # cooling via Cp or C1
+        + 10**gC2(Tx) * nC2 * ne # C2
+        + 10**gC3(Tx) * nC3 * ne # C3
+        + 10**gC4(Tx) * nC4 * ne # C4
+        + 10**gC5(Tx) * nC5 * ne # C5
+        + 10**gC6(Tx) * nC6 * ne # C6
+        + gfree(T) * ne * cFree # free-free emission
+        + LCompton # Glover & Jappsen - 2007
     )
     dT_dt = -1.0 * (gamma - 1.0) / kB / ntot * Lamb
     return dT_dt
@@ -146,31 +188,6 @@ def dnC6_dt(nH0, nHp, nHe0, nHep, nHepp, nC0, nC1, nC2, nC3, nC4, nC5, nC6, T):
   return 10**C_5_6(Tx) * ne * nC5 - 10**C_6_5(Tx) * ne * nC6
 
 
-
-#----- Lambda
-def Lambda(T, nH0, nHp, nHe0, nHep, nHepp, nC0, nC1, nC2, nC3, nC4, nC5, nC6):
-    Tx = np.log10(T)
-    ne = nHp + (nHep + 2.0 * nHepp) + (nC1 + 2.0 * nC2 + 3.0 * nC3 + 4.0 * nC4 + 5.0 * nC5 + 6.0 * nC6)
-    
-    cFree = nHp + nHep + 4.0 * nHepp + nC1 + 4.0*nC2 + 9.*nC3 + 16. * nC4 + 25.0 * nC5 + 36.0 * nC6
-    
-    Lamb = (
-          10**g1(Tx) * ne * nH0  # H0
-        + 10**g2(Tx) * ne * nHp # Hp
-        + 10**g3(Tx) * nHe0 * ne # He0 
-        + 10**g4(Tx) * nHep * ne # Hep 
-        + 10**g5(Tx) * nHepp * ne# Hepp
-        + 10**C0_cooling_rate(T, nH0, ne, nHp, Temp_4d, HIDensity_4d, elecDensity_4d, HIIDensity_4d) * nC0 * ne # cooling via C0
-        + 10**Cp_cooling_rate(T, ne, Temp_2d, elecDensity_2d) * nC1 * ne # cooling via Cp or C1
-        + 10**gC2(Tx) * nC2 * ne # C2
-        + 10**gC3(Tx) * nC3 * ne # C3
-        + 10**gC4(Tx) * nC4 * ne # C4
-        + 10**gC5(Tx) * nC5 * ne # C5
-        + 10**gC6(Tx) * nC6 * ne # C6
-        + gfree(T) * ne * cFree # free-free emission
-    )
-    return Lamb
-
 #----- func
 def func(t, y):
     nH0, nHp, nHe0, nHep, nHepp, nC0, nC1, nC2, nC3, nC4, nC5, nC6, T = y
@@ -183,16 +200,33 @@ def func(t, y):
     dnHe0_dt = 10**k5(Tx) * nHep * ne - 10**k3(Tx) * nHe0 * ne
     dnHep_dt = 10**k6(Tx) * nHepp * ne + 10**k3(Tx) * nHe0 * ne - 10**k4(Tx) * nHep * ne - 10**k5(Tx) * nHep * ne
     dnHepp_dt = 10**k4(Tx) * nHep * ne - 10**k6(Tx) * nHepp * ne
-    dnC0_dt = 10**C_1_0(Tx) * ne * nC1 - 10**C_0_1(Tx) * ne * nC0
-    dnC1_dt = 10**C_0_1(Tx) * ne * nC0 + 10**C_2_1(Tx) * ne * nC2 - 10**C_1_0(Tx) * ne * nC1 - 10**C_1_2(Tx) * ne * nC1
-    dnC2_dt = 10**C_1_2(Tx) * ne * nC1 + 10**C_3_2(Tx) * ne * nC3 - 10**C_2_1(Tx) * ne * nC2 - 10**C_2_3(Tx) * ne * nC2
-    dnC3_dt = 10**C_2_3(Tx) * ne * nC2 + 10**C_4_3(Tx) * ne * nC4 - 10**C_3_2(Tx) * ne * nC3 - 10**C_3_4(Tx) * ne * nC3
-    dnC4_dt = 10**C_3_4(Tx) * ne * nC3 + 10**C_5_4(Tx) * ne * nC5 - 10**C_4_3(Tx) * ne * nC4 - 10**C_4_5(Tx) * ne * nC4
-    dnC5_dt = 10**C_4_5(Tx) * ne * nC4 + 10**C_6_5(Tx) * ne * nC6 - 10**C_5_4(Tx) * ne * nC5 - 10**C_5_6(Tx) * ne * nC5
+    
+    dnC0_dt = (10**C_1_0(Tx) * ne * nC1 - 10**C_0_1(Tx) * ne * nC0
+             - 10**ct_C_0_1_Hep(Tx) * nC0 * nHep - 10**ct_C_0_1_Hp(Tx) * nC0 * nHp
+             + 10**ct_C_1_0_H0(Tx) * nC1 * nH0)
+    
+    dnC1_dt = (10**C_0_1(Tx) * ne * nC0 + 10**C_2_1(Tx) * ne * nC2 - 10**C_1_0(Tx) * ne * nC1 - 10**C_1_2(Tx) * ne * nC1
+             + 10**ct_C_0_1_Hep(Tx) * nC0 * nHep + 10**ct_C_0_1_Hp(Tx) * nC0 * nHp
+             - 10**ct_C_1_0_H0(Tx) * nC1 * nH0 - 10**ct_C_1_2_Hep(Tx) * nC1 * nHep + 10**ct_C_2_1_H0(Tx) * nC2 * nH0)
+    
+    dnC2_dt = (10**C_1_2(Tx) * ne * nC1 + 10**C_3_2(Tx) * ne * nC3 - 10**C_2_1(Tx) * ne * nC2 - 10**C_2_3(Tx) * ne * nC2
+             + 10**ct_C_1_2_Hep(Tx) * nC1 * nHep - 10**ct_C_2_1_H0(Tx) * nC2 * nH0 + 10**ct_C_3_2_He0(Tx) * nC3 * nHe0 + 10**ct_C_3_2_H0(Tx) * nC3 * nH0)
+    
+    dnC3_dt = (10**C_2_3(Tx) * ne * nC2 + 10**C_4_3(Tx) * ne * nC4 - 10**C_3_2(Tx) * ne * nC3 - 10**C_3_4(Tx) * ne * nC3
+             - 10**ct_C_3_2_He0(Tx) * nC3 * nHe0 - 10**ct_C_3_2_H0(Tx) * nC3 * nH0 + 10**ct_C_4_3_H0(Tx) * nC4 * nH0 + 10**ct_C_4_3_He0(Tx) * nC4 * nHe0)
+    
+    
+    dnC4_dt = (10**C_3_4(Tx) * ne * nC3 + 10**C_5_4(Tx) * ne * nC5 - 10**C_4_3(Tx) * ne * nC4 - 10**C_4_5(Tx) * ne * nC4
+             - 10**ct_C_4_3_H0(Tx) * nC4 * nH0 - 10**ct_C_4_3_He0(Tx) * nC4 * nHe0 + 10**ct_C_5_4_H0(Tx) * nC5 * nH0)
+    
+    dnC5_dt = (10**C_4_5(Tx) * ne * nC4 + 10**C_6_5(Tx) * ne * nC6 - 10**C_5_4(Tx) * ne * nC5 - 10**C_5_6(Tx) * ne * nC5
+             - 10**ct_C_5_4_H0(Tx) * nC5 * nH0)
+    
     dnC6_dt = 10**C_5_6(Tx) * ne * nC5 - 10**C_6_5(Tx) * ne * nC6
     
     Lamb = Lambda(T, nH0, nHp, nHe0, nHep, nHepp, nC0, nC1, nC2, nC3, nC4, nC5, nC6)
     dT_dt = -1.0 * (gamma - 1.0) / kB / ntot * Lamb
+
     return [dnH0_dt, dnHp_dt, dnHe0_dt, dnHep_dt, dnHepp_dt, dnC0_dt, dnC1_dt, dnC2_dt, dnC3_dt, dnC4_dt, dnC5_dt, dnC6_dt, dT_dt]
 
 nH = 1000.0
@@ -310,7 +344,7 @@ nex = nHpx + (nHepx + 2.0 * nHeppx) + (nC1x + 2.0 * nC2x + 3.0 * nC3x + 4.0 * nC
 plt.figure(figsize = (16, 8))
 
 plt.subplot(2, 3, 1)
-plt.scatter(t_yrs, np.log10(T), s = 5, color = 'k', label = 'my own code')
+plt.scatter(t_yrs, np.log10(T), s = 2, color = 'k', label = 'my own code')
 plt.scatter(t_Arr_in_yrsx, np.log10(TEvolx), s = 2, color = 'orange', label = 'chimes result', linestyle = '--')
 plt.xlim(0, 3000)
 plt.ylim(1, 8)

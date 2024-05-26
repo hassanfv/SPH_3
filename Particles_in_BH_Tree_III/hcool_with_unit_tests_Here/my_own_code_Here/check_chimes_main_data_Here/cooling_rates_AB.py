@@ -24,29 +24,33 @@ elmList = [
           ]
 
 
-#print(len(elmList))
-
 #-----------------------------------------------------------
 #------------> Cooling rates from CHIMES table <------------
 #-----------------------------------------------------------
 with h5py.File('chimes_main_data.hdf5', 'r') as file:
 
-  reactants = file['constant/reactants'][:]
-  products = file['constant/products'][:]
-  rates = file['constant/rates'][:]
+  reactants = file['recombination_AB/reactants'][:]
+  products = file['recombination_AB/products'][:]
+  
+  rateCaseA = file['recombination_AB/rates_caseA'][:]
+  print('rateCaseA.shape', rateCaseA.shape)
+  
+  rateCaseB = file['recombination_AB/rates_caseB'][:]
+  print('rateCaseB.shape', rateCaseB.shape)
+  
+  Temp = file['TableBins/Temperatures'][:]
+  print('Temp.shape', Temp.shape)
+  print()
+  
+  
 
-print('------> reactants <-------------')
-print(reactants)
 print()
-print('------> products <-------------')
+print('--------> reactants <---------')
+print(reactants)
+
+print()
+print('--------> products <---------')
 print(products)
 
-print()
-print('------> rates <-------')
-print(rates)
-print()
 
-print()
-print(elmList[142])
-print(elmList[58])
 

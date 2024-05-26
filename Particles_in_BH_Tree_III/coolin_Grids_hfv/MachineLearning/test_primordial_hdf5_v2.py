@@ -88,7 +88,6 @@ print()
 print(f'sort nelec = {np.sort(nelec)}')
 print()
 
-
 T = TEvol
 nHeTot = nHe0 + nHep + nHepp
 plt.plot(T, nHe0/nHeTot, label = 'nHe0')
@@ -121,16 +120,8 @@ plt.legend()
 dictx = {'t_Arr_in_yrs': t_Arr_in_yrs, 'TEvol': TEvol, 'nHe0': nHe0, 'nHep': nHep, 'nHepp': nHepp, 'nH0': nH0, 'nHp': nHp,
          'nC0': nC0, 'nC1': nC1, 'nC2': nC2, 'nC3': nC3, 'nC4': nC4, 'nC5': nC5, 'nC6': nC6}
 
-dicLOG= {'t_Arr_in_yrs': t_Arr_in_yrs, 'TEvol': np.log10(TEvol), 'nHe0': np.log10(nHe0+1e-30), 'nHep': np.log10(nHep+1e-30),
-         'nHepp': np.log10(nHepp+1e-30), 'nH0': np.log10(nH0+1e-30), 'nHp': np.log10(nHp+1e-30), 'nC0': np.log10(nC0+1e-30),
-         'nC1': np.log10(nC1+1e-30), 'nC2': np.log10(nC2+1e-30), 'nC3': np.log10(nC3+1e-30), 'nC4': np.log10(nC4+1e-30),
-         'nC5': np.log10(nC5+1e-30), 'nC6': np.log10(nC6+1e-30)}
-
 with open('chimesRes.pkl', 'wb') as f:
   pickle.dump(dictx, f)
-
-with open('chimesResLOG.pkl', 'wb') as f:
-  pickle.dump(dicLOG, f)
 
 plt.savefig('primordial.png')
 

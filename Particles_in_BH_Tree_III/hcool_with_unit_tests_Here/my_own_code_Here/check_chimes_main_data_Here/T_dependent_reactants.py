@@ -27,13 +27,13 @@ elmList = [
 # Open the HDF5 file
 with h5py.File('chimes_main_data.hdf5', 'r') as file:
 
-  N_reactions = file['reactants/N_reactions'][:]
+  N_reactions = file['T_dependent/N_reactions'][:]
   print('N_reactions = ', N_reactions)
   print()
   
-  reactants = file['reactants/reactants'][:]
+  reactants = file['T_dependent/reactants'][:]
   print("reactants.shape':", reactants.shape)
-  products = file['reactants/products'][:]
+  products = file['T_dependent/products'][:]
   print("products.shape':", reactants.shape)
   print()
 
@@ -50,7 +50,7 @@ if False:
 #print(np.sort(reactants[:, 0]))
 
 
-nt = np.where(reactants[:, 0] == 1)[0]   # Change the index here to see the reactions and products of that element
+nt = np.where(reactants[:, 0] == 12)[0]   # Change the index here to see the reactions and products of that element
 print('******** reactants ****************')
 print('nt = ', nt)
 print(reactants[nt, :])
