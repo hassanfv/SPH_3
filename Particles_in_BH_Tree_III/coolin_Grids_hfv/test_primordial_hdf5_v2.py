@@ -51,7 +51,7 @@ print('temperatures = ', temperatures)
 
 inH = 0
 print('nH = ', 10**densities[inH])
-iTemp = 20
+iTemp = 0
 print('T = ', 10**temperatures[iTemp])
 iZ = 0
 print('Z = ', metallicities[iZ])
@@ -75,6 +75,7 @@ nC3= AbundanceEvolution[iTemp, inH, iZ, 10, :] * 10**densities[inH]
 nC4= AbundanceEvolution[iTemp, inH, iZ, 11, :] * 10**densities[inH]
 nC5= AbundanceEvolution[iTemp, inH, iZ, 12, :] * 10**densities[inH]
 nC6= AbundanceEvolution[iTemp, inH, iZ, 13, :] * 10**densities[inH]
+nCm= AbundanceEvolution[iTemp, inH, iZ, 14, :] * 10**densities[inH]
 
 print()
 print('nC0 + ... + nC6 = ', (nC0 + nC1 + nC2 + nC3 + nC4 + nC5 + nC6)[0])
@@ -119,7 +120,7 @@ plt.yscale('log')
 plt.legend()
 
 dictx = {'t_Arr_in_yrs': t_Arr_in_yrs, 'TEvol': TEvol, 'nHe0': nHe0, 'nHep': nHep, 'nHepp': nHepp, 'nH0': nH0, 'nHp': nHp,
-         'nC0': nC0, 'nC1': nC1, 'nC2': nC2, 'nC3': nC3, 'nC4': nC4, 'nC5': nC5, 'nC6': nC6}
+         'nC0': nC0, 'nC1': nC1, 'nC2': nC2, 'nC3': nC3, 'nC4': nC4, 'nC5': nC5, 'nC6': nC6, 'nCm': nCm}
 
 dicLOG= {'t_Arr_in_yrs': t_Arr_in_yrs, 'TEvol': np.log10(TEvol), 'nHe0': np.log10(nHe0+1e-30), 'nHep': np.log10(nHep+1e-30),
          'nHepp': np.log10(nHepp+1e-30), 'nH0': np.log10(nH0+1e-30), 'nHp': np.log10(nHp+1e-30), 'nC0': np.log10(nC0+1e-30),
