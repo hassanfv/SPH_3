@@ -468,15 +468,15 @@ plt.plot(TEvolx, nC3x/nCx, color = 'orange', linestyle = ':')
 plt.plot(TEvolx, nC4x/nCx, color = 'purple', linestyle = ':')
 plt.plot(TEvolx, nC5x/nCx, color = 'lime', linestyle = ':')
 plt.plot(TEvolx, nC6x/nCx, color = 'pink', linestyle = ':')
-plt.plot(TEvolx, nCmx/nCx, color = 'yellow', linestyle = ':')
+#plt.plot(TEvolx, nCmx/nCx, color = 'yellow', linestyle = ':')
 
 print('np.sort(nCm/nC) = ', np.sort(nCm/nC))
 print('np.sort(nCmx/nCx) = ', np.sort(nCmx/nCx))
 
 plt.yscale('log')
 plt.xscale('log')
-plt.ylim(2e-4, 1.2)
-plt.xlim(1e3, 1e6)
+plt.ylim(2e-3, 1.2)
+plt.xlim(1e4, 1e6)
 #plt.legend()
 
 plt.tight_layout()
