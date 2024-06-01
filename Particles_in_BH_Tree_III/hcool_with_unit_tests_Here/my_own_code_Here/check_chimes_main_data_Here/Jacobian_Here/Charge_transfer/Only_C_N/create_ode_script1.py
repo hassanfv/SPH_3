@@ -45,7 +45,7 @@ with h5py.File('chimes_main_data.hdf5', 'r') as file:
 
 
 
-iD = 'FeII'
+iD = 'CI'
 ode = f'dn{iD}_dt = '
 Nspace = len(ode)
 checker = 0
@@ -125,7 +125,7 @@ for i in range(len(elmList)):
           ode = ode + tmp
           checker = 1
           file1.write(tmp)
-        if checker == 1:
+        else:
           tmp = f'\n{Nspace * " "} - R_{a}_to_{x}_via_{b} * n{a} * n{b}'
           ode = ode + tmp
           checker = 1
@@ -138,7 +138,7 @@ for i in range(len(elmList)):
           ode = ode + tmp
           checker = 1
           file1.write(tmp)
-        if checker == 1:
+        else:
           tmp = f'\n{Nspace * " "} + R_{a}_to_{x}_via_{b} * n{a} * n{b}'
           ode = ode + tmp
           checker = 1
