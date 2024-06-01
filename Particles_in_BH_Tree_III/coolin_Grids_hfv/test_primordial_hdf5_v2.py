@@ -108,7 +108,7 @@ plt.figure(figsize = (12, 6))
 
 plt.subplot(1, 2, 1)
 plt.scatter(t_Arr_in_yrs, np.log10(TEvol), s = 5, color = 'k')
-plt.xlim(0, 10000)
+plt.xlim(0, 3000)
 plt.ylim(3, 8)
 
 
@@ -130,8 +130,8 @@ dicLOG= {'t_Arr_in_yrs': t_Arr_in_yrs, 'TEvol': np.log10(TEvol), 'nHe0': np.log1
 with open('chimesRes.pkl', 'wb') as f:
   pickle.dump(dictx, f)
 
-with open('chimesResLOG.pkl', 'wb') as f:
-  pickle.dump(dicLOG, f)
+#with open('chimesResLOG.pkl', 'wb') as f:
+#  pickle.dump(dicLOG, f)
 
 plt.savefig('primordial.png')
 

@@ -3,7 +3,7 @@ import numpy as np
 
 
 elmList = [
-            "elec", "HI", "HII", "Hm", "HeI", "HeII", "HeIII", "CI", "CII", "CIII",
+            "e", "HI", "HII", "Hm", "HeI", "HeII", "HeIII", "CI", "CII", "CIII",
             "CIV", "CV", "CVI", "CVII", "Cm", "NI", "NII", "NIII", "NIV", "NV",
             "NVI", "NVII", "NVIII", "OI", "OII", "OIII", "OIV", "OV", "OVI", "OVII",
             "OVIII", "OIX", "Om", "NeI", "NeII", "NeIII", "NeIV", "NeV", "NeVI",
@@ -50,7 +50,7 @@ if False:
 #print(np.sort(reactants[:, 0]))
 
 
-nt = np.where(reactants[:, 0] == 17)[0]   # Change the index here to see the reactions and products of that element
+nt = np.where(reactants[:, 0] == 1)[0]   # Change the index here to see the reactions and products of that element
 print('******** reactants ****************')
 print('nt = ', nt)
 print(reactants[nt, :])
@@ -60,12 +60,59 @@ print()
 print('******** products ****************')
 print(products[nt, :])
 print('************************')
+print()
 
+N = len(nt)
 
-#i = 2
-#N = np.sum(reactants[i, :] != -1)
-#for j in range(N):
-#  print(f'Reactant_{i} = {elmList[reactants[i, j]]}')
+for j in range(N):
+
+  reac = reactants[nt[j], :]
+
+  #===== The reactants section ======
+  a = elmList[reac[0]]
+  b = elmList[reac[1]]  
+  if reac[2] != -1:
+    c = elmList[reac[2]]
+  
+  str1 = f'{a} + {b}'
+  if reac[2] != -1:
+    str1 = str1 + f' + {c}'
+
+  str1 = str1 + f' ----> '
+
+  #===== The products section ======
+  prod = products[nt[j], :]
+
+  x = elmList[prod[0]]
+  if prod[1] != -1:
+    y = elmList[prod[1]]
+  if prod[2] != -1:
+    z = elmList[prod[2]]
+
+  str2 = f'{x}'
+  if prod[1] != -1:
+    str2 = str2 + f' + {y}'
+  if prod[2] != -1:
+    str2 = str2 + f' + {z}'
+  
+  if str2 == f'{x}':
+    str2 = str2 + f' + γ'
+  
+  strx = str1 + str2
+  
+  N = 31 - len(strx)
+  strx = strx + N * ' ' + f'   (ndx = {nt[j]})'
+  
+
+  #label = ' ----> charge transfer'
+  #if 'γ' in strx:
+  #  label = ' ----> radiative recombination'
+  #if 'e + e' in strx:
+  #  label = ' ----> collisional ionization'
+  #strz = strx + label
+  
+  print(strx)
+
 
 
 

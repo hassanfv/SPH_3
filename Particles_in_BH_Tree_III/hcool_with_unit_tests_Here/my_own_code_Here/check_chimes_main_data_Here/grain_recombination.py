@@ -22,53 +22,46 @@ elmList = [
             "CH2", "CH3p", "CO", "CHp", "CH2p", "OHp", "H2Op", "H3Op", "COp", "HOCp", "O2p"
           ]
 
-
-
 # Open the HDF5 file
 with h5py.File('chimes_main_data.hdf5', 'r') as file:
 
-  N_reactions = file['T_dependent/N_reactions'][:]
+  N_reactions = file['grain_recombination/N_reactions'][:]
   print('N_reactions = ', N_reactions)
   print()
   
-  reactants = file['T_dependent/reactants'][:]
+  reactants = file['grain_recombination/reactants'][:]
   print("reactants.shape':", reactants.shape)
-  products = file['T_dependent/products'][:]
+  products = file['grain_recombination/products'][:]
   print("products.shape':", reactants.shape)
+  print()
+  
+  grain_recomn_rates = file['grain_recombination/rates'][:]
+  print('grain_recomn_rates.shape = ', grain_recomn_rates.shape)
+  
+  Temp = file['TableBins/Temperatures'][:]
+  print('Temp.shape', Temp.shape)
+  print()
+  
+  Psi = file['TableBins/Psi'][:]
+  print('Psi.shape', Temp.shape)
+  print()
+  
+  grain_cooling_rates = file['cooling/grain_recombination'][:] 
+  print('grain_cooling_rates.shape = ', grain_cooling_rates.shape)
   print()
 
 
-if False:
+if True:
   print('----> reactants <----')
   print(reactants[:, :])
   print()
   print('----> products <----')
-  print(products[:, :])
+  print(products)
   print()
 
 
-#print(np.sort(reactants[:, 0]))
-
-
-nt = np.where(reactants[:, 0] == 17)[0]   # Change the index here to see the reactions and products of that element
-print('******** reactants ****************')
-print('nt = ', nt)
-print(reactants[nt, :])
-print('************************')
-print()
-
-print('******** products ****************')
-print(products[nt, :])
-print('************************')
-
-
-#i = 2
-#N = np.sum(reactants[i, :] != -1)
-#for j in range(N):
-#  print(f'Reactant_{i} = {elmList[reactants[i, j]]}')
-
-
-
+aa = grain_recomn_rates[0, :]
+print(aa.shape)
 
 
 

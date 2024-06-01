@@ -20,16 +20,16 @@ log_Z_min      0.0
 log_Z_max      1.0
 delta_log_Z    1.0
 
-shield_length_factor  1.0 
+shield_length_factor  0.0 
 max_shield_length  3.086e20 
 
 n_iterations    2000
 
 # Global Variables
 StaticMolCooling          1 
-Tmol_K                    1.0e2 
-InitIonState              4
-grain_temperature         10.0 
+Tmol_K                    1.0e0 
+InitIonState              2
+grain_temperature         1.0 
 cmb_temperature           2.725 
 relativeTolerance         1.0e-4 
 absoluteTolerance         1.0e-10 

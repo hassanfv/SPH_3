@@ -228,6 +228,7 @@ def func(t, y):
 
     nH0, nHp, nHe0, nHep, nHepp, nC0, nC1, nC2, nC3, nC4, nC5, nC6, T = y
     Tx = np.log10(T)
+    
     ne = nHp + (nHep + 2.0 * nHepp) + (nC1 + 2.0 * nC2 + 3.0 * nC3 + 4.0 * nC4 + 5.0 * nC5 + 6.0 * nC6)
     ntot = ne + (nH0 + nHp) + (nHe0 + nHep + nHepp) + (nC0 + nC1 + nC2 + nC3 + nC4 + nC5 + nC6)
     
@@ -312,7 +313,7 @@ print('nC (cm^-3) = ', nC)
 print()
 print('H, C before = ', nH, nC)
 
-T_i = 1e6
+T_i = 10**6.00
 
 nH0_i = 0.001 * nH
 nHp_i = nH - nH0_i

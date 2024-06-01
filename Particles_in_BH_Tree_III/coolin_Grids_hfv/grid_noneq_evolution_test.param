@@ -30,7 +30,7 @@ n_iterations    10
 # Global Variables
 StaticMolCooling          1 
 Tmol_K                    1.0e5 
-InitIonState              1 
+InitIonState              4 
 grain_temperature         10.0 
 cmb_temperature           2.725 
 relativeTolerance         1.0e-4 

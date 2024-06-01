@@ -3,7 +3,7 @@ import numpy as np
 
 
 elmList = [
-            "elec", "HI", "HII", "Hm", "HeI", "HeII", "HeIII", "CI", "CII", "CIII",
+            "e", "HI", "HII", "Hm", "HeI", "HeII", "HeIII", "CI", "CII", "CIII",
             "CIV", "CV", "CVI", "CVII", "Cm", "NI", "NII", "NIII", "NIV", "NV",
             "NVI", "NVII", "NVIII", "OI", "OII", "OIII", "OIV", "OV", "OVI", "OVII",
             "OVIII", "OIX", "Om", "NeI", "NeII", "NeIII", "NeIV", "NeV", "NeVI",
@@ -23,6 +23,10 @@ elmList = [
           ]
 
 
+Mol = ["H2", "H2p", "H3p", "OH", "H2O", "C2", "O2", "HCOp", "CH",
+       "CH2", "CH3p", "CO", "CHp", "CH2p", "OHp", "H2Op", "H3Op", "COp", "HOCp", "O2p"]
+
+
 
 # Open the HDF5 file
 with h5py.File('chimes_main_data.hdf5', 'r') as file:
@@ -38,34 +42,76 @@ with h5py.File('chimes_main_data.hdf5', 'r') as file:
   print()
 
 
-if False:
-  print('----> reactants <----')
-  print(reactants[:, :])
+for i in range(len(elmList)):
+
+  nt = np.where(reactants[:, 0] == i)[0]   # Change the index here to see the reactions and products of that element
+
+  N = len(nt)
+  
   print()
-  print('----> products <----')
-  print(products[:, :])
+  print()
+  print('====================================')
+  print(f'=======> {elmList[i]} <=======')
+  print('====================================')
   print()
 
+  a = b = c = x = y = z = ''
 
-#print(np.sort(reactants[:, 0]))
+  for j in range(N):
 
+    reac = reactants[nt[j], :]
 
-nt = np.where(reactants[:, 0] == 17)[0]   # Change the index here to see the reactions and products of that element
-print('******** reactants ****************')
-print('nt = ', nt)
-print(reactants[nt, :])
-print('************************')
-print()
+    #===== The reactants section ======
+    a = elmList[reac[0]]
+    b = elmList[reac[1]]  
+    if reac[2] != -1:
+      c = elmList[reac[2]]
+    
+    str1 = f'{a} + {b}'
+    if reac[2] != -1:
+      str1 = str1 + f' + {c}'
 
-print('******** products ****************')
-print(products[nt, :])
-print('************************')
+    str1 = str1 + f' ----> '
 
+    #===== The products section ======
+    prod = products[nt[j], :]
 
-#i = 2
-#N = np.sum(reactants[i, :] != -1)
-#for j in range(N):
-#  print(f'Reactant_{i} = {elmList[reactants[i, j]]}')
+    x = elmList[prod[0]]
+    if prod[1] != -1:
+      y = elmList[prod[1]]
+    if prod[2] != -1:
+      z = elmList[prod[2]]
+
+    str2 = f'{x}'
+    if prod[1] != -1:
+      str2 = str2 + f' + {y}'
+    if prod[2] != -1:
+      str2 = str2 + f' + {z}'
+    
+    if str2 == f'{x}':
+      str2 = str2 + f' + γ'
+    
+    strx = str1 + str2
+    
+    N = 31 - len(strx)
+    strx = strx + N * ' ' + f'   (ndx = {nt[j]})'
+    
+    #label = ' ----> charge transfer'
+    
+    label = ''
+    
+    if 'γ' in strx:
+      label = ' ----> radiative recombination'
+    if 'e + e' in strx:
+      label = ' ----> collisional ionization'
+    
+    if (a in Mol) or (b in Mol) or (c in Mol) or (x in Mol) or (y in Mol) or (z in Mol):
+      label = '----> MOLECULES involved !!!'
+    
+    strz = strx + label
+
+    print(strz)
+
 
 
 
