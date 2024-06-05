@@ -1,0 +1,5 @@
+gCIII = interp1d(Temp, gCIII_, kind="linear", fill_value="extrapolate")
+gCIV = interp1d(Temp, gCIV_, kind="linear", fill_value="extrapolate")
+gCV = interp1d(Temp, gCV_, kind="linear", fill_value="extrapolate")
+gCVI = interp1d(Temp, gCVI_, kind="linear", fill_value="extrapolate")
+gCVII = interp1d(Temp, gCVII_, kind="linear", fill_value="extrapolate")

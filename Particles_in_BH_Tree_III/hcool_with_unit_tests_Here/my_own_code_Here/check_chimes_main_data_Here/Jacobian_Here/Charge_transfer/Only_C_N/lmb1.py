@@ -1,0 +1,5 @@
+gCIII_ = cooling_rates[5, :]
+gCIV_ = cooling_rates[6, :]
+gCV_ = cooling_rates[7, :]
+gCVI_ = cooling_rates[8, :]
+gCVII_ = cooling_rates[9, :]

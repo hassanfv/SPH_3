@@ -59,6 +59,21 @@ k4 = interp1d(Temp, k4x, kind='linear', fill_value="extrapolate")
 k5 = interp1d(Temp, k5x, kind='linear', fill_value="extrapolate")
 k6 = interp1d(Temp, k6x, kind='linear', fill_value="extrapolate")
 
+
+#---- Cooling rates ------
+g1x = cooling_rates[0, :] # cooling via H0
+g2x = cooling_rates[1, :] # cooling via Hp
+g3x = cooling_rates[2, :] # cooling via He0
+g4x = cooling_rates[3, :] # cooling via Hep
+g5x = cooling_rates[4, :] # cooling via Hepp
+
+g1 = interp1d(Temp, g1x, kind='linear', fill_value="extrapolate")
+g2 = interp1d(Temp, g2x, kind='linear', fill_value="extrapolate")
+g3 = interp1d(Temp, g3x, kind='linear', fill_value="extrapolate")
+g4 = interp1d(Temp, g4x, kind='linear', fill_value="extrapolate")
+g5 = interp1d(Temp, g5x, kind='linear', fill_value="extrapolate")
+
+
 R_CI_to_CII_via_HeII_ = rates[218, :]
 R_CI_to_CII_via_HII_ = rates[219, :]
 R_CI_to_CII_via_e_ = rates[220, :]
@@ -108,8 +123,99 @@ R_CVII_to_CVI_via_e = interp1d(Temp, R_CVII_to_CVI_via_e_, kind="linear", fill_v
 R_Cm_to_CI_via_HII = interp1d(Temp, R_Cm_to_CI_via_HII_, kind="linear", fill_value="extrapolate")
 
 
+gCIII_ = cooling_rates[5, :]
+gCIV_ = cooling_rates[6, :]
+gCV_ = cooling_rates[7, :]
+gCVI_ = cooling_rates[8, :]
+gCVII_ = cooling_rates[9, :]
+
+gCIII = interp1d(Temp, gCIII_, kind="linear", fill_value="extrapolate")
+gCIV = interp1d(Temp, gCIV_, kind="linear", fill_value="extrapolate")
+gCV = interp1d(Temp, gCV_, kind="linear", fill_value="extrapolate")
+gCVI = interp1d(Temp, gCVI_, kind="linear", fill_value="extrapolate")
+gCVII = interp1d(Temp, gCVII_, kind="linear", fill_value="extrapolate")
+
+
+#----- CI_cooling_rate 
+def CI_cooling_rate(T, nHI, nelec, nHII, Temp_4d, HIDensity_4d, elecDensity_4d, HIIDensity_4d):
+
+  T = np.log10(T)
+  nHI = np.log10(nHI)
+  nelec = np.log10(nelec)
+  nHII = np.log10(nHII)
+
+  if T <= 4:
+    CI_rates = rates_4d[0, :]
+    interp_4d = RegularGridInterpolator((Temp_4d, HIDensity_4d, elecDensity_4d, HIIDensity_4d), CI_rates)
+    res = interp_4d(np.array([T, nHI, nelec, nHII]))[0]
+    res = np.log10(10**res / 10**nelec) # because ne is multiplied later it will be cancelled by this. Intrinsically ne was included in chimes Table!!!
+  else:
+    CI_rates = rates_hiT_4d[0, :]
+    interp_4d = interp1d(Temp_hiT_4d, CI_rates, kind='linear', fill_value="extrapolate")
+    res = interp_4d(T)
+
+  return res
+
+#----- CII_cooling_rate 
+def CII_cooling_rate(T, nelec, Temp_2d, elecDensity_2d): # include Temp_hiT here !!!!!!!!!!!!!!!!!!!!!!!
+
+  T = np.log10(T)
+  nelec = np.log10(nelec)
+
+  if T <= 4.95:
+    CII_rates = rates_2d[0, :]
+    interp_2d = RegularGridInterpolator((Temp_2d, elecDensity_2d), CII_rates)
+    res = interp_2d(np.array([T, nelec]))[0]
+  else:
+    CII_rates = rates_hiT_2d[0, :]
+    interp_2d = interp1d(Temp_hiT_2d, CII_rates, kind='linear', fill_value="extrapolate")
+    res = interp_2d(T)
+
+  return res
+
+
+#----- grain_recomb_rate
+def grain_recomb_rate(ionx, T, nelec, G0, A_v, Temp, Psi): # Note: Temp and Psi are in log from CHIMES table!
+  
+  if ionx == 'HI':
+    i = 0
+  elif ionx == 'HeII':
+    i = 1
+  elif ionx == 'CII':
+    i = 2
+  
+  Psix = G0 * np.exp(-2.77 * A_v) * T**0.5 / nelec
+  Psix = np.log10(Psix)
+  
+  T = np.log10(T)
+  
+  interp_2d = RegularGridInterpolator((Temp, Psi), grain_recomb_rates[i, :])
+  res = interp_2d(np.array([T, Psix]))[0]
+
+  return res
 
 
 
+#----- grain_cool_rate
+def grain_cool_rate(T, nelec, nH0, nHp, G0, A_v, dust_ratio, Temp, Psi): # Note: Temp and Psi are in log from CHIMES table!
+  
+  Psix = G0 * np.exp(-2.77 * A_v) * T**0.5 / nelec
+  Psix = np.log10(Psix)
+  
+  nHtot = nH0 + nHp
+  
+  cool_rates = grain_cooling_rates * dust_ratio * nelec / nHtot # Note: none of grain_cooling_rates, nelec and nHtot is in log form!!
+  cool_rates = np.log10(cool_rates)
+  
+  interp_2d = RegularGridInterpolator((Temp, Psi), cool_rates)
+  
+  T = np.log10(T)
+  
+  res = interp_2d(np.array([T, Psix]))[0]
 
+  #print(T, res)
+
+  return res
+  
+  
 

@@ -27,6 +27,13 @@ Mol = ["H2", "H2p", "H3p", "OH", "H2O", "C2", "O2", "HCOp", "CH",
        "CH2", "CH3p", "CO", "CHp", "CH2p", "OHp", "H2Op", "H3Op", "COp", "HOCp", "O2p"]
 
 
+roman_numerals = [
+                  "I", "II", "III", "IV", "V", "VI", "VII", "VIII", "IX", "X",
+                  "XI", "XII", "XIII", "XIV", "XV", "XVI", "XVII", "XVIII", "XIX", "XX",
+                  "XXI", "XXII", "XXIII", "XXIV", "XXV", "XXVI", "XXVII"
+                 ]
+
+
 res1_list = []
 res2_list = []
 
