@@ -22,6 +22,16 @@ elmList = [
             "CH2", "CH3p", "CO", "CHp", "CH2p", "OHp", "H2Op", "H3Op", "COp", "HOCp", "O2p"
           ]
 
+
+# Only for these species we have grain_recombination reaction!!!
+nt = [2, 5, 8, 24, 58, 111, 45, 73, 90, 91]
+#   2      5     8     24    58     111    45     73    90      91
+#['HII' 'HeII' 'CII' 'OII' 'SiII' 'FeII' 'MgII' 'SII' 'CaII' 'CaIII']
+
+print(np.array(elmList)[nt])
+print()
+
+
 # Open the HDF5 file
 with h5py.File('chimes_main_data.hdf5', 'r') as file:
 

@@ -42,8 +42,39 @@ print("Shape of 'constant/reactants':", reactants.shape)
 print("Data type of 'constant/reactants':", reactants.dtype)
 print(np.sort(reactants[:, 0]))
 print()
-#print((reactants))
+print('******* All reactants ******')
+print((reactants))
 print()
+print()
+print('+++++++ All products +++++++')
+print(products)
+print()
+
+
+#------ Printing the reactants and products with their elemental names for better visualization -------
+a = reactants[:, 0]
+b = reactants[:, 1]
+
+x = products[:, 0]
+y = products[:, 1]
+z = products[:, 2]
+
+for i in range(len(a)):
+
+  if y[i] != -1 and z[i] != -1:
+    print(f'{elmList[a[i]]} + {elmList[b[i]]} ---> {elmList[x[i]]} + {elmList[y[i]]} + {elmList[z[i]]}')
+  
+  if y[i] != -1 and z[i] == -1:
+    print(f'{elmList[a[i]]} + {elmList[b[i]]} ---> {elmList[x[i]]} + {elmList[y[i]]}')
+  
+  if y[i] == -1 and z[i] == -1:
+    print(f'{elmList[a[i]]} + {elmList[b[i]]} ---> {elmList[x[i]]}')
+
+
+#------------------------------------------------------------------------------------------
+
+s()
+
 
 i = 2
 

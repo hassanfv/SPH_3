@@ -34,19 +34,27 @@ with h5py.File('chimes_main_data.hdf5', 'r') as file:
 
 print()
 print('coolants.shape: ', coolants.shape)
-print(coolants)
 print()
 print('cooling_rates.shape: ', cooling_rates.shape)
 print()
-print(cooling_rates)
+
+print('++++++++ coolants ++++++++')
+print(coolants)
+print()
 print()
 
-nt = np.where(coolants == 10)[0]   # Change the index here to see the reactions and products of that element
-print('******** coolants ****************')
-print('nt = ', nt)
-print(coolants[nt])
-print('************************')
-print()
+for j in range(len(coolants)):
+  print(f'{coolants[j]} --> {elmList[coolants[j]]}')
+
+
+
+if False:
+  nt = np.where(coolants == 10)[0]   # Change the index here to see the reactions and products of that element
+  print('******** coolants ****************')
+  print('nt = ', nt)
+  print(coolants[nt])
+  print('************************')
+  print()
 
 
 

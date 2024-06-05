@@ -41,12 +41,21 @@ print()
 print(cooling_rates)
 print()
 
-nt = np.where(coolants == 8)[0]   # Change the index here to see the reactions and products of that element
-print('******** coolants ****************')
-print('nt = ', nt)
-print(coolants[nt])
-print('************************')
+print('++++++++++++ coolants ++++++++++++')
+print(coolants)
 print()
+print('---------- elements -----------')
+print(np.array(elmList)[coolants])
+print()
+
+
+if False:
+  nt = np.where(coolants == 8)[0]   # Change the index here to see the reactions and products of that element
+  print('******** coolants ****************')
+  print('nt = ', nt)
+  print(coolants[nt])
+  print('************************')
+  print()
 
 
 
