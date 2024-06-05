@@ -177,19 +177,15 @@ def CII_cooling_rate(T, nelec, Temp_2d, elecDensity_2d): # include Temp_hiT here
 #----- grain_recomb_rate
 def grain_recomb_rate(ionx, T, nelec, G0, A_v, Temp, Psi): # Note: Temp and Psi are in log from CHIMES table!
   
-  if ionx == 'HI':
-    i = 0
-  elif ionx == 'HeII':
-    i = 1
-  elif ionx == 'CII':
-    i = 2
+  elmz = np.array(['HII', 'HeII', 'CII', 'OII', 'SiII', 'FeII', 'MgII', 'SII', 'CaII', 'CaIII'])
+  ni = np.where(elmz == ionx)[0][0]
   
   Psix = G0 * np.exp(-2.77 * A_v) * T**0.5 / nelec
   Psix = np.log10(Psix)
   
   T = np.log10(T)
   
-  interp_2d = RegularGridInterpolator((Temp, Psi), grain_recomb_rates[i, :])
+  interp_2d = RegularGridInterpolator((Temp, Psi), grain_recomb_rates[ni, :])
   res = interp_2d(np.array([T, Psix]))[0]
 
   return res

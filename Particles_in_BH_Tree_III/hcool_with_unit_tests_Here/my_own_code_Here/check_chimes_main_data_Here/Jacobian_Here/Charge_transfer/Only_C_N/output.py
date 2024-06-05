@@ -1,3 +1,4 @@
+#----- Lambda
 def Lambda(T, nHI, nHII, nHeI, nHeII, nHeIII, nCI, nCII, nCIII, nCIV, nCV, 
            nCVI, nCVII):
 
@@ -37,7 +38,6 @@ def Lambda(T, nHI, nHII, nHeI, nHeII, nHeIII, nCI, nCII, nCIII, nCIV, nCV,
         + 10**gCVI(Tx) * nCVI * ne
         + 10**gCVII(Tx) * nCVII * ne
         + gfree(T) * ne * cFree # free-free emission
-        + LCompton
-        - (Lcr_H0 + Lcr_He0 + Lcr_Hep + Lcr_C0 + Lcr_C1 + Lcr_C2 + Lcr_C3 + Lcr_C4 + Lcr_C5)) # (-) multiplied by (-) become (+).
+        + LCompton)
 
   return Lamb

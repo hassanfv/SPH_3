@@ -71,7 +71,8 @@ if False:
 
 
 
-strx = f'def Lambda(T, nHI, nHII, nHeI, nHeII, nHeIII, '
+strx = '#----- Lambda\n'
+strx += f'def Lambda(T, nHI, nHII, nHeI, nHeII, nHeIII, '
 
 k = 6 # to take into account the already existance of nHp, nHe, nHepp!
 for x in spec_list:
@@ -143,8 +144,8 @@ for x in spec_list:
     strx += f'  {5 * " "} + 10**g{x}(Tx) * n{x} * ne\n'
 
 strx += f'  {5 * " "} + gfree(T) * ne * cFree # free-free emission\n'
-strx += f'  {5 * " "} + LCompton\n'
-strx += f'  {5 * " "} - (Lcr_H0 + Lcr_He0 + Lcr_Hep + Lcr_C0 + Lcr_C1 + Lcr_C2 + Lcr_C3 + Lcr_C4 + Lcr_C5)) # (-) multiplied by (-) become (+).\n\n'
+strx += f'  {5 * " "} + LCompton)\n\n'
+#strx += f'  {5 * " "} - (Lcr_H0 + Lcr_He0 + Lcr_Hep + Lcr_C0 + Lcr_C1 + Lcr_C2 + Lcr_C3 + Lcr_C4 + Lcr_C5)) # (-) multiplied by (-) become (+).\n\n'
 
 strx += f'  return Lamb'
 

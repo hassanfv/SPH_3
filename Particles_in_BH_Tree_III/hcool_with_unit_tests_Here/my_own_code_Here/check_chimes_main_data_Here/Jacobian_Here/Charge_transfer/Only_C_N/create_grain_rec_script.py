@@ -23,15 +23,6 @@ elmList = [
           ]
 
 
-# Only for these species we have grain_recombination reaction!!!
-nt = [2, 5, 8, 24, 58, 111, 45, 73, 90, 91]
-#   2      5     8     24    58     111    45     73    90      91
-#['HII' 'HeII' 'CII' 'OII' 'SiII' 'FeII' 'MgII' 'SII' 'CaII' 'CaIII']
-
-print(np.array(elmList)[nt])
-print()
-
-
 # Open the HDF5 file
 with h5py.File('chimes_main_data.hdf5', 'r') as file:
 
@@ -69,11 +60,11 @@ if True:
   print()
 
 
-i = 0
-for x, a in zip(reactants[:, :], products):
-  print(f'{elmList[x[0]]} + {elmList[x[1]]} ----> {elmList[a]}    (ndx = {i})\n')
-  i += 1
 
+for x, a in zip(reactants[:, :], products):
+  strx = f'grain_rec_{elmList[x[0]]}_to_{elmList[a]} = grain_recomb_rate("{elmList[x[0]]}", T, ne, G0, A_v, Temp, Psi)'
+  
+  print(strx)
 
 
 

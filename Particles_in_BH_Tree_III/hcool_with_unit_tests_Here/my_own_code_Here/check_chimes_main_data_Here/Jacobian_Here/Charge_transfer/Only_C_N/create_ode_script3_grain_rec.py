@@ -34,6 +34,9 @@ roman_num = [
                  ]
 
 
+grain_rec_reac = np.array(['HII', 'HeII', 'CII', 'OII', 'SiII', 'FeII', 'MgII', 'SII', 'CaII'])#, 'CaIII']) # for CIII_to_CaII I hard-coded it see below!!
+grain_rec_prod = np.array(['HI', 'HeI', 'CI', 'OI', 'SiI', 'FeI', 'MgI', 'SI', 'CaI'])#, 'CaII'])
+
 #----- getAtmNum
 def getAtmNum(iD):
   iDlist = np.array(['C', 'N', 'O', 'Ne', 'Mg', 'Si', 'S', 'Ca', 'Fe'])
@@ -61,8 +64,10 @@ with h5py.File('chimes_main_data.hdf5', 'r') as file:
   print()
 
 
+print(reactants)
 
-elm = 'C'   # !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+elm = 'Mg'   # !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 AtmNum = getAtmNum(elm)
 
 spec_list = [elm+roman_num[i] for i in range(AtmNum+1)]
@@ -75,6 +80,8 @@ print(spec_list)
 # Writing to text files
 file1 = open('ode1.py', 'w')
 
+oneTimerCa = 0
+
 for jj in range(len(spec_list)):
 
   iD = spec_list[jj]
@@ -85,10 +92,11 @@ for jj in range(len(spec_list)):
   #---- write
   file1.write(ode)
 
+  oneTimer = 0 # To make sure the grain_rec if statements are activated only once!
 
   for i in range(len(elmList)):
 
-    nt = np.where(reactants[:, 0] == i)[0]   # Change the index here to see the reactions and products of that element
+    nt = np.where(reactants[:, 0] == i)[0] 
 
     N = len(nt)
 
@@ -96,7 +104,7 @@ for jj in range(len(spec_list)):
 
     for j in range(N):
 
-      reac = reactants[nt[j], :]
+      reac = reactants[nt[j], :] # shape ---> 1 * 3
 
       #===== The reactants section ======
       a = elmList[reac[0]]
@@ -150,8 +158,8 @@ for jj in range(len(spec_list)):
       pm = 0.0
       if label != '----> MOLECULES involved !!!':
       
-        if iD in [a, b, c]:
-          if checker == 0:
+        if iD in [a, b, c]: # list of reactants.
+          if checker == 0: # checker is used for the paranthesis in the begining of the line!!!! Good idea!
             tmp = f'(\n{Nspace * " "} - 10**R_{a}_to_{x}_via_{b}(Tx) * n{a} * n{b}'
             ode = ode + tmp
             checker = 1
@@ -161,9 +169,36 @@ for jj in range(len(spec_list)):
             ode = ode + tmp
             checker = 1
             file1.write(tmp)
-            
+        if (iD in grain_rec_reac) and (checker == 1) and (oneTimer == 0): # if it is the reactant then we lose it so it needs to be subtracted!
+            nn = np.where(grain_rec_reac == iD)[0][0]
+            tmp = f'\n{Nspace * " "} - 10**grain_rec_{iD}_to_{grain_rec_prod[nn]} * n{iD} * ne) # grain_recombination'
+            ode = ode + tmp
+            oneTimer = 1
+            file1.write(tmp)
+          
+        if (iD in grain_rec_prod) and (checker == 1) and (oneTimer == 0): #if it is the product then we gain it so it needs to be dded!
+            nn = np.where(grain_rec_prod == iD)[0][0]
+            tmp = f'\n{Nspace * " "} + 10**grain_rec_{grain_rec_reac[nn]}_to_{iD} * n{grain_rec_reac[nn]} * ne) # grain_recombination'
+            ode = ode + tmp
+            oneTimer = 1
+            file1.write(tmp)
         
-        if iD in [x, y, z]:
+        
+        #--- Due to the complexiy I prefer to hard-code these two lines!!!
+        if (iD == 'CaII') and (checker == 1) and (oneTimerCa == 0): # checker is needed so that it is not added as the first line because it hasn't paranthesis (!!
+          tmp = f'\n{Nspace * " "} + 10**grain_rec_CaIII_to_CaII * nCaIII * ne) # grain_recombination'
+          ode = ode + tmp
+          oneTimerCa = 1
+          file1.write(tmp)
+          
+        if (iD == 'CaIII') and (checker == 1) and (oneTimerCa == 1): # checker is needed so that it is not added as the first line because it hasn't paranthesis (!!
+          tmp = f'\n{Nspace * " "} - 10**grain_rec_CaIII_to_CaII * nCaIII * ne) # grain_recombination'
+          ode = ode + tmp
+          oneTimerCa = 2
+          file1.write(tmp)
+        #-----------------------------------------------------------------
+        
+        if iD in [x, y, z]: # list of products.
           if checker == 0:
             tmp = f'(\n{Nspace * " "} + 10**R_{a}_to_{x}_via_{b}(Tx) * n{a} * n{b}'
             ode = ode + tmp
@@ -174,7 +209,6 @@ for jj in range(len(spec_list)):
             ode = ode + tmp
             checker = 1
             file1.write(tmp)
-            
         
   file1.write(')\n\n')
 

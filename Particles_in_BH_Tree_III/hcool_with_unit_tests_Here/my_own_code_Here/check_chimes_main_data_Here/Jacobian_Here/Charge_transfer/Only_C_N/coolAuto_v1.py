@@ -60,7 +60,6 @@ def Lambda(T, nHI, nHII, nHeI, nHeII, nHeIII, nCI, nCII, nCIII, nCIV, nCV,
         + 10**gCVII(Tx) * nCVII * ne
         + gfree(T) * ne * cFree # free-free emission
         + LCompton)
-        #- (Lcr_H0 + Lcr_He0 + Lcr_Hep + Lcr_C0 + Lcr_C1 + Lcr_C2 + Lcr_C3 + Lcr_C4 + Lcr_C5)) # (-) multiplied by (-) become (+).
 
   return Lamb
 
@@ -69,29 +68,37 @@ def Lambda(T, nHI, nHII, nHeI, nHeII, nHeIII, nCI, nCII, nCIII, nCIV, nCV,
 #----- func
 def func(t, y):
 
-    nHI, nHII, nHeI, nHeII, nHeIII, nCI, nCII, nCIII, nCIV, nCV, nCVI, nCVII, T = y # !!!!!!!!!!! nCm added Manually Not Automatically !!!!!!!!
+    nHI, nHII, nHeI, nHeII, nHeIII, nCI, nCII, nCIII, nCIV, nCV, nCVI, nCVII, nCm, T = y # !!!!!!!!!!! nCm added Manually Not Automatically !!!!!!!!
     Tx = np.log10(T)
     
     ne = nHII + (nHeII + 2.0 * nHeIII) + (nCII + 2.0 * nCIII + 3.0 * nCIV + 4.0 * nCV + 5.0 * nCVI + 6.0 * nCVII)
     ntot = ne + (nHI + nHII) + (nHeI + nHeII + nHeIII) + (nCI + nCII + nCIII + nCIV + nCV + nCVI + nCVII)
     
-    grain_rec_H_1_0 =  grain_recomb_rate('HI', T, ne, G0, A_v, Temp, Psi)
-    grain_rec_He_1_0 = grain_recomb_rate('HeII', T, ne, G0, A_v, Temp, Psi)
-    grain_rec_C_1_0 =  grain_recomb_rate('CII', T, ne, G0, A_v, Temp, Psi)
+    grain_rec_HII_to_HI = grain_recomb_rate("HII", T, ne, G0, A_v, Temp, Psi)
+    grain_rec_HeII_to_HeI = grain_recomb_rate("HeII", T, ne, G0, A_v, Temp, Psi)
+    grain_rec_CII_to_CI = grain_recomb_rate("CII", T, ne, G0, A_v, Temp, Psi)
+    grain_rec_OII_to_OI = grain_recomb_rate("OII", T, ne, G0, A_v, Temp, Psi)
+    grain_rec_SiII_to_SiI = grain_recomb_rate("SiII", T, ne, G0, A_v, Temp, Psi)
+    grain_rec_FeII_to_FeI = grain_recomb_rate("FeII", T, ne, G0, A_v, Temp, Psi)
+    grain_rec_MgII_to_MgI = grain_recomb_rate("MgII", T, ne, G0, A_v, Temp, Psi)
+    grain_rec_SII_to_SI = grain_recomb_rate("SII", T, ne, G0, A_v, Temp, Psi)
+    grain_rec_CaII_to_CaI = grain_recomb_rate("CaII", T, ne, G0, A_v, Temp, Psi)
+    grain_rec_CaIII_to_CaII = grain_recomb_rate("CaIII", T, ne, G0, A_v, Temp, Psi)
+
     
-    dnHI_dt = 10**k2(Tx) * nHII * ne - 10**k1(Tx) * nHI * ne + 10**grain_rec_H_1_0 * nHII * ne
-    dnHII_dt = 10**k1(Tx) * nHI * ne - 10**k2(Tx) * nHII * ne - 10**grain_rec_H_1_0 * nHII * ne
+    dnHI_dt = 10**k2(Tx) * nHII * ne - 10**k1(Tx) * nHI * ne + 10**grain_rec_HII_to_HI * nHII * ne
+    dnHII_dt = 10**k1(Tx) * nHI * ne - 10**k2(Tx) * nHII * ne - 10**grain_rec_HII_to_HI * nHII * ne
     
-    dnHeI_dt  = 10**k5(Tx) * nHeII * ne - 10**k3(Tx) * nHeI * ne - 10**grain_rec_He_1_0 * nHeII * ne
+    dnHeI_dt  = 10**k5(Tx) * nHeII * ne - 10**k3(Tx) * nHeI * ne + 10**grain_rec_HeII_to_HeI * nHeII * ne
     
-    dnHeII_dt = (10**k6(Tx) * nHeIII * ne + 10**k3(Tx) * nHeI * ne - 10**k4(Tx) * nHeII * ne - 10**k5(Tx) * nHeII * ne +
-               - 10** grain_rec_He_1_0 * nHeII * ne)
+    dnHeII_dt = (10**k6(Tx) * nHeIII * ne + 10**k3(Tx) * nHeI * ne - 10**k4(Tx) * nHeII * ne - 10**k5(Tx) * nHeII * ne
+               - 10** grain_rec_HeII_to_HeI * nHeII * ne)
     
 
     dnHeIII_dt = 10**k4(Tx) * nHeII * ne - 10**k6(Tx) * nHeIII * ne
 
-    #C_0_m = 2.2500001e-15 # constant/rates !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! NOT AUTOMATED !!!!! WHERE is its COOLING COUNTERPART !!!!!??????
-    #dnCm_dt = C_0_m * nCI * ne - 10**R_Cm_to_CI_via_HII(Tx) * nCm * nHII
+    C_0_m = 2.2500001e-15 # constant/rates !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! NOT AUTOMATED !!!!! WHERE is its COOLING COUNTERPART !!!!!??????
+    dnCm_dt = C_0_m * nCI * ne - 10**R_Cm_to_CI_via_HII(Tx) * nCm * nHII
 
     dnCI_dt = (
                - 10**R_CI_to_CII_via_HeII(Tx) * nCI * nHeII
@@ -99,7 +106,9 @@ def func(t, y):
                - 10**R_CI_to_CII_via_e(Tx) * nCI * ne
                + 10**R_CII_to_CI_via_HI(Tx) * nCII * nHI
                + 10**R_CII_to_CI_via_e(Tx) * nCII * ne
-               + 10**grain_rec_C_1_0 * nCII * nCI) # grain_recombination
+               + 10**R_Cm_to_CI_via_HII(Tx) * nCm * nHII
+               - C_0_m * nCI * ne # !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! NOTE: Cm is added Manually and NOT Automatically !!!!!!
+               + 10**grain_rec_CII_to_CI * nCII * ne) # grain_recombination
 
     dnCII_dt = (
                 + 10**R_CI_to_CII_via_HeII(Tx) * nCI * nHeII
@@ -111,7 +120,7 @@ def func(t, y):
                 - 10**R_CII_to_CIII_via_e(Tx) * nCII * ne
                 + 10**R_CIII_to_CII_via_HI(Tx) * nCIII * nHI
                 + 10**R_CIII_to_CII_via_e(Tx) * nCIII * ne
-                - 10**grain_rec_C_1_0 * nCII * nCI) # grain_recombination
+                - 10**grain_rec_CII_to_CI * nCII * ne) # grain_recombination
 
     dnCIII_dt = (
                  + 10**R_CII_to_CIII_via_HeII(Tx) * nCII * nHeII
@@ -160,7 +169,7 @@ def func(t, y):
     
     dT_dt = -1.0 * (gamma - 1.0) / kB / ntot * (Lamb + 1. / (gamma - 1.) * kB * T * dntot_dt)
 
-    return [dnHI_dt, dnHII_dt, dnHeI_dt, dnHeII_dt, dnHeIII_dt, dnCI_dt, dnCII_dt, dnCIII_dt, dnCIV_dt, dnCV_dt, dnCVI_dt, dnCVII_dt, dT_dt]
+    return [dnHI_dt, dnHII_dt, dnHeI_dt, dnHeII_dt, dnHeIII_dt, dnCI_dt, dnCII_dt, dnCIII_dt, dnCIV_dt, dnCV_dt, dnCVI_dt, dnCVII_dt, dnCm_dt, dT_dt]
 
 
 
@@ -193,16 +202,16 @@ nHe0_i = 0.0001 * nHe
 nHep_i = 0.001 * nHe
 nHepp_i= nHe - nHe0_i - nHep_i
  
-#nCm_i = 1e-6 * nC
+nCm_i = 1e-6 * nC
 nC0_i = 1e-5 * nC
 nC1_i = 1e-5 * nC
 nC2_i = 1e-4 * nC
 nC3_i = 1e-4 * nC
 nC4_i = 1e-3 * nC
 nC5_i = 1e-2 * nC
-nC6_i = nC - (nC0_i + nC1_i + nC2_i + nC3_i + nC4_i + nC5_i)
+nC6_i = nC - (nCm_i + nC0_i + nC1_i + nC2_i + nC3_i + nC4_i + nC5_i)
 
-y0 = [nH0_i, nHp_i, nHe0_i, nHep_i, nHepp_i, nC0_i, nC1_i, nC2_i, nC3_i, nC4_i, nC5_i, nC6_i, T_i]
+y0 = [nH0_i, nHp_i, nHe0_i, nHep_i, nHepp_i, nC0_i, nC1_i, nC2_i, nC3_i, nC4_i, nC5_i, nC6_i, nCm_i, T_i]
 
 
 A_v = 1.0
@@ -237,7 +246,8 @@ nC3 = y[8, :]
 nC4 = y[9, :]
 nC5 = y[10, :]
 nC6 = y[11, :]
-T = y[12, :]
+nCm = y[12, :]
+T = y[13, :]
 
 print('nC0 = ', nC0)
 print()
