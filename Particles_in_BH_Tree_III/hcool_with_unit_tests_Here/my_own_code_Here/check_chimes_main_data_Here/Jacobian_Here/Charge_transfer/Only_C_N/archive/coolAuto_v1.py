@@ -1,5 +1,6 @@
 
-#import h5py
+# In this version, i.e. coolAuto_v1.py, the ODEs in func are created by the create_ode_script3_grain_const.py script!
+
 import numpy as np
 import matplotlib.pyplot as plt
 #from scipy.interpolate import interp1d
@@ -68,115 +69,124 @@ def Lambda(T, nHI, nHII, nHeI, nHeII, nHeIII, nCI, nCII, nCIII, nCIV, nCV,
 #----- func
 def func(t, y):
 
-    nHI, nHII, nHeI, nHeII, nHeIII, nCI, nCII, nCIII, nCIV, nCV, nCVI, nCVII, nCm, T = y # !!!!!!!!!!! nCm added Manually Not Automatically !!!!!!!!
-    Tx = np.log10(T)
-    
-    ne = nHII + (nHeII + 2.0 * nHeIII) + (nCII + 2.0 * nCIII + 3.0 * nCIV + 4.0 * nCV + 5.0 * nCVI + 6.0 * nCVII)
-    ntot = ne + (nHI + nHII) + (nHeI + nHeII + nHeIII) + (nCI + nCII + nCIII + nCIV + nCV + nCVI + nCVII)
-    
-    grain_rec_HII_to_HI = grain_recomb_rate("HII", T, ne, G0, A_v, Temp, Psi)
-    grain_rec_HeII_to_HeI = grain_recomb_rate("HeII", T, ne, G0, A_v, Temp, Psi)
-    grain_rec_CII_to_CI = grain_recomb_rate("CII", T, ne, G0, A_v, Temp, Psi)
-    grain_rec_OII_to_OI = grain_recomb_rate("OII", T, ne, G0, A_v, Temp, Psi)
-    grain_rec_SiII_to_SiI = grain_recomb_rate("SiII", T, ne, G0, A_v, Temp, Psi)
-    grain_rec_FeII_to_FeI = grain_recomb_rate("FeII", T, ne, G0, A_v, Temp, Psi)
-    grain_rec_MgII_to_MgI = grain_recomb_rate("MgII", T, ne, G0, A_v, Temp, Psi)
-    grain_rec_SII_to_SI = grain_recomb_rate("SII", T, ne, G0, A_v, Temp, Psi)
-    grain_rec_CaII_to_CaI = grain_recomb_rate("CaII", T, ne, G0, A_v, Temp, Psi)
-    grain_rec_CaIII_to_CaII = grain_recomb_rate("CaIII", T, ne, G0, A_v, Temp, Psi)
+  nHI, nHII, nHeI, nHeII, nHeIII, nCI, nCII, nCIII, nCIV, nCV, nCVI, nCVII, nCm, T = y # !!!!!!!!!!! nCm added Manually Not Automatically !!!!!!!!
+  Tx = np.log10(T)
 
-    
-    dnHI_dt = 10**k2(Tx) * nHII * ne - 10**k1(Tx) * nHI * ne + 10**grain_rec_HII_to_HI * nHII * ne
-    dnHII_dt = 10**k1(Tx) * nHI * ne - 10**k2(Tx) * nHII * ne - 10**grain_rec_HII_to_HI * nHII * ne
-    
-    dnHeI_dt  = 10**k5(Tx) * nHeII * ne - 10**k3(Tx) * nHeI * ne + 10**grain_rec_HeII_to_HeI * nHeII * ne
-    
-    dnHeII_dt = (10**k6(Tx) * nHeIII * ne + 10**k3(Tx) * nHeI * ne - 10**k4(Tx) * nHeII * ne - 10**k5(Tx) * nHeII * ne
-               - 10** grain_rec_HeII_to_HeI * nHeII * ne)
-    
+  ne = nHII + (nHeII + 2.0 * nHeIII) + (nCII + 2.0 * nCIII + 3.0 * nCIV + 4.0 * nCV + 5.0 * nCVI + 6.0 * nCVII)
+  ntot = ne + (nHI + nHII) + (nHeI + nHeII + nHeIII) + (nCI + nCII + nCIII + nCIV + nCV + nCVI + nCVII)
 
-    dnHeIII_dt = 10**k4(Tx) * nHeII * ne - 10**k6(Tx) * nHeIII * ne
-
-    C_0_m = 2.2500001e-15 # constant/rates !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! NOT AUTOMATED !!!!! WHERE is its COOLING COUNTERPART !!!!!??????
-    dnCm_dt = C_0_m * nCI * ne - 10**R_Cm_to_CI_via_HII(Tx) * nCm * nHII
-
-    dnCI_dt = (
-               - 10**R_CI_to_CII_via_HeII(Tx) * nCI * nHeII
-               - 10**R_CI_to_CII_via_HII(Tx) * nCI * nHII
-               - 10**R_CI_to_CII_via_e(Tx) * nCI * ne
-               + 10**R_CII_to_CI_via_HI(Tx) * nCII * nHI
-               + 10**R_CII_to_CI_via_e(Tx) * nCII * ne
-               + 10**R_Cm_to_CI_via_HII(Tx) * nCm * nHII
-               - C_0_m * nCI * ne # !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! NOTE: Cm is added Manually and NOT Automatically !!!!!!
-               + 10**grain_rec_CII_to_CI * nCII * ne) # grain_recombination
-
-    dnCII_dt = (
-                + 10**R_CI_to_CII_via_HeII(Tx) * nCI * nHeII
-                + 10**R_CI_to_CII_via_HII(Tx) * nCI * nHII
-                + 10**R_CI_to_CII_via_e(Tx) * nCI * ne
-                - 10**R_CII_to_CI_via_HI(Tx) * nCII * nHI
-                - 10**R_CII_to_CIII_via_HeII(Tx) * nCII * nHeII
-                - 10**R_CII_to_CI_via_e(Tx) * nCII * ne
-                - 10**R_CII_to_CIII_via_e(Tx) * nCII * ne
-                + 10**R_CIII_to_CII_via_HI(Tx) * nCIII * nHI
-                + 10**R_CIII_to_CII_via_e(Tx) * nCIII * ne
-                - 10**grain_rec_CII_to_CI * nCII * ne) # grain_recombination
-
-    dnCIII_dt = (
-                 + 10**R_CII_to_CIII_via_HeII(Tx) * nCII * nHeII
-                 + 10**R_CII_to_CIII_via_e(Tx) * nCII * ne
-                 - 10**R_CIII_to_CII_via_HI(Tx) * nCIII * nHI
-                 - 10**R_CIII_to_CII_via_e(Tx) * nCIII * ne
-                 - 10**R_CIII_to_CIV_via_e(Tx) * nCIII * ne
-                 + 10**R_CIV_to_CIII_via_HeI(Tx) * nCIV * nHeI
-                 + 10**R_CIV_to_CIII_via_HI(Tx) * nCIV * nHI
-                 + 10**R_CIV_to_CIII_via_e(Tx) * nCIV * ne)
-
-    dnCIV_dt = (
-                + 10**R_CIII_to_CIV_via_e(Tx) * nCIII * ne
-                - 10**R_CIV_to_CIII_via_HeI(Tx) * nCIV * nHeI
-                - 10**R_CIV_to_CIII_via_HI(Tx) * nCIV * nHI
-                - 10**R_CIV_to_CIII_via_e(Tx) * nCIV * ne
-                - 10**R_CIV_to_CV_via_e(Tx) * nCIV * ne
-                + 10**R_CV_to_CIV_via_e(Tx) * nCV * ne
-                + 10**R_CV_to_CIV_via_HI(Tx) * nCV * nHI
-                + 10**R_CV_to_CIV_via_HeI(Tx) * nCV * nHeI)
-
-    dnCV_dt = (
-               + 10**R_CIV_to_CV_via_e(Tx) * nCIV * ne
-               - 10**R_CV_to_CVI_via_e(Tx) * nCV * ne
-               - 10**R_CV_to_CIV_via_e(Tx) * nCV * ne
-               - 10**R_CV_to_CIV_via_HI(Tx) * nCV * nHI
-               - 10**R_CV_to_CIV_via_HeI(Tx) * nCV * nHeI
-               + 10**R_CVI_to_CV_via_HI(Tx) * nCVI * nHI
-               + 10**R_CVI_to_CV_via_e(Tx) * nCVI * ne)
-
-    dnCVI_dt = (
-                + 10**R_CV_to_CVI_via_e(Tx) * nCV * ne
-                - 10**R_CVI_to_CVII_via_e(Tx) * nCVI * ne
-                - 10**R_CVI_to_CV_via_HI(Tx) * nCVI * nHI
-                - 10**R_CVI_to_CV_via_e(Tx) * nCVI * ne
-                + 10**R_CVII_to_CVI_via_e(Tx) * nCVII * ne)
-
-    dnCVII_dt = (
-                 + 10**R_CVI_to_CVII_via_e(Tx) * nCVI * ne
-                 - 10**R_CVII_to_CVI_via_e(Tx) * nCVII * ne)
-
-    Lamb = Lambda(T, nHI, nHII, nHeI, nHeII, nHeIII, nCI, nCII, nCIII, nCIV, nCV, nCVI, nCVII)
-    
-    dne_dt = dnHII_dt + (dnHeII_dt + 2.0 * dnHeIII_dt) + (dnCII_dt + 2.0 * dnCIII_dt + 3.0 * dnCIV_dt + 4.0 * dnCV_dt + 5.0 * dnCVI_dt + 6.0 * dnCVII_dt)
-    dntot_dt = dne_dt + (dnHI_dt + dnHII_dt) + (dnHeI_dt + dnHeII_dt + dnHeIII_dt) + (dnCI_dt + dnCII_dt + dnCIII_dt + dnCIV_dt + dnCV_dt + dnCVI_dt + dnCVII_dt)
-    
-    dT_dt = -1.0 * (gamma - 1.0) / kB / ntot * (Lamb + 1. / (gamma - 1.) * kB * T * dntot_dt)
-
-    return [dnHI_dt, dnHII_dt, dnHeI_dt, dnHeII_dt, dnHeIII_dt, dnCI_dt, dnCII_dt, dnCIII_dt, dnCIV_dt, dnCV_dt, dnCVI_dt, dnCVII_dt, dnCm_dt, dT_dt]
+  grain_rec_HII_to_HI = grain_recomb_rate("HII", T, ne, G0, A_v, Temp, Psi)
+  grain_rec_HeII_to_HeI = grain_recomb_rate("HeII", T, ne, G0, A_v, Temp, Psi)
+  grain_rec_CII_to_CI = grain_recomb_rate("CII", T, ne, G0, A_v, Temp, Psi)
+  grain_rec_OII_to_OI = grain_recomb_rate("OII", T, ne, G0, A_v, Temp, Psi)
+  grain_rec_SiII_to_SiI = grain_recomb_rate("SiII", T, ne, G0, A_v, Temp, Psi)
+  grain_rec_FeII_to_FeI = grain_recomb_rate("FeII", T, ne, G0, A_v, Temp, Psi)
+  grain_rec_MgII_to_MgI = grain_recomb_rate("MgII", T, ne, G0, A_v, Temp, Psi)
+  grain_rec_SII_to_SI = grain_recomb_rate("SII", T, ne, G0, A_v, Temp, Psi)
+  grain_rec_CaII_to_CaI = grain_recomb_rate("CaII", T, ne, G0, A_v, Temp, Psi)
+  grain_rec_CaIII_to_CaII = grain_recomb_rate("CaIII", T, ne, G0, A_v, Temp, Psi)
 
 
+  dnHI_dt = 10**k2(Tx) * nHII * ne - 10**k1(Tx) * nHI * ne + 10**grain_rec_HII_to_HI * nHII * ne
+  dnHII_dt = 10**k1(Tx) * nHI * ne - 10**k2(Tx) * nHII * ne - 10**grain_rec_HII_to_HI * nHII * ne
+
+  dnHeI_dt  = 10**k5(Tx) * nHeII * ne - 10**k3(Tx) * nHeI * ne + 10**grain_rec_HeII_to_HeI * nHeII * ne
+
+  dnHeII_dt = (10**k6(Tx) * nHeIII * ne + 10**k3(Tx) * nHeI * ne - 10**k4(Tx) * nHeII * ne - 10**k5(Tx) * nHeII * ne
+           - 10** grain_rec_HeII_to_HeI * nHeII * ne)
+
+  dnHeIII_dt = 10**k4(Tx) * nHeII * ne - 10**k6(Tx) * nHeIII * ne
+
+  
+  const_CI_e_to_Cm_ = 2.2500E-15 # constant/rates
+
+  dnCI_dt = (
+             - 10**R_CI_to_CII_via_HeII(Tx) * nCI * nHeII
+             + 10**grain_rec_CII_to_CI * nCII * ne # grain_recombination
+             - 10**R_CI_to_CII_via_HII(Tx) * nCI * nHII
+             - 10**R_CI_to_CII_via_e(Tx) * nCI * ne
+             + 10**R_CII_to_CI_via_HI(Tx) * nCII * nHI
+             + 10**R_CII_to_CI_via_e(Tx) * nCII * ne
+             + 10**R_Cm_to_CI_via_HII(Tx) * nCm * nHII
+             - const_CI_e_to_Cm_ * nCI * ne # constant rate
+            )
+
+  dnCII_dt = (
+              + 10**R_CI_to_CII_via_HeII(Tx) * nCI * nHeII
+              - 10**grain_rec_CII_to_CI * nCII * ne # grain_recombination
+              + 10**R_CI_to_CII_via_HII(Tx) * nCI * nHII
+              + 10**R_CI_to_CII_via_e(Tx) * nCI * ne
+              - 10**R_CII_to_CI_via_HI(Tx) * nCII * nHI
+              - 10**R_CII_to_CIII_via_HeII(Tx) * nCII * nHeII
+              - 10**R_CII_to_CI_via_e(Tx) * nCII * ne
+              - 10**R_CII_to_CIII_via_e(Tx) * nCII * ne
+              + 10**R_CIII_to_CII_via_HI(Tx) * nCIII * nHI
+              + 10**R_CIII_to_CII_via_e(Tx) * nCIII * ne
+             )
+
+  dnCIII_dt = (
+               + 10**R_CII_to_CIII_via_HeII(Tx) * nCII * nHeII
+               + 10**R_CII_to_CIII_via_e(Tx) * nCII * ne
+               - 10**R_CIII_to_CII_via_HI(Tx) * nCIII * nHI
+               - 10**R_CIII_to_CII_via_e(Tx) * nCIII * ne
+               - 10**R_CIII_to_CIV_via_e(Tx) * nCIII * ne
+               + 10**R_CIV_to_CIII_via_HeI(Tx) * nCIV * nHeI
+               + 10**R_CIV_to_CIII_via_HI(Tx) * nCIV * nHI
+               + 10**R_CIV_to_CIII_via_e(Tx) * nCIV * ne
+              )
+
+  dnCIV_dt = (
+              + 10**R_CIII_to_CIV_via_e(Tx) * nCIII * ne
+              - 10**R_CIV_to_CIII_via_HeI(Tx) * nCIV * nHeI
+              - 10**R_CIV_to_CIII_via_HI(Tx) * nCIV * nHI
+              - 10**R_CIV_to_CIII_via_e(Tx) * nCIV * ne
+              - 10**R_CIV_to_CV_via_e(Tx) * nCIV * ne
+              + 10**R_CV_to_CIV_via_e(Tx) * nCV * ne
+              + 10**R_CV_to_CIV_via_HI(Tx) * nCV * nHI
+              + 10**R_CV_to_CIV_via_HeI(Tx) * nCV * nHeI
+             )
+
+  dnCV_dt = (
+             + 10**R_CIV_to_CV_via_e(Tx) * nCIV * ne
+             - 10**R_CV_to_CVI_via_e(Tx) * nCV * ne
+             - 10**R_CV_to_CIV_via_e(Tx) * nCV * ne
+             - 10**R_CV_to_CIV_via_HI(Tx) * nCV * nHI
+             - 10**R_CV_to_CIV_via_HeI(Tx) * nCV * nHeI
+             + 10**R_CVI_to_CV_via_HI(Tx) * nCVI * nHI
+             + 10**R_CVI_to_CV_via_e(Tx) * nCVI * ne
+            )
+
+  dnCVI_dt = (
+              + 10**R_CV_to_CVI_via_e(Tx) * nCV * ne
+              - 10**R_CVI_to_CVII_via_e(Tx) * nCVI * ne
+              - 10**R_CVI_to_CV_via_HI(Tx) * nCVI * nHI
+              - 10**R_CVI_to_CV_via_e(Tx) * nCVI * ne
+              + 10**R_CVII_to_CVI_via_e(Tx) * nCVII * ne
+             )
+
+  dnCVII_dt = (
+               + 10**R_CVI_to_CVII_via_e(Tx) * nCVI * ne
+               - 10**R_CVII_to_CVI_via_e(Tx) * nCVII * ne
+              )
+
+  dnCm_dt = (
+             - 10**R_Cm_to_CI_via_HII(Tx) * nCm * nHII
+             + const_CI_e_to_Cm_ * nCI * ne # constant rate
+            )
 
 
 
+  Lamb = Lambda(T, nHI, nHII, nHeI, nHeII, nHeIII, nCI, nCII, nCIII, nCIV, nCV, nCVI, nCVII)
+  
+  dne_dt = dnHII_dt + (dnHeII_dt + 2.0 * dnHeIII_dt) + (dnCII_dt + 2.0 * dnCIII_dt + 3.0 * dnCIV_dt + 4.0 * dnCV_dt + 5.0 * dnCVI_dt + 6.0 * dnCVII_dt)
+  dntot_dt = dne_dt + (dnHI_dt + dnHII_dt) + (dnHeI_dt + dnHeII_dt + dnHeIII_dt) + (dnCI_dt + dnCII_dt + dnCIII_dt + dnCIV_dt + dnCV_dt + dnCVI_dt + dnCVII_dt)
+  
+  dT_dt = -1.0 * (gamma - 1.0) / kB / ntot * (Lamb + 1. / (gamma - 1.) * kB * T * dntot_dt)
 
-cr_rateH = 1.8e-16 # s^-1 # from chimes param file ----> grid_noneq_evolution.param!
+  return [dnHI_dt, dnHII_dt, dnHeI_dt, dnHeII_dt, dnHeIII_dt, dnCI_dt, dnCII_dt, dnCIII_dt, dnCIV_dt, dnCV_dt, dnCVI_dt, dnCVII_dt, dnCm_dt, dT_dt]
+
+
+
 
 
 nH = 1000.0

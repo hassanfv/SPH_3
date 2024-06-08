@@ -34,6 +34,7 @@ roman_num = [
 
 excludeList = ['CI', 'CII', 'NII', 'OI', 'SiII', 'FeII'] # These are treated as 2d and 4d!!! Double check to make sure no species is missed!!!
 
+grain_recomb_list = ['CII', 'OII', 'SiII', 'FeII', 'MgII', 'SII', 'CaII', 'CaIII'] # HII and HeII are not included as they are hard-coded!
 
 #----- getAtmNum
 def getAtmNum(iD):
@@ -44,7 +45,7 @@ def getAtmNum(iD):
   return AtmNumlist[n]
 
 
-elm = 'C'   # !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+elm = 'C'   
 AtmNum = getAtmNum(elm)
 spec_list = [elm+roman_num[i] for i in range(AtmNum+1)] # current species list
 spec_iState = [i for i in range(AtmNum+1)] # current species ionization states
@@ -55,24 +56,70 @@ print()
 
 if False:
   #---------------------------------------------------------------------------------------------------
-  elm = 'N'   # !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+  elm = 'N'   
   AtmNum = getAtmNum(elm)
   spec_list2 = [elm+roman_num[i] for i in range(AtmNum+1)] # current species list
   spec_iState2 = [i for i in range(AtmNum+1)] # current species ionization states
-  print(spec_list2)
-  print(spec_iState2)
-  print()
+  spec_list += spec_list2
+  spec_iState += spec_iState2
+  #----------------------------------------------------------------------------------------------------
+  #---------------------------------------------------------------------------------------------------
+  elm = 'O'   
+  AtmNum = getAtmNum(elm)
+  spec_list2 = [elm+roman_num[i] for i in range(AtmNum+1)] # current species list
+  spec_iState2 = [i for i in range(AtmNum+1)] # current species ionization states
+  spec_list += spec_list2
+  spec_iState += spec_iState2
+  #---------------------------------------------------------------------------------------------------
+  elm = 'Ne'   
+  AtmNum = getAtmNum(elm)
+  spec_list2 = [elm+roman_num[i] for i in range(AtmNum+1)] # current species list
+  spec_iState2 = [i for i in range(AtmNum+1)] # current species ionization states
+  spec_list += spec_list2
+  spec_iState += spec_iState2
+  #---------------------------------------------------------------------------------------------------
+  elm = 'Mg'   
+  AtmNum = getAtmNum(elm)
+  spec_list2 = [elm+roman_num[i] for i in range(AtmNum+1)] # current species list
+  spec_iState2 = [i for i in range(AtmNum+1)] # current species ionization states
+  spec_list += spec_list2
+  spec_iState += spec_iState2
+  #---------------------------------------------------------------------------------------------------
+  elm = 'Si'   
+  AtmNum = getAtmNum(elm)
+  spec_list2 = [elm+roman_num[i] for i in range(AtmNum+1)] # current species list
+  spec_iState2 = [i for i in range(AtmNum+1)] # current species ionization states
+  spec_list += spec_list2
+  spec_iState += spec_iState2
+  #---------------------------------------------------------------------------------------------------
+  elm = 'S'   
+  AtmNum = getAtmNum(elm)
+  spec_list2 = [elm+roman_num[i] for i in range(AtmNum+1)] # current species list
+  spec_iState2 = [i for i in range(AtmNum+1)] # current species ionization states
+  spec_list += spec_list2
+  spec_iState += spec_iState2
+  #---------------------------------------------------------------------------------------------------
+  elm = 'Ca'   
+  AtmNum = getAtmNum(elm)
+  spec_list2 = [elm+roman_num[i] for i in range(AtmNum+1)] # current species list
+  spec_iState2 = [i for i in range(AtmNum+1)] # current species ionization states
+  spec_list += spec_list2
+  spec_iState += spec_iState2
+  #---------------------------------------------------------------------------------------------------
+  elm = 'Fe'   
+  AtmNum = getAtmNum(elm)
+  spec_list2 = [elm+roman_num[i] for i in range(AtmNum+1)] # current species list
+  spec_iState2 = [i for i in range(AtmNum+1)] # current species ionization states
   spec_list += spec_list2
   spec_iState += spec_iState2
   print(spec_list)
   print(spec_iState)
   print()
-  #----------------------------------------------------------------------------------------------------
 
 
 
 strx = '#----- Lambda\n'
-strx += f'def Lambda(T, nHI, nHII, nHeI, nHeII, nHeIII, '
+strx += f'def Lambda(T, nHI, nHII, nHm, nHeI, nHeII, nHeIII, '
 
 k = 6 # to take into account the already existance of nHp, nHe, nHepp!
 for x in spec_list:
@@ -82,35 +129,49 @@ for x in spec_list:
   k += 1
 
 strx = strx[:-2]
+
+if 'CI' in spec_list: # 'CI' is only used just to know that Carbon is activated... we could use any other Carbon ions name here!
+  strx += ', nCm'
+
+if 'OI' in spec_list:
+  strx += ', nOm'
+
 strx += '):\n\n'
+
 
 strx +=f'  Tx = np.log10(T)\n\n'
 
-str_ne = f'  ne = (nHII + (nHeII + 2.0 * nHeIII)'
+str_ne = f'  ne = (\n{8 * " "} 1 * nHII - nHm + (nHeII + 2.0 * nHeIII)'
 
 kk = 3
 for k, x in zip(spec_iState, spec_list):
   if k !=0:
     str_ne += f' + {k} * n{x}'
     if not (kk % 6):
-      str_ne += f'\n{4 * " "}'
+      str_ne += f'\n{6 * " "}'
   kk += 1
 
-str_ne += ')\n\n'
+if 'CI' in spec_list: # 'CI' is only used just to know that Carbon is activated... we could use any other Carbon ions name here!
+  str_ne += ' - 1 * nCm'
+
+if 'OI' in spec_list:
+  str_ne += ' - 1 * nOm'
+
+str_ne += f'\n{7 * " "})\n\n'
 strx += str_ne
 
 
 
-str_free = f'  cFree = (nHII + nHeII + 4.0 * nHeIII'
+str_free = f'  cFree = (\n{11 * " "} 1 * nHII + nHeII + 4.0 * nHeIII'
 kk = 3
 for k, x in zip(spec_iState, spec_list):
   if k !=0:
     str_free += f' + {(k)**2} * n{x}'
     if not (kk % 6):
-      str_free += f'\n{7 * " "}'
+      str_free += f'\n{9 * " "}'
   kk += 1
 
-str_free += ')\n\n'
+str_free += ' )\n\n'
 strx += str_free
 
 
@@ -121,27 +182,38 @@ strx += f'  TCMB = TCMB_0 * (1.0 + z)\n'
 strx += f'  LCompton = 1.017e-37 * TCMB**4 * (T - TCMB) * ne\n'
 strx += f'  #--------------------------------------\n\n'
 
-strx += f'  grain_cool_H_1_0 = grain_cool_rate(T, ne, nHI, nHII, G0, A_v, dust_ratio, Temp, Psi)\n'
-strx += f'  grain_cool_He_1_0 = grain_cool_rate(T, ne, nHI, nHII, G0, A_v, dust_ratio, Temp, Psi)\n'
-strx += f'  grain_cool_C_1_0 = grain_cool_rate(T, ne, nHI, nHII, G0, A_v, dust_ratio, Temp, Psi)\n\n'
+# NOTE: grain cooling rate is the same for all species, HII, HeII, CII, OII, SiII, FeII, MgII, SII, CaII, CaIII--> (See cooling/grain_recombination)
+strx += f'  grain_recomb_cooling_rate = grain_cool_rate(T, ne, nHI, nHII, G0, A_v, dust_ratio, Temp, Psi)\n\n'
+ 
 
 
 strx += f'  Lamb = (\n'
 strx += f'  {7 * " "} 10**g1(Tx) * ne * nHI  # H0\n'
 strx += f'  {5 * " "} + 10**g2(Tx) * ne * nHII # Hp\n'
-strx += f'  {5 * " "} + 10**grain_cool_H_1_0 * nHII * ne\n'
+strx += f'  {5 * " "} + 10**grain_recomb_cooling_rate * nHII * ne # grain_recombination cooling!\n' 
 strx += f'  {5 * " "} + 10**g3(Tx) * nHeI * ne # He0\n' 
 strx += f'  {5 * " "} + 10**g4(Tx) * nHeII * ne # Hep\n'
-strx += f'  {5 * " "} + 10**grain_cool_He_1_0 * nHeII * ne\n'
+strx += f'  {5 * " "} + 10**grain_recomb_cooling_rate * nHeII * ne # grain_recombination cooling!\n' 
 strx += f'  {5 * " "} + 10**g5(Tx) * nHeIII * ne# Hep\n'
 
-strx += f'  {5 * " "} + 10**CI_cooling_rate(T, nHI, ne, nHII, Temp_4d, HIDensity_4d, elecDensity_4d, HIIDensity_4d) * nCI * ne # cooling via CI\n'
-strx += f'  {5 * " "} + 10**CII_cooling_rate(T, ne, Temp_2d, elecDensity_2d) * nCII * ne # cooling via CII\n'
-strx += f'  {5 * " "} + 10**grain_cool_C_1_0 * nCII * ne\n'
+if 'CI' in spec_list: # 'CI' is only used just to know that Carbon is activated... we could use any other Carbon ions name here!
+  strx += f'  {5 * " "} + 10**cooling_rate_4d("CI", T, nHI, ne, nHII, Temp_4d, HIDensity_4d, elecDensity_4d, HIIDensity_4d) * nCI * ne # cooling via CI\n'
+  strx += f'  {5 * " "} + 10**cooling_rate_2d("CII", T, ne, Temp_2d, elecDensity_2d) * nCII * ne # cooling via CII\n'
+if 'NII' in spec_list:
+  strx += f'  {5 * " "} + 10**cooling_rate_2d("NII", T, ne, Temp_2d, elecDensity_2d) * nNII * ne # cooling via NII\n'
+if 'OI' in spec_list:
+  strx += f'  {5 * " "} + 10**cooling_rate_4d("OI", T, nHI, ne, nHII, Temp_4d, HIDensity_4d, elecDensity_4d, HIIDensity_4d) * nOI * ne # cooling via OI\n'
+if 'SiII' in spec_list:
+  strx += f'  {5 * " "} + 10**cooling_rate_2d("SiII", T, ne, Temp_2d, elecDensity_2d) * nSiII * ne # cooling via SiII\n'
+if 'FeII' in spec_list:
+  strx += f'  {5 * " "} + 10**cooling_rate_2d("FeII", T, ne, Temp_2d, elecDensity_2d) * nFeII * ne # cooling via FeII\n'
 
 for x in spec_list:
+  print('x = ', x)
   if x not in excludeList:
     strx += f'  {5 * " "} + 10**g{x}(Tx) * n{x} * ne\n'
+  if x in grain_recomb_list:
+    strx += f'  {5 * " "} + 10**grain_recomb_cooling_rate * n{x} * ne # grain_recombination cooling!\n' 
 
 strx += f'  {5 * " "} + gfree(T) * ne * cFree # free-free emission\n'
 strx += f'  {5 * " "} + LCompton)\n\n'

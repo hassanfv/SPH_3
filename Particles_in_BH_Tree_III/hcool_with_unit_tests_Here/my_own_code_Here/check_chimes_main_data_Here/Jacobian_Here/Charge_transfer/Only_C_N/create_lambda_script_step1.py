@@ -39,7 +39,7 @@ def getAtmNum(iD):
   return AtmNumlist[n]
 
 
-elm = 'C'   # !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+elm = 'O'   # !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 AtmNum = getAtmNum(elm)
 
 spec_list = [elm+roman_num[i] for i in range(AtmNum+1)] # current species list

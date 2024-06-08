@@ -44,6 +44,8 @@ with h5py.File('chimes_main_data.hdf5', 'r') as file:
   print()
 
 
+oneTimerX = 0
+
 for i in range(len(elmList)):
 
   nt = np.where(reactants[:, 0] == i)[0]   # Change the index here to see the reactions and products of that element
@@ -105,10 +107,21 @@ for i in range(len(elmList)):
     
     strz = strx + label
     
-    if label != '----> MOLECULES involved !!!' and a[0] == 'C':
+    if label != '----> MOLECULES involved !!!' and a[0] == 'H':
       
       res1 = f'R_{a}_to_{x}_via_{b}_ = rates[{nt[j]}, :]'
       res2 = f'R_{a}_to_{x}_via_{b} = interp1d(Temp, R_{a}_to_{x}_via_{b}_, kind="linear", fill_value="extrapolate")'
+      
+      if (a[0] == 'H') and (oneTimerX == 0):
+        tmp = 'R_HII_to_HI_via_e_caseA_ = ratesAB[0, :] # H CaseA'
+        res1_list.append(tmp)
+        tmp = 'R_HeII_to_HeI_via_e_caseA_ = ratesAB[1, :] # He CaseA'
+        res1_list.append(tmp)
+        tmp = 'R_HII_to_HI_via_e_caseA = interp1d(Temp, R_HII_to_HI_via_e_caseA_, kind="linear", fill_value="extrapolate") # H CaseA'
+        res2_list.append(tmp)
+        tmp = 'R_HeII_to_HeI_via_e_caseA = interp1d(Temp, R_HeII_to_HeI_via_e_caseA_, kind="linear", fill_value="extrapolate") # He CaseA'
+        res2_list.append(tmp)
+        oneTimerX = 1
       
       res1_list.append(res1)
       res2_list.append(res2)

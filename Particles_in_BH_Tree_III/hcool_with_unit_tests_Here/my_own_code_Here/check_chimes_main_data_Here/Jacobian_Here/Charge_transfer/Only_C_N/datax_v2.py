@@ -43,44 +43,35 @@ with h5py.File('chimes_main_data.hdf5', 'r') as file:
   grain_cooling_rates = file['cooling/grain_recombination'][:]
   grain_cooling_rates = 10**grain_cooling_rates
 
-# NOTE: I used "T_dependent_reactants.py" code to find indices 111, 0, 108, etc!!!
-#---- Reaction rates -------
-k1x = rates[111, :] # Reaction: (H0 + e ---> Hp + 2e) ::: H0 Collisional ionization
-k2x = ratesAB[0, :] # Reaction: (Hp + e ---> H0 + γ)  ::: photo-recombination of Hp and e.
-k3x = rates[108, :] # Reaction: (He0 + e ---> Hep + 2e) ::: He0 Collisional ionization 
-k4x = rates[0, :]   # Reaction: (Hep + e ---> Hepp + 2e) ::: Hep Collisional ionization
-k5x = ratesAB[1, :] # Reaction: (Hep + e ---> He0 + γ)  ::: photo-recombination of Hep and e. !!! PROBABLY di-electric is also included ?????
-k6x = rates[222, :] # Reaction: (Hepp + e ---> Hep + γ)  ::: photo-recombination of Hepp and e.
+R_HII_to_HI_via_e_caseA_ = ratesAB[0, :] # H CaseA
+R_HeII_to_HeI_via_e_caseA_ = ratesAB[1, :] # He CaseA
+R_HI_to_HII_via_e_ = rates[111, :]
+R_HI_to_Hm_via_e_ = rates[113, :]
+R_Hm_to_HI_via_HI_ = rates[109, :]
+R_Hm_to_HI_via_e_ = rates[110, :]
+R_Hm_to_HI_via_HII_ = rates[112, :]
+R_HeI_to_HeII_via_HII_ = rates[106, :]
+R_HeI_to_HeII_via_e_ = rates[108, :]
+R_HeII_to_HeIII_via_e_ = rates[0, :]
+R_HeII_to_HeI_via_Hm_ = rates[103, :]
+R_HeII_to_HeI_via_HI_ = rates[107, :]
+R_HeIII_to_HeII_via_HI_ = rates[221, :]
+R_HeIII_to_HeII_via_e_ = rates[222, :]
 
-#----
-km1x = rates[113, :] # Reaction: (HI + e ---> Hm + γ)
-km2x = rates[109, :] # Reaction: (Hm + HI ---> HI + HI + e)
-km3x = rates[110, :] # Reaction: (Hm + e ---> HI + e + e)
-km4x = rates[112, :] # Reaction: (Hm + HII ---> HI + HI)
-
-km5x = rates[103, :] # Reaction: (HeII + Hm ---> HeI + HI)
-
-km6x = rates[106, :] # Reaction: (HeI + HII ---> HeII + HI)
-km7x = rates[107, :] # Reaction: (HeII + HI ---> HeI + HII)
-km8x = rates[221, :] # Reaction: (HeIII + HI ---> HeII + HII)
-#----
-
-km1 = interp1d(Temp, km1x, kind='linear', fill_value="extrapolate")
-km2 = interp1d(Temp, km2x, kind='linear', fill_value="extrapolate")
-km3 = interp1d(Temp, km3x, kind='linear', fill_value="extrapolate")
-km4 = interp1d(Temp, km4x, kind='linear', fill_value="extrapolate")
-km5 = interp1d(Temp, km5x, kind='linear', fill_value="extrapolate")
-km6 = interp1d(Temp, km6x, kind='linear', fill_value="extrapolate")
-km7 = interp1d(Temp, km7x, kind='linear', fill_value="extrapolate")
-km8 = interp1d(Temp, km8x, kind='linear', fill_value="extrapolate")
-#----
-
-k1 = interp1d(Temp, k1x, kind='linear', fill_value="extrapolate")
-k2 = interp1d(Temp, k2x, kind='linear', fill_value="extrapolate")
-k3 = interp1d(Temp, k3x, kind='linear', fill_value="extrapolate")
-k4 = interp1d(Temp, k4x, kind='linear', fill_value="extrapolate")
-k5 = interp1d(Temp, k5x, kind='linear', fill_value="extrapolate")
-k6 = interp1d(Temp, k6x, kind='linear', fill_value="extrapolate")
+R_HII_to_HI_via_e_caseA = interp1d(Temp, R_HII_to_HI_via_e_caseA_, kind="linear", fill_value="extrapolate") # H CaseA
+R_HeII_to_HeI_via_e_caseA = interp1d(Temp, R_HeII_to_HeI_via_e_caseA_, kind="linear", fill_value="extrapolate") # He CaseA
+R_HI_to_HII_via_e = interp1d(Temp, R_HI_to_HII_via_e_, kind="linear", fill_value="extrapolate")
+R_HI_to_Hm_via_e = interp1d(Temp, R_HI_to_Hm_via_e_, kind="linear", fill_value="extrapolate")
+R_Hm_to_HI_via_HI = interp1d(Temp, R_Hm_to_HI_via_HI_, kind="linear", fill_value="extrapolate")
+R_Hm_to_HI_via_e = interp1d(Temp, R_Hm_to_HI_via_e_, kind="linear", fill_value="extrapolate")
+R_Hm_to_HI_via_HII = interp1d(Temp, R_Hm_to_HI_via_HII_, kind="linear", fill_value="extrapolate")
+R_HeI_to_HeII_via_HII = interp1d(Temp, R_HeI_to_HeII_via_HII_, kind="linear", fill_value="extrapolate")
+R_HeI_to_HeII_via_e = interp1d(Temp, R_HeI_to_HeII_via_e_, kind="linear", fill_value="extrapolate")
+R_HeII_to_HeIII_via_e = interp1d(Temp, R_HeII_to_HeIII_via_e_, kind="linear", fill_value="extrapolate")
+R_HeII_to_HeI_via_Hm = interp1d(Temp, R_HeII_to_HeI_via_Hm_, kind="linear", fill_value="extrapolate")
+R_HeII_to_HeI_via_HI = interp1d(Temp, R_HeII_to_HeI_via_HI_, kind="linear", fill_value="extrapolate")
+R_HeIII_to_HeII_via_HI = interp1d(Temp, R_HeIII_to_HeII_via_HI_, kind="linear", fill_value="extrapolate")
+R_HeIII_to_HeII_via_e = interp1d(Temp, R_HeIII_to_HeII_via_e_, kind="linear", fill_value="extrapolate")
 
 
 #---- Cooling rates ------

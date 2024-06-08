@@ -39,10 +39,10 @@ grain_rec_prod = np.array(['HI', 'HeI', 'CI', 'OI', 'SiI', 'FeI', 'MgI', 'SI', '
 
 #----- constant rates ------- !!!!!!!!!!! DO NOT FORGET TO HARD-CODE Cm and Om !!!!!!!!!!!!!!!!
 constList = [["CII", "SiI", "CI", "SiII"],
-             ["CII", "MgI", "CI", "MgII"],
              ["OI", "e", "Om", ""],
-             ["CI", "e", "Cm", ""],
+             ["CII", "MgI", "CI", "MgII"],
              ["NII", "MgI", "NI", "MgII"],
+             ["CI", "e", "Cm", ""],
              ["SII", "MgI", "SI", "MgII"],
              ["FeI", "SiII", "FeII", "SiI"],
              ["FeI", "CII", "FeII", "CI"],
@@ -51,10 +51,10 @@ constList = [["CII", "SiI", "CI", "SiII"],
 
 
 
-#----- getAtmNum
+#----- getAtmNum ---> get Atomic Number from elements name or iD!
 def getAtmNum(iD):
-  iDlist = np.array(['C', 'N', 'O', 'Ne', 'Mg', 'Si', 'S', 'Ca', 'Fe'])
-  AtmNumlist = [6, 7, 8, 10, 12, 14, 16, 20, 26]
+  iDlist = np.array(['H', 'He', 'C', 'N', 'O', 'Ne', 'Mg', 'Si', 'S', 'Ca', 'Fe'])
+  AtmNumlist = [1, 2, 6, 7, 8, 10, 12, 14, 16, 20, 26]
   n = np.where(iD == iDlist)[0][0]
  
   return AtmNumlist[n]
@@ -77,18 +77,88 @@ with h5py.File('chimes_main_data.hdf5', 'r') as file:
   print("products.shape':", reactants.shape)
   print()
 
+  const_rates = file['constant/rates'][:] # Seems they are just charge exchange and no cooling actually happen as a result of these processes!
 
+print('******* reactants **************')
 print(reactants)
+print()
+
+print('******* constant/rates *******')
+print(const_rates)
+print()
 
 
-elm = 'C'   # !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+elm = 'H'   
 AtmNum = getAtmNum(elm)
 spec_list = [elm+roman_num[i] for i in range(AtmNum+1)]
-if elm == 'C':
-  spec_list += ['Cm']
-if elm == 'O':
-  spec_list += ['Om']
 
+print(spec_list)
+
+
+if False:
+  elm = 'C'   
+  AtmNum = getAtmNum(elm)
+  spec_list = [elm+roman_num[i] for i in range(AtmNum+1)]
+  spec_list += ['Cm']
+
+if False:
+  #---------- 
+  elm = 'N'   
+  AtmNum = getAtmNum(elm)
+  spec_list2 = [elm+roman_num[i] for i in range(AtmNum+1)]
+  spec_list += spec_list2
+  #----------------------------------
+
+  #---------- 
+  elm = 'O'   
+  AtmNum = getAtmNum(elm)
+  spec_list2 = [elm+roman_num[i] for i in range(AtmNum+1)]
+  spec_list += spec_list2
+  spec_list += ['Om']
+  #----------------------------------
+
+  #---------- 
+  elm = 'Ne'   
+  AtmNum = getAtmNum(elm)
+  spec_list2 = [elm+roman_num[i] for i in range(AtmNum+1)]
+  spec_list += spec_list2
+  #----------------------------------
+
+  #---------- 
+  elm = 'Mg'   
+  AtmNum = getAtmNum(elm)
+  spec_list2 = [elm+roman_num[i] for i in range(AtmNum+1)]
+  spec_list += spec_list2
+  #----------------------------------
+
+  #---------- 
+  elm = 'Si'   
+  AtmNum = getAtmNum(elm)
+  spec_list2 = [elm+roman_num[i] for i in range(AtmNum+1)]
+  spec_list += spec_list2
+  #----------------------------------
+
+  #---------- 
+  elm = 'S'   
+  AtmNum = getAtmNum(elm)
+  spec_list2 = [elm+roman_num[i] for i in range(AtmNum+1)]
+  spec_list += spec_list2
+  #----------------------------------
+
+  #---------- 
+  elm = 'Ca'   
+  AtmNum = getAtmNum(elm)
+  spec_list2 = [elm+roman_num[i] for i in range(AtmNum+1)]
+  spec_list += spec_list2
+  #----------------------------------
+
+  #---------- 
+  elm = 'Fe'   
+  AtmNum = getAtmNum(elm)
+  spec_list2 = [elm+roman_num[i] for i in range(AtmNum+1)]
+  spec_list += spec_list2
+  #----------------------------------
 
 print(spec_list)
 
@@ -96,12 +166,26 @@ print(spec_list)
 # Writing to text files
 file1 = open('ode1.py', 'w')
 
+#------- Writing the constant rates to the file ---------
+j = 0
+for tmpArr in constList:
+  reacz = tmpArr[:2]
+  prodz = tmpArr[2:]
+  
+  if (reacz[0] in spec_list) and ((reacz[1] in spec_list) or (reacz[1] == 'e')):
+    tmp = f'\n  const_{reacz[0]}_{reacz[1]}_to_{prodz[0]}_{prodz[1]} = {const_rates[j]:.4E} # constant/rates'
+    file1.write(tmp)
+  j+= 1
+tmp = '\n\n'
+file1.write(tmp)
+#--------------------------------------------------------
+
 oneTimerCa = 0
 
 for jj in range(len(spec_list)):
 
   iD = spec_list[jj]
-  ode = f'dn{iD}_dt = '
+  ode = f'  dn{iD}_dt = '
   Nspace = len(ode)
   checker = 0
   oneTimerConst = 0
@@ -184,18 +268,18 @@ for jj in range(len(spec_list)):
           else:
             tmp = f'\n{Nspace * " "} - 10**R_{a}_to_{x}_via_{b}(Tx) * n{a} * n{b}'
             ode = ode + tmp
-            checker = 1
+            #checker = 1
             file1.write(tmp)
         if (iD in grain_rec_reac) and (checker == 1) and (oneTimer == 0): # if it is the reactant then we lose it so it needs to be subtracted!
             nn = np.where(grain_rec_reac == iD)[0][0]
-            tmp = f'\n{Nspace * " "} - 10**grain_rec_{iD}_to_{grain_rec_prod[nn]} * n{iD} * ne) # grain_recombination'
+            tmp = f'\n{Nspace * " "} - 10**grain_rec_{iD}_to_{grain_rec_prod[nn]} * n{iD} * ne # grain_recombination'
             ode = ode + tmp
             oneTimer = 1
             file1.write(tmp)
           
         if (iD in grain_rec_prod) and (checker == 1) and (oneTimer == 0): #if it is the product then we gain it so it needs to be dded!
             nn = np.where(grain_rec_prod == iD)[0][0]
-            tmp = f'\n{Nspace * " "} + 10**grain_rec_{grain_rec_reac[nn]}_to_{iD} * n{grain_rec_reac[nn]} * ne) # grain_recombination'
+            tmp = f'\n{Nspace * " "} + 10**grain_rec_{grain_rec_reac[nn]}_to_{iD} * n{grain_rec_reac[nn]} * ne # grain_recombination'
             ode = ode + tmp
             oneTimer = 1
             file1.write(tmp)
@@ -203,13 +287,13 @@ for jj in range(len(spec_list)):
         
         #--- Due to the complexiy I prefer to hard-code these two lines!!!
         if (iD == 'CaII') and (checker == 1) and (oneTimerCa == 0): # checker is needed so that it is not added as the first line because it hasn't paranthesis (!!
-          tmp = f'\n{Nspace * " "} + 10**grain_rec_CaIII_to_CaII * nCaIII * ne) # grain_recombination'
+          tmp = f'\n{Nspace * " "} + 10**grain_rec_CaIII_to_CaII * nCaIII * ne # grain_recombination'
           ode = ode + tmp
           oneTimerCa = 1
           file1.write(tmp)
           
         if (iD == 'CaIII') and (checker == 1) and (oneTimerCa == 1): # checker is needed so that it is not added as the first line because it hasn't paranthesis (!!
-          tmp = f'\n{Nspace * " "} - 10**grain_rec_CaIII_to_CaII * nCaIII * ne) # grain_recombination'
+          tmp = f'\n{Nspace * " "} - 10**grain_rec_CaIII_to_CaII * nCaIII * ne # grain_recombination'
           ode = ode + tmp
           oneTimerCa = 2
           file1.write(tmp)

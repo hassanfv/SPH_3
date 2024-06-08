@@ -42,11 +42,11 @@ print("Shape of 'constant/reactants':", reactants.shape)
 print("Data type of 'constant/reactants':", reactants.dtype)
 print(np.sort(reactants[:, 0]))
 print()
-print('******* All reactants ******')
+print('******* reactants ******')
 print((reactants))
 print()
 print()
-print('+++++++ All products +++++++')
+print('+++++++ products +++++++')
 print(products)
 print()
 
@@ -73,29 +73,29 @@ for i in range(len(a)):
 
 #------------------------------------------------------------------------------------------
 
-s()
 
+if False:
 
-i = 2
+  i = 2
 
-print(reactants[i, :])
+  print(reactants[i, :])
 
-N = np.sum(reactants[i, :] != -1)
+  N = np.sum(reactants[i, :] != -1)
 
-for j in range(N):
-  print(f'Reactant_{i} = {elmList[reactants[i, j]]}')
+  for j in range(N):
+    print(f'Reactant_{i} = {elmList[reactants[i, j]]}')
 
-print()
-nt = np.where(reactants[:, 0] == 3)[0]   # Change the index here to see the reactions and products of that element
-print('******** reactants ****************')
-print('nt = ', nt)
-print(reactants[nt, :])
-print('************************')
-print()
+  print()
+  nt = np.where(reactants[:, 0] == 3)[0]   # Change the index here to see the reactions and products of that element
+  print('******** reactants ****************')
+  print('nt = ', nt)
+  print(reactants[nt, :])
+  print('************************')
+  print()
 
-print('******** products ****************')
-print(products[nt, :])
-print('************************')
+  print('******** products ****************')
+  print(products[nt, :])
+  print('************************')
 
 
 
