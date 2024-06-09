@@ -20,6 +20,12 @@
              - 10**R_CV_to_CIV_via_HI(Tx) * nCV * nHI
              - 10**R_CVI_to_CV_via_HI(Tx) * nCVI * nHI
              + 10**R_Cm_to_CI_via_HII(Tx) * nCm * nHII
+             + 10**R_NI_to_NII_via_HII(Tx) * nNI * nHII
+             - 10**R_NII_to_NI_via_HI(Tx) * nNII * nHI
+             - 10**R_NIII_to_NII_via_HI(Tx) * nNIII * nHI
+             - 10**R_NIV_to_NIII_via_HI(Tx) * nNIV * nHI
+             - 10**R_NV_to_NIV_via_HI(Tx) * nNV * nHI
+             - 10**R_NVI_to_NV_via_HI(Tx) * nNVI * nHI
              + 10**R_HII_to_HI_via_e_caseA(Tx) * nHII * ne # H CaseA
             )
 
@@ -37,6 +43,12 @@
               + 10**R_CV_to_CIV_via_HI(Tx) * nCV * nHI
               + 10**R_CVI_to_CV_via_HI(Tx) * nCVI * nHI
               - 10**R_Cm_to_CI_via_HII(Tx) * nCm * nHII
+              - 10**R_NI_to_NII_via_HII(Tx) * nNI * nHII
+              + 10**R_NII_to_NI_via_HI(Tx) * nNII * nHI
+              + 10**R_NIII_to_NII_via_HI(Tx) * nNIII * nHI
+              + 10**R_NIV_to_NIII_via_HI(Tx) * nNIV * nHI
+              + 10**R_NV_to_NIV_via_HI(Tx) * nNV * nHI
+              + 10**R_NVI_to_NV_via_HI(Tx) * nNVI * nHI
               - 10**R_HII_to_HI_via_e_caseA(Tx) * nHII * ne # H CaseA
              )
 
@@ -58,6 +70,10 @@
               + 10**R_CII_to_CIII_via_HeII(Tx) * nCII * nHeII
               - 10**R_CIV_to_CIII_via_HeI(Tx) * nCIV * nHeI
               - 10**R_CV_to_CIV_via_HeI(Tx) * nCV * nHeI
+              + 10**R_NII_to_NIII_via_HeII(Tx) * nNII * nHeII
+              - 10**R_NIII_to_NII_via_HeI(Tx) * nNIII * nHeI
+              - 10**R_NIV_to_NIII_via_HeI(Tx) * nNIV * nHeI
+              - 10**R_NV_to_NIV_via_HeI(Tx) * nNV * nHeI
               + 10**R_HeII_to_HeI_via_e_caseA(Tx) * nHeII * ne # He CaseA
              )
 
@@ -74,6 +90,10 @@
                - 10**R_CII_to_CIII_via_HeII(Tx) * nCII * nHeII
                + 10**R_CIV_to_CIII_via_HeI(Tx) * nCIV * nHeI
                + 10**R_CV_to_CIV_via_HeI(Tx) * nCV * nHeI
+               - 10**R_NII_to_NIII_via_HeII(Tx) * nNII * nHeII
+               + 10**R_NIII_to_NII_via_HeI(Tx) * nNIII * nHeI
+               + 10**R_NIV_to_NIII_via_HeI(Tx) * nNIV * nHeI
+               + 10**R_NV_to_NIV_via_HeI(Tx) * nNV * nHeI
                - 10**R_HeII_to_HeI_via_e_caseA(Tx) * nHeII * ne # He CaseA
               )
 
@@ -156,4 +176,76 @@
              - 10**R_Cm_to_CI_via_HII(Tx) * nCm * nHII
              + const_CI_e_to_Cm_ * nCI * ne # constant rate
             )
+
+  dnNI_dt = (
+             - 10**R_NI_to_NII_via_HII(Tx) * nNI * nHII
+             - 10**R_NI_to_NII_via_e(Tx) * nNI * ne
+             + 10**R_NII_to_NI_via_HI(Tx) * nNII * nHI
+             + 10**R_NII_to_NI_via_e(Tx) * nNII * ne
+            )
+
+  dnNII_dt = (
+              + 10**R_NI_to_NII_via_HII(Tx) * nNI * nHII
+              + 10**R_NI_to_NII_via_e(Tx) * nNI * ne
+              - 10**R_NII_to_NI_via_HI(Tx) * nNII * nHI
+              - 10**R_NII_to_NIII_via_HeII(Tx) * nNII * nHeII
+              - 10**R_NII_to_NI_via_e(Tx) * nNII * ne
+              - 10**R_NII_to_NIII_via_e(Tx) * nNII * ne
+              + 10**R_NIII_to_NII_via_HeI(Tx) * nNIII * nHeI
+              + 10**R_NIII_to_NII_via_HI(Tx) * nNIII * nHI
+              + 10**R_NIII_to_NII_via_e(Tx) * nNIII * ne
+             )
+
+  dnNIII_dt = (
+               + 10**R_NII_to_NIII_via_HeII(Tx) * nNII * nHeII
+               + 10**R_NII_to_NIII_via_e(Tx) * nNII * ne
+               - 10**R_NIII_to_NII_via_HeI(Tx) * nNIII * nHeI
+               - 10**R_NIII_to_NII_via_HI(Tx) * nNIII * nHI
+               - 10**R_NIII_to_NII_via_e(Tx) * nNIII * ne
+               - 10**R_NIII_to_NIV_via_e(Tx) * nNIII * ne
+               + 10**R_NIV_to_NIII_via_HeI(Tx) * nNIV * nHeI
+               + 10**R_NIV_to_NIII_via_HI(Tx) * nNIV * nHI
+               + 10**R_NIV_to_NIII_via_e(Tx) * nNIV * ne
+              )
+
+  dnNIV_dt = (
+              + 10**R_NIII_to_NIV_via_e(Tx) * nNIII * ne
+              - 10**R_NIV_to_NIII_via_HeI(Tx) * nNIV * nHeI
+              - 10**R_NIV_to_NIII_via_HI(Tx) * nNIV * nHI
+              - 10**R_NIV_to_NIII_via_e(Tx) * nNIV * ne
+              - 10**R_NIV_to_NV_via_e(Tx) * nNIV * ne
+              + 10**R_NV_to_NIV_via_HeI(Tx) * nNV * nHeI
+              + 10**R_NV_to_NIV_via_HI(Tx) * nNV * nHI
+              + 10**R_NV_to_NIV_via_e(Tx) * nNV * ne
+             )
+
+  dnNV_dt = (
+             + 10**R_NIV_to_NV_via_e(Tx) * nNIV * ne
+             - 10**R_NV_to_NIV_via_HeI(Tx) * nNV * nHeI
+             - 10**R_NV_to_NIV_via_HI(Tx) * nNV * nHI
+             - 10**R_NV_to_NIV_via_e(Tx) * nNV * ne
+             - 10**R_NV_to_NVI_via_e(Tx) * nNV * ne
+             + 10**R_NVI_to_NV_via_HI(Tx) * nNVI * nHI
+             + 10**R_NVI_to_NV_via_e(Tx) * nNVI * ne
+            )
+
+  dnNVI_dt = (
+              + 10**R_NV_to_NVI_via_e(Tx) * nNV * ne
+              - 10**R_NVI_to_NV_via_HI(Tx) * nNVI * nHI
+              - 10**R_NVI_to_NVII_via_e(Tx) * nNVI * ne
+              - 10**R_NVI_to_NV_via_e(Tx) * nNVI * ne
+              + 10**R_NVII_to_NVI_via_e(Tx) * nNVII * ne
+             )
+
+  dnNVII_dt = (
+               + 10**R_NVI_to_NVII_via_e(Tx) * nNVI * ne
+               - 10**R_NVII_to_NVI_via_e(Tx) * nNVII * ne
+               - 10**R_NVII_to_NVIII_via_e(Tx) * nNVII * ne
+               + 10**R_NVIII_to_NVII_via_e(Tx) * nNVIII * ne
+              )
+
+  dnNVIII_dt = (
+                + 10**R_NVII_to_NVIII_via_e(Tx) * nNVII * ne
+                - 10**R_NVIII_to_NVII_via_e(Tx) * nNVIII * ne
+               )
 

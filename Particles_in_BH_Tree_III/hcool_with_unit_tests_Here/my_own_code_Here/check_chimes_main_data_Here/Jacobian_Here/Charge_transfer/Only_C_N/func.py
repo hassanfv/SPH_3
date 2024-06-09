@@ -2,19 +2,23 @@
 def func(t, y):
 
   nHI, nHII, nHm, nHeI, nHeII, nHeIII, nCI, nCII, nCIII, nCIV, \
-  nCV, nCVI, nCVII, nCm, T = y
+  nCV, nCVI, nCVII, nCm, nNI, nNII, nNIII, nNIV, nNV, nNVI, \
+  nNVII, nNVIII, T = y
 
   Tx = np.log10(T)
 
   ne = (
        + 1 * nHII + -1 * nHm + 1 * nHeII + 2 * nHeIII + 1 * nCII + 2 * nCIII
-       + 3 * nCIV + 4 * nCV + 5 * nCVI + 6 * nCVII + -1 * nCm
+       + 3 * nCIV + 4 * nCV + 5 * nCVI + 6 * nCVII + -1 * nCm + 1 * nNII
+       + 2 * nNIII + 3 * nNIV + 4 * nNV + 5 * nNVI + 6 * nNVII + 7 * nNVIII
+      
        )
 
   ntot = (
            ne + nHI + nHII + nHm + nHeI + nHeII + nHeIII
          + nCI + nCII + nCIII + nCIV + nCV + nCVI
-         + nCVII + nCm
+         + nCVII + nCm + nNI + nNII + nNIII + nNIV
+         + nNV + nNVI + nNVII + nNVIII
          )
 
   grain_rec_HII_to_HI = grain_recomb_rate("HII", T, ne, G0, A_v, Temp, Psi)
@@ -42,6 +46,12 @@ def func(t, y):
              - 10**R_CV_to_CIV_via_HI(Tx) * nCV * nHI
              - 10**R_CVI_to_CV_via_HI(Tx) * nCVI * nHI
              + 10**R_Cm_to_CI_via_HII(Tx) * nCm * nHII
+             + 10**R_NI_to_NII_via_HII(Tx) * nNI * nHII
+             - 10**R_NII_to_NI_via_HI(Tx) * nNII * nHI
+             - 10**R_NIII_to_NII_via_HI(Tx) * nNIII * nHI
+             - 10**R_NIV_to_NIII_via_HI(Tx) * nNIV * nHI
+             - 10**R_NV_to_NIV_via_HI(Tx) * nNV * nHI
+             - 10**R_NVI_to_NV_via_HI(Tx) * nNVI * nHI
              + 10**R_HII_to_HI_via_e_caseA(Tx) * nHII * ne # H CaseA
             )
 
@@ -59,6 +69,12 @@ def func(t, y):
               + 10**R_CV_to_CIV_via_HI(Tx) * nCV * nHI
               + 10**R_CVI_to_CV_via_HI(Tx) * nCVI * nHI
               - 10**R_Cm_to_CI_via_HII(Tx) * nCm * nHII
+              - 10**R_NI_to_NII_via_HII(Tx) * nNI * nHII
+              + 10**R_NII_to_NI_via_HI(Tx) * nNII * nHI
+              + 10**R_NIII_to_NII_via_HI(Tx) * nNIII * nHI
+              + 10**R_NIV_to_NIII_via_HI(Tx) * nNIV * nHI
+              + 10**R_NV_to_NIV_via_HI(Tx) * nNV * nHI
+              + 10**R_NVI_to_NV_via_HI(Tx) * nNVI * nHI
               - 10**R_HII_to_HI_via_e_caseA(Tx) * nHII * ne # H CaseA
              )
 
@@ -80,6 +96,10 @@ def func(t, y):
               + 10**R_CII_to_CIII_via_HeII(Tx) * nCII * nHeII
               - 10**R_CIV_to_CIII_via_HeI(Tx) * nCIV * nHeI
               - 10**R_CV_to_CIV_via_HeI(Tx) * nCV * nHeI
+              + 10**R_NII_to_NIII_via_HeII(Tx) * nNII * nHeII
+              - 10**R_NIII_to_NII_via_HeI(Tx) * nNIII * nHeI
+              - 10**R_NIV_to_NIII_via_HeI(Tx) * nNIV * nHeI
+              - 10**R_NV_to_NIV_via_HeI(Tx) * nNV * nHeI
               + 10**R_HeII_to_HeI_via_e_caseA(Tx) * nHeII * ne # He CaseA
              )
 
@@ -96,6 +116,10 @@ def func(t, y):
                - 10**R_CII_to_CIII_via_HeII(Tx) * nCII * nHeII
                + 10**R_CIV_to_CIII_via_HeI(Tx) * nCIV * nHeI
                + 10**R_CV_to_CIV_via_HeI(Tx) * nCV * nHeI
+               - 10**R_NII_to_NIII_via_HeII(Tx) * nNII * nHeII
+               + 10**R_NIII_to_NII_via_HeI(Tx) * nNIII * nHeI
+               + 10**R_NIV_to_NIII_via_HeI(Tx) * nNIV * nHeI
+               + 10**R_NV_to_NIV_via_HeI(Tx) * nNV * nHeI
                - 10**R_HeII_to_HeI_via_e_caseA(Tx) * nHeII * ne # He CaseA
               )
 
@@ -179,19 +203,95 @@ def func(t, y):
              + const_CI_e_to_Cm_ * nCI * ne # constant rate
             )
 
+  dnNI_dt = (
+             - 10**R_NI_to_NII_via_HII(Tx) * nNI * nHII
+             - 10**R_NI_to_NII_via_e(Tx) * nNI * ne
+             + 10**R_NII_to_NI_via_HI(Tx) * nNII * nHI
+             + 10**R_NII_to_NI_via_e(Tx) * nNII * ne
+            )
+
+  dnNII_dt = (
+              + 10**R_NI_to_NII_via_HII(Tx) * nNI * nHII
+              + 10**R_NI_to_NII_via_e(Tx) * nNI * ne
+              - 10**R_NII_to_NI_via_HI(Tx) * nNII * nHI
+              - 10**R_NII_to_NIII_via_HeII(Tx) * nNII * nHeII
+              - 10**R_NII_to_NI_via_e(Tx) * nNII * ne
+              - 10**R_NII_to_NIII_via_e(Tx) * nNII * ne
+              + 10**R_NIII_to_NII_via_HeI(Tx) * nNIII * nHeI
+              + 10**R_NIII_to_NII_via_HI(Tx) * nNIII * nHI
+              + 10**R_NIII_to_NII_via_e(Tx) * nNIII * ne
+             )
+
+  dnNIII_dt = (
+               + 10**R_NII_to_NIII_via_HeII(Tx) * nNII * nHeII
+               + 10**R_NII_to_NIII_via_e(Tx) * nNII * ne
+               - 10**R_NIII_to_NII_via_HeI(Tx) * nNIII * nHeI
+               - 10**R_NIII_to_NII_via_HI(Tx) * nNIII * nHI
+               - 10**R_NIII_to_NII_via_e(Tx) * nNIII * ne
+               - 10**R_NIII_to_NIV_via_e(Tx) * nNIII * ne
+               + 10**R_NIV_to_NIII_via_HeI(Tx) * nNIV * nHeI
+               + 10**R_NIV_to_NIII_via_HI(Tx) * nNIV * nHI
+               + 10**R_NIV_to_NIII_via_e(Tx) * nNIV * ne
+              )
+
+  dnNIV_dt = (
+              + 10**R_NIII_to_NIV_via_e(Tx) * nNIII * ne
+              - 10**R_NIV_to_NIII_via_HeI(Tx) * nNIV * nHeI
+              - 10**R_NIV_to_NIII_via_HI(Tx) * nNIV * nHI
+              - 10**R_NIV_to_NIII_via_e(Tx) * nNIV * ne
+              - 10**R_NIV_to_NV_via_e(Tx) * nNIV * ne
+              + 10**R_NV_to_NIV_via_HeI(Tx) * nNV * nHeI
+              + 10**R_NV_to_NIV_via_HI(Tx) * nNV * nHI
+              + 10**R_NV_to_NIV_via_e(Tx) * nNV * ne
+             )
+
+  dnNV_dt = (
+             + 10**R_NIV_to_NV_via_e(Tx) * nNIV * ne
+             - 10**R_NV_to_NIV_via_HeI(Tx) * nNV * nHeI
+             - 10**R_NV_to_NIV_via_HI(Tx) * nNV * nHI
+             - 10**R_NV_to_NIV_via_e(Tx) * nNV * ne
+             - 10**R_NV_to_NVI_via_e(Tx) * nNV * ne
+             + 10**R_NVI_to_NV_via_HI(Tx) * nNVI * nHI
+             + 10**R_NVI_to_NV_via_e(Tx) * nNVI * ne
+            )
+
+  dnNVI_dt = (
+              + 10**R_NV_to_NVI_via_e(Tx) * nNV * ne
+              - 10**R_NVI_to_NV_via_HI(Tx) * nNVI * nHI
+              - 10**R_NVI_to_NVII_via_e(Tx) * nNVI * ne
+              - 10**R_NVI_to_NV_via_e(Tx) * nNVI * ne
+              + 10**R_NVII_to_NVI_via_e(Tx) * nNVII * ne
+             )
+
+  dnNVII_dt = (
+               + 10**R_NVI_to_NVII_via_e(Tx) * nNVI * ne
+               - 10**R_NVII_to_NVI_via_e(Tx) * nNVII * ne
+               - 10**R_NVII_to_NVIII_via_e(Tx) * nNVII * ne
+               + 10**R_NVIII_to_NVII_via_e(Tx) * nNVIII * ne
+              )
+
+  dnNVIII_dt = (
+                + 10**R_NVII_to_NVIII_via_e(Tx) * nNVII * ne
+                - 10**R_NVIII_to_NVII_via_e(Tx) * nNVIII * ne
+               )
+
   Lamb = Lambda(
                 T, nHI, nHII, nHm, nHeI, nHeII, nHeIII, nCI, nCII, nCIII, nCIV, 
-                nCV, nCVI, nCVII, nCm)
+                nCV, nCVI, nCVII, nCm, nNI, nNII, nNIII, nNIV, nNV, nNVI, 
+                nNVII, nNVIII)
 
   dne_dt = (
            + 1 * dnHII_dt + -1 * dnHm_dt + 1 * dnHeII_dt + 2 * dnHeIII_dt + 1 * dnCII_dt + 2 * dnCIII_dt
-           + 3 * dnCIV_dt + 4 * dnCV_dt + 5 * dnCVI_dt + 6 * dnCVII_dt + -1 * dnCm_dt
+           + 3 * dnCIV_dt + 4 * dnCV_dt + 5 * dnCVI_dt + 6 * dnCVII_dt + -1 * dnCm_dt + 1 * dnNII_dt
+           + 2 * dnNIII_dt + 3 * dnNIV_dt + 4 * dnNV_dt + 5 * dnNVI_dt + 6 * dnNVII_dt + 7 * dnNVIII_dt
+          
            )
 
   dntot_dt = (
                 dne_dt + dnHI_dt + dnHII_dt + dnHm_dt + dnHeI_dt + dnHeII_dt + dnHeIII_dt
               + dnCI_dt + dnCII_dt + dnCIII_dt + dnCIV_dt + dnCV_dt + dnCVI_dt
-              + dnCVII_dt + dnCm_dt
+              + dnCVII_dt + dnCm_dt + dnNI_dt + dnNII_dt + dnNIII_dt + dnNIV_dt
+              + dnNV_dt + dnNVI_dt + dnNVII_dt + dnNVIII_dt
              )
 
   dT_dt = -1.0 * (gamma - 1.0) / kB / ntot * (Lamb + 1. / (gamma - 1.) * kB * T * dntot_dt)
@@ -199,6 +299,7 @@ def func(t, y):
   return [
           dnHI_dt, dnHII_dt, dnHm_dt, dnHeI_dt, dnHeII_dt, dnHeIII_dt,
           dnCI_dt, dnCII_dt, dnCIII_dt, dnCIV_dt, dnCV_dt, dnCVI_dt,
-          dnCVII_dt, dnCm_dt, dT_dt
+          dnCVII_dt, dnCm_dt, dnNI_dt, dnNII_dt, dnNIII_dt, dnNIV_dt,
+          dnNV_dt, dnNVI_dt, dnNVII_dt, dnNVIII_dt, dT_dt
          ]
 

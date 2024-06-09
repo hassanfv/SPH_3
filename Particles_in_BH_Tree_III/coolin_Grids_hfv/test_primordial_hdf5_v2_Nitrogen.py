@@ -56,7 +56,6 @@ print('T = ', 10**temperatures[iTemp])
 iZ = 0
 print('Z = ', metallicities[iZ])
 
-s()
 
 TEvol = TemperatureEvolution[iTemp, inH, iZ, :]
 
@@ -77,6 +76,15 @@ nC4= AbundanceEvolution[iTemp, inH, iZ, 11, :] * 10**densities[inH]
 nC5= AbundanceEvolution[iTemp, inH, iZ, 12, :] * 10**densities[inH]
 nC6= AbundanceEvolution[iTemp, inH, iZ, 13, :] * 10**densities[inH]
 nCm= AbundanceEvolution[iTemp, inH, iZ, 14, :] * 10**densities[inH]
+
+nN0= AbundanceEvolution[iTemp, inH, iZ, 15, :] * 10**densities[inH]
+nN1= AbundanceEvolution[iTemp, inH, iZ, 16, :] * 10**densities[inH]
+nN2= AbundanceEvolution[iTemp, inH, iZ, 17, :] * 10**densities[inH]
+nN3= AbundanceEvolution[iTemp, inH, iZ, 18, :] * 10**densities[inH]
+nN4= AbundanceEvolution[iTemp, inH, iZ, 19, :] * 10**densities[inH]
+nN5= AbundanceEvolution[iTemp, inH, iZ, 20, :] * 10**densities[inH]
+nN6= AbundanceEvolution[iTemp, inH, iZ, 21, :] * 10**densities[inH]
+nN7= AbundanceEvolution[iTemp, inH, iZ, 22, :] * 10**densities[inH]
 
 print()
 print('nC0 + ... + nC6 = ', (nC0 + nC1 + nC2 + nC3 + nC4 + nC5 + nC6)[0])
@@ -121,14 +129,15 @@ plt.yscale('log')
 plt.legend()
 
 dictx = {'t_Arr_in_yrs': t_Arr_in_yrs, 'TEvol': TEvol, 'nHe0': nHe0, 'nHep': nHep, 'nHepp': nHepp, 'nH0': nH0, 'nHp': nHp,
-         'nC0': nC0, 'nC1': nC1, 'nC2': nC2, 'nC3': nC3, 'nC4': nC4, 'nC5': nC5, 'nC6': nC6, 'nCm': nCm}
+         'nC0': nC0, 'nC1': nC1, 'nC2': nC2, 'nC3': nC3, 'nC4': nC4, 'nC5': nC5, 'nC6': nC6, 'nCm': nCm,
+         'nN0': nN0, 'nN1': nN1, 'nN2': nN2, 'nN3': nN3, 'nN4': nN4, 'nN5': nN5, 'nN6': nN6, 'nN7': nN7}
 
 dicLOG= {'t_Arr_in_yrs': t_Arr_in_yrs, 'TEvol': np.log10(TEvol), 'nHe0': np.log10(nHe0+1e-30), 'nHep': np.log10(nHep+1e-30),
          'nHepp': np.log10(nHepp+1e-30), 'nH0': np.log10(nH0+1e-30), 'nHp': np.log10(nHp+1e-30), 'nC0': np.log10(nC0+1e-30),
          'nC1': np.log10(nC1+1e-30), 'nC2': np.log10(nC2+1e-30), 'nC3': np.log10(nC3+1e-30), 'nC4': np.log10(nC4+1e-30),
          'nC5': np.log10(nC5+1e-30), 'nC6': np.log10(nC6+1e-30)}
 
-with open('chimesRes.pkl', 'wb') as f:
+with open('chimesRes_C_N.pkl', 'wb') as f:
   pickle.dump(dictx, f)
 
 #with open('chimesResLOG.pkl', 'wb') as f:

@@ -107,7 +107,7 @@ for i in range(len(elmList)):
     
     strz = strx + label
     
-    if label != '----> MOLECULES involved !!!' and a[0] == 'H':
+    if label != '----> MOLECULES involved !!!' and a[0] == 'N': #!!!!!!!!!!!! CONFLICT with C and Ca ???????!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
       
       res1 = f'R_{a}_to_{x}_via_{b}_ = rates[{nt[j]}, :]'
       res2 = f'R_{a}_to_{x}_via_{b} = interp1d(Temp, R_{a}_to_{x}_via_{b}_, kind="linear", fill_value="extrapolate")'

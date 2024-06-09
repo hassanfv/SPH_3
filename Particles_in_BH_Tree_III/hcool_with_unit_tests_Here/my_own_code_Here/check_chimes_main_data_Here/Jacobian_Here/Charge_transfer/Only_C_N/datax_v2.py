@@ -150,6 +150,77 @@ gCVI = interp1d(Temp, gCVI_, kind="linear", fill_value="extrapolate")
 gCVII = interp1d(Temp, gCVII_, kind="linear", fill_value="extrapolate")
 
 
+#----------- Nitrogen Section --------------
+#--- REACTION RATES
+R_NI_to_NII_via_HII_ = rates[239, :]
+R_NI_to_NII_via_e_ = rates[240, :]
+R_NII_to_NI_via_HI_ = rates[235, :]
+R_NII_to_NIII_via_HeII_ = rates[236, :]
+R_NII_to_NI_via_e_ = rates[237, :]
+R_NII_to_NIII_via_e_ = rates[238, :]
+R_NIII_to_NII_via_HeI_ = rates[231, :]
+R_NIII_to_NII_via_HI_ = rates[232, :]
+R_NIII_to_NII_via_e_ = rates[233, :]
+R_NIII_to_NIV_via_e_ = rates[234, :]
+R_NIV_to_NIII_via_HeI_ = rates[227, :]
+R_NIV_to_NIII_via_HI_ = rates[228, :]
+R_NIV_to_NIII_via_e_ = rates[229, :]
+R_NIV_to_NV_via_e_ = rates[230, :]
+R_NV_to_NIV_via_HeI_ = rates[202, :]
+R_NV_to_NIV_via_HI_ = rates[203, :]
+R_NV_to_NIV_via_e_ = rates[204, :]
+R_NV_to_NVI_via_e_ = rates[205, :]
+R_NVI_to_NV_via_HI_ = rates[178, :]
+R_NVI_to_NVII_via_e_ = rates[180, :]
+R_NVI_to_NV_via_e_ = rates[246, :]
+R_NVII_to_NVI_via_e_ = rates[176, :]
+R_NVII_to_NVIII_via_e_ = rates[177, :]
+R_NVIII_to_NVII_via_e_ = rates[175, :]
+
+R_NI_to_NII_via_HII = interp1d(Temp, R_NI_to_NII_via_HII_, kind="linear", fill_value="extrapolate")
+R_NI_to_NII_via_e = interp1d(Temp, R_NI_to_NII_via_e_, kind="linear", fill_value="extrapolate")
+R_NII_to_NI_via_HI = interp1d(Temp, R_NII_to_NI_via_HI_, kind="linear", fill_value="extrapolate")
+R_NII_to_NIII_via_HeII = interp1d(Temp, R_NII_to_NIII_via_HeII_, kind="linear", fill_value="extrapolate")
+R_NII_to_NI_via_e = interp1d(Temp, R_NII_to_NI_via_e_, kind="linear", fill_value="extrapolate")
+R_NII_to_NIII_via_e = interp1d(Temp, R_NII_to_NIII_via_e_, kind="linear", fill_value="extrapolate")
+R_NIII_to_NII_via_HeI = interp1d(Temp, R_NIII_to_NII_via_HeI_, kind="linear", fill_value="extrapolate")
+R_NIII_to_NII_via_HI = interp1d(Temp, R_NIII_to_NII_via_HI_, kind="linear", fill_value="extrapolate")
+R_NIII_to_NII_via_e = interp1d(Temp, R_NIII_to_NII_via_e_, kind="linear", fill_value="extrapolate")
+R_NIII_to_NIV_via_e = interp1d(Temp, R_NIII_to_NIV_via_e_, kind="linear", fill_value="extrapolate")
+R_NIV_to_NIII_via_HeI = interp1d(Temp, R_NIV_to_NIII_via_HeI_, kind="linear", fill_value="extrapolate")
+R_NIV_to_NIII_via_HI = interp1d(Temp, R_NIV_to_NIII_via_HI_, kind="linear", fill_value="extrapolate")
+R_NIV_to_NIII_via_e = interp1d(Temp, R_NIV_to_NIII_via_e_, kind="linear", fill_value="extrapolate")
+R_NIV_to_NV_via_e = interp1d(Temp, R_NIV_to_NV_via_e_, kind="linear", fill_value="extrapolate")
+R_NV_to_NIV_via_HeI = interp1d(Temp, R_NV_to_NIV_via_HeI_, kind="linear", fill_value="extrapolate")
+R_NV_to_NIV_via_HI = interp1d(Temp, R_NV_to_NIV_via_HI_, kind="linear", fill_value="extrapolate")
+R_NV_to_NIV_via_e = interp1d(Temp, R_NV_to_NIV_via_e_, kind="linear", fill_value="extrapolate")
+R_NV_to_NVI_via_e = interp1d(Temp, R_NV_to_NVI_via_e_, kind="linear", fill_value="extrapolate")
+R_NVI_to_NV_via_HI = interp1d(Temp, R_NVI_to_NV_via_HI_, kind="linear", fill_value="extrapolate")
+R_NVI_to_NVII_via_e = interp1d(Temp, R_NVI_to_NVII_via_e_, kind="linear", fill_value="extrapolate")
+R_NVI_to_NV_via_e = interp1d(Temp, R_NVI_to_NV_via_e_, kind="linear", fill_value="extrapolate")
+R_NVII_to_NVI_via_e = interp1d(Temp, R_NVII_to_NVI_via_e_, kind="linear", fill_value="extrapolate")
+R_NVII_to_NVIII_via_e = interp1d(Temp, R_NVII_to_NVIII_via_e_, kind="linear", fill_value="extrapolate")
+R_NVIII_to_NVII_via_e = interp1d(Temp, R_NVIII_to_NVII_via_e_, kind="linear", fill_value="extrapolate")
+
+#--- COOLING RATES
+gNI_ = cooling_rates[10, :]
+gNIII_ = cooling_rates[11, :]
+gNIV_ = cooling_rates[12, :]
+gNV_ = cooling_rates[13, :]
+gNVI_ = cooling_rates[14, :]
+gNVII_ = cooling_rates[15, :]
+gNVIII_ = cooling_rates[16, :]
+
+gNI = interp1d(Temp, gNI_, kind="linear", fill_value="extrapolate")
+gNIII = interp1d(Temp, gNIII_, kind="linear", fill_value="extrapolate")
+gNIV = interp1d(Temp, gNIV_, kind="linear", fill_value="extrapolate")
+gNV = interp1d(Temp, gNV_, kind="linear", fill_value="extrapolate")
+gNVI = interp1d(Temp, gNVI_, kind="linear", fill_value="extrapolate")
+gNVII = interp1d(Temp, gNVII_, kind="linear", fill_value="extrapolate")
+gNVIII = interp1d(Temp, gNVIII_, kind="linear", fill_value="extrapolate")
+#-------------------------------------------
+
+
 #----- cooling_rate_4d 
 def cooling_rate_4d(ionX, T, nHI, nelec, nHII, Temp_4d, HIDensity_4d, elecDensity_4d, HIIDensity_4d):
 

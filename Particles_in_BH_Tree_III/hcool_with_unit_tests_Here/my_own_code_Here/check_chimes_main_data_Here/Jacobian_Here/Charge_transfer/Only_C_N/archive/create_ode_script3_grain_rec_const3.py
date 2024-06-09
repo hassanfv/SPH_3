@@ -108,6 +108,11 @@ AtmNum = getAtmNum(elm)
 spec_list2 = [elm+roman_num[i] for i in range(AtmNum+1)]
 spec_list += spec_list2
 spec_list += ['Cm']
+#---------- 
+elm = 'N'   
+AtmNum = getAtmNum(elm)
+spec_list2 = [elm+roman_num[i] for i in range(AtmNum+1)]
+spec_list += spec_list2
 #----------------------------------
 
 print()

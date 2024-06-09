@@ -27,18 +27,20 @@ def gfree(T):
 
 #----- Lambda
 def Lambda(T, nHI, nHII, nHm, nHeI, nHeII, nHeIII, nCI, nCII, nCIII, nCIV, nCV, 
-           nCVI, nCVII, nCm):
+           nCVI, nCVII, nNI, nNII, nNIII, nNIV, nNV, nNVI, nNVII, nNVIII, nCm):
 
   Tx = np.log10(T)
 
   ne = (
          1 * nHII - nHm + (nHeII + 2.0 * nHeIII) + 1 * nCII + 2 * nCIII + 3 * nCIV
-       + 4 * nCV + 5 * nCVI + 6 * nCVII - 1 * nCm
+       + 4 * nCV + 5 * nCVI + 6 * nCVII + 1 * nNII + 2 * nNIII
+       + 3 * nNIV + 4 * nNV + 5 * nNVI + 6 * nNVII + 7 * nNVIII - 1 * nCm
        )
 
   cFree = (
             1 * nHII + nHeII + 4.0 * nHeIII + 1 * nCII + 4 * nCIII + 9 * nCIV
-          + 16 * nCV + 25 * nCVI + 36 * nCVII )
+          + 16 * nCV + 25 * nCVI + 36 * nCVII + 1 * nNII + 4 * nNIII
+          + 9 * nNIV + 16 * nNV + 25 * nNVI + 36 * nNVII + 49 * nNVIII )
 
   #----- # Glover & Jappsen - 2007 -----
   z = 0.0 # current time redshift!
@@ -59,12 +61,20 @@ def Lambda(T, nHI, nHII, nHm, nHeI, nHeII, nHeIII, nCI, nCII, nCIII, nCIV, nCV,
         + 10**g5(Tx) * nHeIII * ne# Hep
         + 10**cooling_rate_4d("CI", T, nHI, ne, nHII, Temp_4d, HIDensity_4d, elecDensity_4d, HIIDensity_4d) * nCI * ne # cooling via CI
         + 10**cooling_rate_2d("CII", T, ne, Temp_2d, elecDensity_2d) * nCII * ne # cooling via CII
+        + 10**cooling_rate_2d("NII", T, ne, Temp_2d, elecDensity_2d) * nNII * ne # cooling via NII
         + 10**grain_recomb_cooling_rate * nCII * ne # grain_recombination cooling!
         + 10**gCIII(Tx) * nCIII * ne
         + 10**gCIV(Tx) * nCIV * ne
         + 10**gCV(Tx) * nCV * ne
         + 10**gCVI(Tx) * nCVI * ne
         + 10**gCVII(Tx) * nCVII * ne
+        + 10**gNI(Tx) * nNI * ne
+        + 10**gNIII(Tx) * nNIII * ne
+        + 10**gNIV(Tx) * nNIV * ne
+        + 10**gNV(Tx) * nNV * ne
+        + 10**gNVI(Tx) * nNVI * ne
+        + 10**gNVII(Tx) * nNVII * ne
+        + 10**gNVIII(Tx) * nNVIII * ne
         + gfree(T) * ne * cFree # free-free emission
         + LCompton)
 
@@ -76,19 +86,23 @@ def Lambda(T, nHI, nHII, nHm, nHeI, nHeII, nHeIII, nCI, nCII, nCIII, nCIV, nCV,
 def func(t, y):
 
   nHI, nHII, nHm, nHeI, nHeII, nHeIII, nCI, nCII, nCIII, nCIV, \
-  nCV, nCVI, nCVII, nCm, T = y
+  nCV, nCVI, nCVII, nCm, nNI, nNII, nNIII, nNIV, nNV, nNVI, \
+  nNVII, nNVIII, T = y
 
   Tx = np.log10(T)
 
   ne = (
        + 1 * nHII + -1 * nHm + 1 * nHeII + 2 * nHeIII + 1 * nCII + 2 * nCIII
-       + 3 * nCIV + 4 * nCV + 5 * nCVI + 6 * nCVII + -1 * nCm
+       + 3 * nCIV + 4 * nCV + 5 * nCVI + 6 * nCVII + -1 * nCm + 1 * nNII
+       + 2 * nNIII + 3 * nNIV + 4 * nNV + 5 * nNVI + 6 * nNVII + 7 * nNVIII
+      
        )
 
   ntot = (
            ne + nHI + nHII + nHm + nHeI + nHeII + nHeIII
          + nCI + nCII + nCIII + nCIV + nCV + nCVI
-         + nCVII + nCm
+         + nCVII + nCm + nNI + nNII + nNIII + nNIV
+         + nNV + nNVI + nNVII + nNVIII
          )
 
   grain_rec_HII_to_HI = grain_recomb_rate("HII", T, ne, G0, A_v, Temp, Psi)
@@ -116,6 +130,12 @@ def func(t, y):
              - 10**R_CV_to_CIV_via_HI(Tx) * nCV * nHI
              - 10**R_CVI_to_CV_via_HI(Tx) * nCVI * nHI
              + 10**R_Cm_to_CI_via_HII(Tx) * nCm * nHII
+             + 10**R_NI_to_NII_via_HII(Tx) * nNI * nHII
+             - 10**R_NII_to_NI_via_HI(Tx) * nNII * nHI
+             - 10**R_NIII_to_NII_via_HI(Tx) * nNIII * nHI
+             - 10**R_NIV_to_NIII_via_HI(Tx) * nNIV * nHI
+             - 10**R_NV_to_NIV_via_HI(Tx) * nNV * nHI
+             - 10**R_NVI_to_NV_via_HI(Tx) * nNVI * nHI
              + 10**R_HII_to_HI_via_e_caseA(Tx) * nHII * ne # H CaseA
             )
 
@@ -133,6 +153,12 @@ def func(t, y):
               + 10**R_CV_to_CIV_via_HI(Tx) * nCV * nHI
               + 10**R_CVI_to_CV_via_HI(Tx) * nCVI * nHI
               - 10**R_Cm_to_CI_via_HII(Tx) * nCm * nHII
+              - 10**R_NI_to_NII_via_HII(Tx) * nNI * nHII
+              + 10**R_NII_to_NI_via_HI(Tx) * nNII * nHI
+              + 10**R_NIII_to_NII_via_HI(Tx) * nNIII * nHI
+              + 10**R_NIV_to_NIII_via_HI(Tx) * nNIV * nHI
+              + 10**R_NV_to_NIV_via_HI(Tx) * nNV * nHI
+              + 10**R_NVI_to_NV_via_HI(Tx) * nNVI * nHI
               - 10**R_HII_to_HI_via_e_caseA(Tx) * nHII * ne # H CaseA
              )
 
@@ -154,6 +180,10 @@ def func(t, y):
               + 10**R_CII_to_CIII_via_HeII(Tx) * nCII * nHeII
               - 10**R_CIV_to_CIII_via_HeI(Tx) * nCIV * nHeI
               - 10**R_CV_to_CIV_via_HeI(Tx) * nCV * nHeI
+              + 10**R_NII_to_NIII_via_HeII(Tx) * nNII * nHeII
+              - 10**R_NIII_to_NII_via_HeI(Tx) * nNIII * nHeI
+              - 10**R_NIV_to_NIII_via_HeI(Tx) * nNIV * nHeI
+              - 10**R_NV_to_NIV_via_HeI(Tx) * nNV * nHeI
               + 10**R_HeII_to_HeI_via_e_caseA(Tx) * nHeII * ne # He CaseA
              )
 
@@ -170,6 +200,10 @@ def func(t, y):
                - 10**R_CII_to_CIII_via_HeII(Tx) * nCII * nHeII
                + 10**R_CIV_to_CIII_via_HeI(Tx) * nCIV * nHeI
                + 10**R_CV_to_CIV_via_HeI(Tx) * nCV * nHeI
+               - 10**R_NII_to_NIII_via_HeII(Tx) * nNII * nHeII
+               + 10**R_NIII_to_NII_via_HeI(Tx) * nNIII * nHeI
+               + 10**R_NIV_to_NIII_via_HeI(Tx) * nNIV * nHeI
+               + 10**R_NV_to_NIV_via_HeI(Tx) * nNV * nHeI
                - 10**R_HeII_to_HeI_via_e_caseA(Tx) * nHeII * ne # He CaseA
               )
 
@@ -253,19 +287,95 @@ def func(t, y):
              + const_CI_e_to_Cm_ * nCI * ne # constant rate
             )
 
+  dnNI_dt = (
+             - 10**R_NI_to_NII_via_HII(Tx) * nNI * nHII
+             - 10**R_NI_to_NII_via_e(Tx) * nNI * ne
+             + 10**R_NII_to_NI_via_HI(Tx) * nNII * nHI
+             + 10**R_NII_to_NI_via_e(Tx) * nNII * ne
+            )
+
+  dnNII_dt = (
+              + 10**R_NI_to_NII_via_HII(Tx) * nNI * nHII
+              + 10**R_NI_to_NII_via_e(Tx) * nNI * ne
+              - 10**R_NII_to_NI_via_HI(Tx) * nNII * nHI
+              - 10**R_NII_to_NIII_via_HeII(Tx) * nNII * nHeII
+              - 10**R_NII_to_NI_via_e(Tx) * nNII * ne
+              - 10**R_NII_to_NIII_via_e(Tx) * nNII * ne
+              + 10**R_NIII_to_NII_via_HeI(Tx) * nNIII * nHeI
+              + 10**R_NIII_to_NII_via_HI(Tx) * nNIII * nHI
+              + 10**R_NIII_to_NII_via_e(Tx) * nNIII * ne
+             )
+
+  dnNIII_dt = (
+               + 10**R_NII_to_NIII_via_HeII(Tx) * nNII * nHeII
+               + 10**R_NII_to_NIII_via_e(Tx) * nNII * ne
+               - 10**R_NIII_to_NII_via_HeI(Tx) * nNIII * nHeI
+               - 10**R_NIII_to_NII_via_HI(Tx) * nNIII * nHI
+               - 10**R_NIII_to_NII_via_e(Tx) * nNIII * ne
+               - 10**R_NIII_to_NIV_via_e(Tx) * nNIII * ne
+               + 10**R_NIV_to_NIII_via_HeI(Tx) * nNIV * nHeI
+               + 10**R_NIV_to_NIII_via_HI(Tx) * nNIV * nHI
+               + 10**R_NIV_to_NIII_via_e(Tx) * nNIV * ne
+              )
+
+  dnNIV_dt = (
+              + 10**R_NIII_to_NIV_via_e(Tx) * nNIII * ne
+              - 10**R_NIV_to_NIII_via_HeI(Tx) * nNIV * nHeI
+              - 10**R_NIV_to_NIII_via_HI(Tx) * nNIV * nHI
+              - 10**R_NIV_to_NIII_via_e(Tx) * nNIV * ne
+              - 10**R_NIV_to_NV_via_e(Tx) * nNIV * ne
+              + 10**R_NV_to_NIV_via_HeI(Tx) * nNV * nHeI
+              + 10**R_NV_to_NIV_via_HI(Tx) * nNV * nHI
+              + 10**R_NV_to_NIV_via_e(Tx) * nNV * ne
+             )
+
+  dnNV_dt = (
+             + 10**R_NIV_to_NV_via_e(Tx) * nNIV * ne
+             - 10**R_NV_to_NIV_via_HeI(Tx) * nNV * nHeI
+             - 10**R_NV_to_NIV_via_HI(Tx) * nNV * nHI
+             - 10**R_NV_to_NIV_via_e(Tx) * nNV * ne
+             - 10**R_NV_to_NVI_via_e(Tx) * nNV * ne
+             + 10**R_NVI_to_NV_via_HI(Tx) * nNVI * nHI
+             + 10**R_NVI_to_NV_via_e(Tx) * nNVI * ne
+            )
+
+  dnNVI_dt = (
+              + 10**R_NV_to_NVI_via_e(Tx) * nNV * ne
+              - 10**R_NVI_to_NV_via_HI(Tx) * nNVI * nHI
+              - 10**R_NVI_to_NVII_via_e(Tx) * nNVI * ne
+              - 10**R_NVI_to_NV_via_e(Tx) * nNVI * ne
+              + 10**R_NVII_to_NVI_via_e(Tx) * nNVII * ne
+             )
+
+  dnNVII_dt = (
+               + 10**R_NVI_to_NVII_via_e(Tx) * nNVI * ne
+               - 10**R_NVII_to_NVI_via_e(Tx) * nNVII * ne
+               - 10**R_NVII_to_NVIII_via_e(Tx) * nNVII * ne
+               + 10**R_NVIII_to_NVII_via_e(Tx) * nNVIII * ne
+              )
+
+  dnNVIII_dt = (
+                + 10**R_NVII_to_NVIII_via_e(Tx) * nNVII * ne
+                - 10**R_NVIII_to_NVII_via_e(Tx) * nNVIII * ne
+               )
+
   Lamb = Lambda(
                 T, nHI, nHII, nHm, nHeI, nHeII, nHeIII, nCI, nCII, nCIII, nCIV, 
-                nCV, nCVI, nCVII, nCm)
+                nCV, nCVI, nCVII, nCm, nNI, nNII, nNIII, nNIV, nNV, nNVI, 
+                nNVII, nNVIII)
 
   dne_dt = (
            + 1 * dnHII_dt + -1 * dnHm_dt + 1 * dnHeII_dt + 2 * dnHeIII_dt + 1 * dnCII_dt + 2 * dnCIII_dt
-           + 3 * dnCIV_dt + 4 * dnCV_dt + 5 * dnCVI_dt + 6 * dnCVII_dt + -1 * dnCm_dt
+           + 3 * dnCIV_dt + 4 * dnCV_dt + 5 * dnCVI_dt + 6 * dnCVII_dt + -1 * dnCm_dt + 1 * dnNII_dt
+           + 2 * dnNIII_dt + 3 * dnNIV_dt + 4 * dnNV_dt + 5 * dnNVI_dt + 6 * dnNVII_dt + 7 * dnNVIII_dt
+          
            )
 
   dntot_dt = (
                 dne_dt + dnHI_dt + dnHII_dt + dnHm_dt + dnHeI_dt + dnHeII_dt + dnHeIII_dt
               + dnCI_dt + dnCII_dt + dnCIII_dt + dnCIV_dt + dnCV_dt + dnCVI_dt
-              + dnCVII_dt + dnCm_dt
+              + dnCVII_dt + dnCm_dt + dnNI_dt + dnNII_dt + dnNIII_dt + dnNIV_dt
+              + dnNV_dt + dnNVI_dt + dnNVII_dt + dnNVIII_dt
              )
 
   dT_dt = -1.0 * (gamma - 1.0) / kB / ntot * (Lamb + 1. / (gamma - 1.) * kB * T * dntot_dt)
@@ -273,8 +383,10 @@ def func(t, y):
   return [
           dnHI_dt, dnHII_dt, dnHm_dt, dnHeI_dt, dnHeII_dt, dnHeIII_dt,
           dnCI_dt, dnCII_dt, dnCIII_dt, dnCIV_dt, dnCV_dt, dnCVI_dt,
-          dnCVII_dt, dnCm_dt, dT_dt
+          dnCVII_dt, dnCm_dt, dnNI_dt, dnNII_dt, dnNIII_dt, dnNIV_dt,
+          dnNV_dt, dnNVI_dt, dnNVII_dt, dnNVIII_dt, dT_dt
          ]
+
 
 
 
@@ -287,10 +399,15 @@ print('nHe (cm^-3) = ', nHe)
 C_solar = 10**(-3.61) # See Table_1 in Wiersma et al - 2009, 393, 99–107
 nC = C_solar * nH
 
-print('nC (cm^-3) = ', nC)
+N_solar = 10**(-4.07)
+nN = N_solar * nH
 
+print('nC (cm^-3) = ', nC)
 print()
-print('H, C before = ', nH, nC)
+print('nN (cm^-3) = ', nN)
+print()
+print('H, C, N before = ', nH, nC, nN)
+print()
 
 T_i = 10**6.00
 
@@ -311,7 +428,21 @@ nC4_i = 1e-3 * nC
 nC5_i = 1e-2 * nC
 nC6_i = nC - (nCm_i + nC0_i + nC1_i + nC2_i + nC3_i + nC4_i + nC5_i)
 
-y0 = [nH0_i, nHp_i, nHm_i, nHe0_i, nHep_i, nHepp_i, nC0_i, nC1_i, nC2_i, nC3_i, nC4_i, nC5_i, nC6_i, nCm_i, T_i]
+nN0_i = 1e-5 * nN
+nN1_i = 1e-5 * nN
+nN2_i = 1e-4 * nN
+nN3_i = 1e-4 * nN
+nN4_i = 1e-3 * nN
+nN5_i = 1e-2 * nN
+nN6_i = 1e-2 * nN
+nN7_i = nN - (nN0_i + nN1_i + nN2_i + nN3_i + nN4_i + nN5_i + nN6_i)
+
+y0 = [
+      nH0_i, nHp_i, nHm_i, nHe0_i, nHep_i, nHepp_i,
+      nC0_i, nC1_i, nC2_i, nC3_i, nC4_i, nC5_i, nC6_i, nCm_i,
+      nN0_i, nN1_i, nN2_i, nN3_i, nN4_i, nN5_i, nN6_i, nN7_i,
+      T_i
+      ]
 
 
 A_v = 1.0
@@ -344,7 +475,17 @@ nC4 = y[10, :]
 nC5 = y[11, :]
 nC6 = y[12, :]
 nCm = y[13, :]
-T = y[14, :]
+
+nN0 = y[14, :]
+nN1 = y[15, :]
+nN2 = y[16, :]
+nN3 = y[17, :]
+nN4 = y[18, :]
+nN5 = y[19, :]
+nN6 = y[20, :]
+nN7 = y[21, :]
+
+T = y[22, :]
 
 print('nC0 = ', nC0)
 print()
@@ -364,7 +505,7 @@ print()
 
 
 #------ Result from "test_primordial_hdf5_v2.py" code -----
-with open('chimesRes_C.pkl', 'rb') as f:
+with open('chimesRes_C_N.pkl', 'rb') as f:
   df = pickle.load(f)
 # dictx = {'t_Arr_in_yrs': t_Arr_in_yrs, 'TEvol': TEvol, 'nHe0': nHe0, 'nHep': nHep, 'nHepp': nHepp}
 t_Arr_in_yrsx = df['t_Arr_in_yrs']
@@ -385,6 +526,16 @@ nC4x = df['nC4']
 nC5x = df['nC5']
 nC6x = df['nC6']
 nCx = nC0x + nC1x + nC2x + nC3x + nC4x + nC5x + nC6x
+
+nN0x = df['nN0']
+nN1x = df['nN1']
+nN2x = df['nN2']
+nN3x = df['nN3']
+nN4x = df['nN4']
+nN5x = df['nN5']
+nN6x = df['nN6']
+nN7x = df['nN7']
+nNx = nN0x + nN1x + nN2x + nN3x + nN4x + nN5x + nN6x + nN7x
 #----------------------------------------------------------
 
 ne = nHp + (nHep + 2.0 * nHepp) + (nC1 + 2.0 * nC2 + 3.0 * nC3 + 4.0 * nC4 + 5.0 * nC5 + 6.0 * nC6)
@@ -465,9 +616,35 @@ plt.ylim(2e-3, 1.2)
 plt.xlim(1e4, 1e6)
 #plt.legend()
 
+#***************** Nitrogen *******************
+plt.subplot(2, 3, 5)
+plt.plot(T, nN0/nN, label = 'nN0', color = 'r')
+plt.plot(T, nN1/nN, label = 'nN1', color = 'g')
+plt.plot(T, nN2/nN, label = 'nN2', color = 'b')
+plt.plot(T, nN3/nN, label = 'nN3', color = 'orange')
+plt.plot(T, nN4/nN, label = 'nN4', color = 'purple')
+plt.plot(T, nN5/nN, label = 'nN5', color = 'lime')
+plt.plot(T, nN6/nN, label = 'nN6', color = 'pink')
+#plt.plot(T, nN7/nN, label = 'nN7', color = 'cyan')
+
+plt.plot(TEvolx, nN0x/nNx, label = 'nN0', color = 'r', linestyle = ':')
+plt.plot(TEvolx, nN1x/nNx, label = 'nN1', color = 'g', linestyle = ':')
+plt.plot(TEvolx, nN2x/nNx, label = 'nN2', color = 'b', linestyle = ':')
+plt.plot(TEvolx, nN3x/nNx, label = 'nN3', color = 'orange', linestyle = ':')
+plt.plot(TEvolx, nN4x/nNx, label = 'nN4', color = 'purple', linestyle = ':')
+plt.plot(TEvolx, nN5x/nNx, label = 'nN5', color = 'lime', linestyle = ':')
+plt.plot(TEvolx, nN6x/nNx, label = 'nN6', color = 'pink', linestyle = ':')
+plt.plot(TEvolx, nN7x/nNx, label = 'nN7', color = 'cyan', linestyle = ':', linewidth = 5)
+
+plt.yscale('log')
+plt.xscale('log')
+plt.ylim(2e-3, 1.2)
+plt.xlim(1e4, 1e6)
+#plt.legend()
+
 plt.tight_layout()
 
-plt.savefig('result_v5.png')
+plt.savefig('result_v5_HCN.png')
 
 plt.show()
 
