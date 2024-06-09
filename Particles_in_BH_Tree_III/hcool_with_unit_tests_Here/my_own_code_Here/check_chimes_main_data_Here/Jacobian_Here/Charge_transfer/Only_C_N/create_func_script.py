@@ -204,6 +204,8 @@ if False:
 # Writing to text files
 file1 = open('func.py', 'w')
 
+tmp = '#----- func\n'
+file1.write(tmp)
 tmp = 'def func(t, y):\n\n  '
 file1.write(tmp)
 
@@ -213,6 +215,7 @@ kk = 1
 for x in spec_list:
   tmp += f'n{x}, '
   if not (kk % 10):
+    tmp += "\\"
     tmp += f'\n{2 * " "}'
   kk += 1
 tmp += 'T = y\n\n'
@@ -482,6 +485,34 @@ for k, x in zip(spec_iState, spec_list):
 str_ne += f'\n{11 * " "})\n\n'
 file1.write(str_ne)
 #------ End of nelec section -----
+
+#-------- dntot_dt section -----------
+tmp = f'  dntot_dt = (\n{15 * " "} dne_dt'
+kk = 1
+for x in spec_list:
+  tmp += f' + dn{x}_dt'
+  if not (kk % 6):
+    tmp += f'\n{13 * " "}'
+  kk += 1
+tmp += f'\n{13 * " "})\n\n'
+file1.write(tmp)
+#---------------------------------
+
+tmp = '  dT_dt = -1.0 * (gamma - 1.0) / kB / ntot * (Lamb + 1. / (gamma - 1.) * kB * T * dntot_dt)\n\n'
+file1.write(tmp)
+
+#-------- return section -----------
+tmp = f'  return [\n{8 * " "} '
+kk = 1
+for x in spec_list:
+  tmp += f' dn{x}_dt,'
+  if not (kk % 6):
+    tmp += f'\n{9 * " "}'
+  kk += 1
+tmp += ' dT_dt'
+tmp += f'\n{9 * " "}]\n\n'
+file1.write(tmp)
+#---------------------------------
 
 file1.close() # The output file name is -----> ode1.py
 
