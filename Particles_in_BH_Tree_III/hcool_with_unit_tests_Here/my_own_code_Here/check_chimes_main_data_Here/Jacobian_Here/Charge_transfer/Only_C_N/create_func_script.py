@@ -82,111 +82,178 @@ with h5py.File('chimes_main_data.hdf5', 'r') as file:
 
   const_rates = file['constant/rates'][:] # Seems they are just charge exchange and no cooling actually happen as a result of these processes!
 
-print('******* reactants **************')
-print(reactants)
-print()
-
-print('******* constant/rates *******')
-print(const_rates)
-print()
-
+  reactants_grain_recomb = file['grain_recombination/reactants'][:]
+  products_grain_recomb = file['grain_recombination/products'][:]
 
 
 #---------- 
 elm = 'H'   
 AtmNum = getAtmNum(elm)
 spec_list = [elm+roman_num[i] for i in range(AtmNum+1)]
+spec_iState = [i for i in range(AtmNum+1)] # current species ionization states
 spec_list += ['Hm']
+spec_iState += [-1]
 #---------- 
 elm = 'He'   
 AtmNum = getAtmNum(elm)
 spec_list2 = [elm+roman_num[i] for i in range(AtmNum+1)]
+spec_iState2 = [i for i in range(AtmNum+1)] # current species ionization states
 spec_list += spec_list2
+spec_iState += spec_iState2
 #---------- 
 elm = 'C'   
 AtmNum = getAtmNum(elm)
 spec_list2 = [elm+roman_num[i] for i in range(AtmNum+1)]
+spec_iState2 = [i for i in range(AtmNum+1)] # current species ionization states
 spec_list += spec_list2
+spec_iState += spec_iState2
 spec_list += ['Cm']
+spec_iState += [-1]
 #----------------------------------
 
 print()
 print('-----------> spec_list <----------')
 print(spec_list)
 print()
+print('-----------> spec_iState <----------')
+print(spec_iState)
 
-
-if False:
-  elm = 'C'   
-  AtmNum = getAtmNum(elm)
-  spec_list = [elm+roman_num[i] for i in range(AtmNum+1)]
-  spec_list += ['Cm']
 
 if False:
   #---------- 
   elm = 'N'   
   AtmNum = getAtmNum(elm)
   spec_list2 = [elm+roman_num[i] for i in range(AtmNum+1)]
+  spec_iState2 = [i for i in range(AtmNum+1)] # current species ionization states
   spec_list += spec_list2
+  spec_iState += spec_iState2
   #----------------------------------
 
   #---------- 
   elm = 'O'   
   AtmNum = getAtmNum(elm)
   spec_list2 = [elm+roman_num[i] for i in range(AtmNum+1)]
+  spec_iState2 = [i for i in range(AtmNum+1)] # current species ionization states
   spec_list += spec_list2
+  spec_iState += spec_iState2
   spec_list += ['Om']
+  spec_iState += [-1]
   #----------------------------------
 
   #---------- 
   elm = 'Ne'   
   AtmNum = getAtmNum(elm)
   spec_list2 = [elm+roman_num[i] for i in range(AtmNum+1)]
+  spec_iState2 = [i for i in range(AtmNum+1)] # current species ionization states
   spec_list += spec_list2
+  spec_iState += spec_iState2
   #----------------------------------
 
   #---------- 
   elm = 'Mg'   
   AtmNum = getAtmNum(elm)
   spec_list2 = [elm+roman_num[i] for i in range(AtmNum+1)]
+  spec_iState2 = [i for i in range(AtmNum+1)] # current species ionization states
   spec_list += spec_list2
+  spec_iState += spec_iState2
   #----------------------------------
 
   #---------- 
   elm = 'Si'   
   AtmNum = getAtmNum(elm)
   spec_list2 = [elm+roman_num[i] for i in range(AtmNum+1)]
+  spec_iState2 = [i for i in range(AtmNum+1)] # current species ionization states
   spec_list += spec_list2
+  spec_iState += spec_iState2
   #----------------------------------
 
   #---------- 
   elm = 'S'   
   AtmNum = getAtmNum(elm)
   spec_list2 = [elm+roman_num[i] for i in range(AtmNum+1)]
+  spec_iState2 = [i for i in range(AtmNum+1)] # current species ionization states
   spec_list += spec_list2
+  spec_iState += spec_iState2
   #----------------------------------
 
   #---------- 
   elm = 'Ca'   
   AtmNum = getAtmNum(elm)
   spec_list2 = [elm+roman_num[i] for i in range(AtmNum+1)]
+  spec_iState2 = [i for i in range(AtmNum+1)] # current species ionization states
   spec_list += spec_list2
+  spec_iState += spec_iState2
   #----------------------------------
 
   #---------- 
   elm = 'Fe'   
   AtmNum = getAtmNum(elm)
   spec_list2 = [elm+roman_num[i] for i in range(AtmNum+1)]
+  spec_iState2 = [i for i in range(AtmNum+1)] # current species ionization states
   spec_list += spec_list2
+  spec_iState += spec_iState2
   #----------------------------------
   print()
   print('-----------> spec_list <----------')
   print(spec_list)
   print()
+  print('-----------> spec_iState <----------')
+  print(spec_iState)
 
 
 # Writing to text files
-file1 = open('ode1.py', 'w')
+file1 = open('func.py', 'w')
+
+tmp = 'def func(t, y):\n\n  '
+file1.write(tmp)
+
+#--- here we create: #nHI, nHII, nHm, nHeI, nHeII, nHeIII, nCI, nCII, nCIII, nCIV, nCV, nCVI, nCVII, nCm, T = y
+tmp = ''
+kk = 1
+for x in spec_list:
+  tmp += f'n{x}, '
+  if not (kk % 10):
+    tmp += f'\n{2 * " "}'
+  kk += 1
+tmp += 'T = y\n\n'
+file1.write(tmp)
+
+#----------------
+tmp = '  Tx = np.log10(T)\n\n'
+file1.write(tmp)
+
+#---- nelec or ne section ----
+str_ne = f'  ne = (\n{6 * " "}' # f'  ne = (\n{8 * " "} 1 * nHII - nHm + (nHeII + 2.0 * nHeIII)'
+kk = 1
+for k, x in zip(spec_iState, spec_list):
+  if k !=0:
+    str_ne += f' + {k} * n{x}'
+    if not (kk % 6):
+      str_ne += f'\n{6 * " "}'
+    kk += 1
+str_ne += f'\n{7 * " "})\n\n'
+file1.write(str_ne)
+#------ End of nelec section -----
+
+
+#-------- ntot section -----------
+tmp = f'  ntot = (\n{10 * " "} ne'
+kk = 1
+for x in spec_list:
+  tmp += f' + n{x}'
+  if not (kk % 6):
+    tmp += f'\n{8 * " "}'
+  kk += 1
+tmp += f'\n{9 * " "})\n\n'
+file1.write(tmp)
+#---------------------------------
+
+#------- grain_recombination rates ---------
+for x, a in zip(reactants_grain_recomb[:, :], products_grain_recomb):
+  if (elmList[x[0]] in spec_list) and (elmList[a] in spec_list):
+    tmp = f'  grain_rec_{elmList[x[0]]}_to_{elmList[a]} = grain_recomb_rate("{elmList[x[0]]}", T, ne, G0, A_v, Temp, Psi)\n'
+    file1.write(tmp)
+#-------------------------------------------
 
 #------- Writing the constant rates to the file ---------
 j = 0
@@ -202,8 +269,8 @@ tmp = '\n\n'
 file1.write(tmp)
 #--------------------------------------------------------
 
+#----------- writing the ODEs to the file ---------------
 oneTimerCa = 0
-
 for jj in range(len(spec_list)):
 
   iD = spec_list[jj]
@@ -212,7 +279,6 @@ for jj in range(len(spec_list)):
   checker = 0
   oneTimerConst = 0
 
-  #---- write
   file1.write(ode)
 
   oneTimer = 0 # To make sure the grain_rec if statements are activated only once!
@@ -405,7 +471,7 @@ print()
 print('**********************************************************************')
 print()
 print()
-print('                      check ode1.py')
+print('                      check func.py')
 print()
 
 

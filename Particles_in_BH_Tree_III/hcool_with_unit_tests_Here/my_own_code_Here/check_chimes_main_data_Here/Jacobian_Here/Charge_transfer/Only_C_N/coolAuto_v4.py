@@ -75,6 +75,7 @@ def Lambda(T, nHI, nHII, nHm, nHeI, nHeII, nHeIII, nCI, nCII, nCIII, nCIV, nCV,
 def func(t, y):
 
   nHI, nHII, nHm, nHeI, nHeII, nHeIII, nCI, nCII, nCIII, nCIV, nCV, nCVI, nCVII, nCm, T = y # !!!!!!!!!!! nCm added Manually Not Automatically !!!!!!!!
+  
   Tx = np.log10(T)
 
   ne = nHII - nHm + (nHeII + 2.0 * nHeIII) + (nCII + 2.0 * nCIII + 3.0 * nCIV + 4.0 * nCV + 5.0 * nCVI + 6.0 * nCVII - nCm)
