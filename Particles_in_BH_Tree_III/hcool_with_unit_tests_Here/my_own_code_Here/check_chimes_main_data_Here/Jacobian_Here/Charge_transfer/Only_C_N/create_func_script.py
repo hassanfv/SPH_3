@@ -207,7 +207,7 @@ file1 = open('func.py', 'w')
 tmp = 'def func(t, y):\n\n  '
 file1.write(tmp)
 
-#--- here we create: #nHI, nHII, nHm, nHeI, nHeII, nHeIII, nCI, nCII, nCIII, nCIV, nCV, nCVI, nCVII, nCm, T = y
+#----------- here we create: #nHI, nHII, nHm, nHeI, nHeII, nHeIII, nCI, nCII, nCIII, nCIV, nCV, nCVI, nCVII, nCm, T = y
 tmp = ''
 kk = 1
 for x in spec_list:
@@ -455,6 +455,33 @@ for jj in range(len(spec_list)):
   print(ode)
   print()
   print()
+
+
+#------ Adding the Lamb line ---------
+tmp = f'  Lamb = Lambda(\n{16 * " "}T, '
+kk = 1
+for x in spec_list:
+  tmp += f'n{x}, '
+  if not (kk % 10):
+    tmp += f'\n{16 * " "}'
+  kk += 1
+tmp = tmp[:-2]
+tmp += ')\n\n'
+file1.write(tmp)
+#--------------------------------------
+
+#---- dne_dt section ----
+str_ne = f'  dne_dt = (\n{10 * " "}' # f'  ne = (\n{8 * " "} 1 * nHII - nHm + (nHeII + 2.0 * nHeIII)'
+kk = 1
+for k, x in zip(spec_iState, spec_list):
+  if k !=0:
+    str_ne += f' + {k} * dn{x}_dt'
+    if not (kk % 6):
+      str_ne += f'\n{10 * " "}'
+    kk += 1
+str_ne += f'\n{11 * " "})\n\n'
+file1.write(str_ne)
+#------ End of nelec section -----
 
 file1.close() # The output file name is -----> ode1.py
 

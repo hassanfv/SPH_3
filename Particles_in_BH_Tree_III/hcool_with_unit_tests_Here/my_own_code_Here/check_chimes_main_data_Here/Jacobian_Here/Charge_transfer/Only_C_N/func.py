@@ -178,3 +178,12 @@ def func(t, y):
              + const_CI_e_to_Cm_ * nCI * ne # constant rate
             )
 
+  Lamb = Lambda(
+                T, nHI, nHII, nHm, nHeI, nHeII, nHeIII, nCI, nCII, nCIII, nCIV, 
+                nCV, nCVI, nCVII, nCm)
+
+  dne_dt = (
+           + 1 * dnHII_dt + -1 * dnHm_dt + 1 * dnHeII_dt + 2 * dnHeIII_dt + 1 * dnCII_dt + 2 * dnCIII_dt
+           + 3 * dnCIV_dt + 4 * dnCV_dt + 5 * dnCVI_dt + 6 * dnCVII_dt + -1 * dnCm_dt
+           )
+
