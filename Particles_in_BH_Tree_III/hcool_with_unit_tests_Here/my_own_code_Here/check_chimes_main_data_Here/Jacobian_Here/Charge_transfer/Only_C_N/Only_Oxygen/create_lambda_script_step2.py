@@ -45,12 +45,12 @@ def getAtmNum(iD):
   return AtmNumlist[n]
 
 
-elm = 'C'   
+elm = 'O'   
 AtmNum = getAtmNum(elm)
 spec_list = [elm+roman_num[i] for i in range(AtmNum+1)] # current species list
 spec_iState = [i for i in range(AtmNum+1)] # current species ionization states
 
-if True:
+if False:
   #---------------------------------------------------------------------------------------------------
   elm = 'N'   
   AtmNum = getAtmNum(elm)
@@ -60,7 +60,7 @@ if True:
   spec_iState += spec_iState2
   #----------------------------------------------------------------------------------------------------
 
-if True:
+if False:
   #---------------------------------------------------------------------------------------------------
   elm = 'O'   
   AtmNum = getAtmNum(elm)

@@ -1,0 +1,10 @@
+N0x = df['nO0']
+nO1x = df['nO1']
+nO2x = df['nO2']
+nO3x = df['nO3']
+nO4x = df['nO4']
+nO5x = df['nO5']
+nO6x = df['nO6']
+nO7x = df['nO7']
+nO8x = df['nO8']
+nOx = nO0x + nO1x + nO2x + nO3x + nO4x + nO5x + nO6x + nO7x + nO8x + nOmx

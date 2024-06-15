@@ -31,6 +31,11 @@ with h5py.File('chimes_main_data.hdf5', 'r') as file:
 
   coolants = file['cooling/coolants_4d'][:]
   cooling_rates = file['cooling/rates_hiT_4d'][:]
+  
+  Temp_hiT_4d = file['TableBins/cool_hiT_4d_Temperatures'][:]
+
+print('Temp_hiT_4d = ', Temp_hiT_4d)
+#s()
 
 print()
 print('coolants.shape: ', coolants.shape)

@@ -56,6 +56,12 @@ print('T = ', 10**temperatures[iTemp])
 iZ = 0
 print('Z = ', metallicities[iZ])
 
+print()
+print('AbundanceEvolution.shape = ', AbundanceEvolution.shape)
+
+#s()
+
+
 
 TEvol = TemperatureEvolution[iTemp, inH, iZ, :]
 
@@ -68,35 +74,16 @@ nHe0 = AbundanceEvolution[iTemp, inH, iZ, 4, :] * 10**densities[inH]
 nHep = AbundanceEvolution[iTemp, inH, iZ, 5, :] * 10**densities[inH]
 nHepp= AbundanceEvolution[iTemp, inH, iZ, 6, :] * 10**densities[inH]
 
-nC0= AbundanceEvolution[iTemp, inH, iZ, 7, :] * 10**densities[inH]
-nC1= AbundanceEvolution[iTemp, inH, iZ, 8, :] * 10**densities[inH]
-nC2= AbundanceEvolution[iTemp, inH, iZ, 9, :] * 10**densities[inH]
-nC3= AbundanceEvolution[iTemp, inH, iZ, 10, :] * 10**densities[inH]
-nC4= AbundanceEvolution[iTemp, inH, iZ, 11, :] * 10**densities[inH]
-nC5= AbundanceEvolution[iTemp, inH, iZ, 12, :] * 10**densities[inH]
-nC6= AbundanceEvolution[iTemp, inH, iZ, 13, :] * 10**densities[inH]
-nCm= AbundanceEvolution[iTemp, inH, iZ, 14, :] * 10**densities[inH]
-
-nN0= AbundanceEvolution[iTemp, inH, iZ, 15, :] * 10**densities[inH]
-nN1= AbundanceEvolution[iTemp, inH, iZ, 16, :] * 10**densities[inH]
-nN2= AbundanceEvolution[iTemp, inH, iZ, 17, :] * 10**densities[inH]
-nN3= AbundanceEvolution[iTemp, inH, iZ, 18, :] * 10**densities[inH]
-nN4= AbundanceEvolution[iTemp, inH, iZ, 19, :] * 10**densities[inH]
-nN5= AbundanceEvolution[iTemp, inH, iZ, 20, :] * 10**densities[inH]
-nN6= AbundanceEvolution[iTemp, inH, iZ, 21, :] * 10**densities[inH]
-nN7= AbundanceEvolution[iTemp, inH, iZ, 22, :] * 10**densities[inH]
-
-print()
-print('nC0 + ... + nC6 = ', (nC0 + nC1 + nC2 + nC3 + nC4 + nC5 + nC6)[0])
-print('expected nC_tot = ', 10**-3.61 * 10**densities[inH])
-print()
-
-print()
-print(f'nH0/nH = {(nH0[-1]/(nH0[-1]+nHp[-1])):.4f}, nHp/nH = {(nHp[-1]/(nH0[-1]+nHp[-1])):.4f}')
-print(f'log(nH0/nH) = {np.log10(nH0[-1]/(nH0[-1]+nHp[-1])):.4f}, log(nHp/nH) = {np.log10(nHp[-1]/(nH0[-1]+nHp[-1])):.4f}')
-print()
-print(f'sort nelec = {np.sort(nelec)}')
-print()
+nO0= AbundanceEvolution[iTemp, inH, iZ, 7, :] * 10**densities[inH]
+nO1= AbundanceEvolution[iTemp, inH, iZ, 8, :] * 10**densities[inH]
+nO2= AbundanceEvolution[iTemp, inH, iZ, 9, :] * 10**densities[inH]
+nO3= AbundanceEvolution[iTemp, inH, iZ, 10, :] * 10**densities[inH]
+nO4= AbundanceEvolution[iTemp, inH, iZ, 11, :] * 10**densities[inH]
+nO5= AbundanceEvolution[iTemp, inH, iZ, 12, :] * 10**densities[inH]
+nO6= AbundanceEvolution[iTemp, inH, iZ, 13, :] * 10**densities[inH]
+nO7= AbundanceEvolution[iTemp, inH, iZ, 14, :] * 10**densities[inH]
+nO8= AbundanceEvolution[iTemp, inH, iZ, 15, :] * 10**densities[inH]
+nOm= AbundanceEvolution[iTemp, inH, iZ, 16, :] * 10**densities[inH]
 
 
 T = TEvol
@@ -129,21 +116,14 @@ plt.yscale('log')
 plt.legend()
 
 dictx = {'t_Arr_in_yrs': t_Arr_in_yrs, 'TEvol': TEvol, 'nHe0': nHe0, 'nHep': nHep, 'nHepp': nHepp, 'nH0': nH0, 'nHp': nHp,
-         'nC0': nC0, 'nC1': nC1, 'nC2': nC2, 'nC3': nC3, 'nC4': nC4, 'nC5': nC5, 'nC6': nC6, 'nCm': nCm,
-         'nN0': nN0, 'nN1': nN1, 'nN2': nN2, 'nN3': nN3, 'nN4': nN4, 'nN5': nN5, 'nN6': nN6, 'nN7': nN7}
+         'nO0': nO0, 'nO1': nO1, 'nO2': nO2, 'nO3': nO3, 'nO4': nO4, 'nO5': nO5, 'nO6': nO6, 'nO7': nO7, 'nO8': nO8, 'nOm': nOm}
 
-dicLOG= {'t_Arr_in_yrs': t_Arr_in_yrs, 'TEvol': np.log10(TEvol), 'nHe0': np.log10(nHe0+1e-30), 'nHep': np.log10(nHep+1e-30),
-         'nHepp': np.log10(nHepp+1e-30), 'nH0': np.log10(nH0+1e-30), 'nHp': np.log10(nHp+1e-30), 'nC0': np.log10(nC0+1e-30),
-         'nC1': np.log10(nC1+1e-30), 'nC2': np.log10(nC2+1e-30), 'nC3': np.log10(nC3+1e-30), 'nC4': np.log10(nC4+1e-30),
-         'nC5': np.log10(nC5+1e-30), 'nC6': np.log10(nC6+1e-30)}
 
-with open('chimesRes_C_N.pkl', 'wb') as f:
+with open('chimesRes_Only_O.pkl', 'wb') as f:
   pickle.dump(dictx, f)
 
-#with open('chimesResLOG.pkl', 'wb') as f:
-#  pickle.dump(dicLOG, f)
 
-plt.savefig('primordial.png')
+plt.savefig('Only_Oxygen.png')
 
 plt.show()
 

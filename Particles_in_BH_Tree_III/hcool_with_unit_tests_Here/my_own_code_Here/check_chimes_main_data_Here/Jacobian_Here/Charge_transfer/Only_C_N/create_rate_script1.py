@@ -107,7 +107,9 @@ for i in range(len(elmList)):
     
     strz = strx + label
     
-    if label != '----> MOLECULES involved !!!' and a[0] == 'N': #!!!!!!!!!!!! CONFLICT with C and Ca ???????!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+    # ['H', 'He', 'C', 'N', 'O', 'Ne', 'Mg', 'Si', 'S', 'Ca', 'Fe']
+    
+    if label != '----> MOLECULES involved !!!' and a[0] == 'O': #!!!!!!!!!!!! CONFLICT with (C and Ca) AND (N and Ne) ???????!!!!!!!!!!!!!!!!!!!!!!!!!
       
       res1 = f'R_{a}_to_{x}_via_{b}_ = rates[{nt[j]}, :]'
       res2 = f'R_{a}_to_{x}_via_{b} = interp1d(Temp, R_{a}_to_{x}_via_{b}_, kind="linear", fill_value="extrapolate")'

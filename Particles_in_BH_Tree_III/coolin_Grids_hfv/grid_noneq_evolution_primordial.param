@@ -10,8 +10,8 @@ UV_field       None
 shield_mode None
 dust_depletion None 
 
-log_T_min      6.0
-log_T_max      7.0
+log_T_min      7.0
+log_T_max      8.0
 delta_log_T    1.0
 log_nH_min     3.0 
 log_nH_max     4.0 
@@ -23,21 +23,21 @@ delta_log_Z    1.0
 shield_length_factor  0.0 
 max_shield_length  3.086e20 
 
-n_iterations    2000
+n_iterations    15000
 
 # Global Variables
 StaticMolCooling          1 
-Tmol_K                    1.0e0 
+Tmol_K                    1.0e1
 InitIonState              2
 grain_temperature         1.0 
 cmb_temperature           2.725 
-relativeTolerance         1.0e-4 
-absoluteTolerance         1.0e-10 
+relativeTolerance         1.0e-10
+absoluteTolerance         1.0e-14
 explicitTolerance         0.05 
 scale_metal_tolerances    1 
-IncludeCarbon             1
-IncludeNitrogen           1 
-IncludeOxygen             0 
+IncludeCarbon             0
+IncludeNitrogen           0 
+IncludeOxygen             1
 IncludeNeon               0 
 IncludeMagnesium          0
 IncludeSilicon            0
