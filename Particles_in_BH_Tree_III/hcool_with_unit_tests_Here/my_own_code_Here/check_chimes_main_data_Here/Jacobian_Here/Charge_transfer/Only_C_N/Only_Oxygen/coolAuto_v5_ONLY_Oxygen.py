@@ -413,10 +413,12 @@ nOx = nO0x + nO1x + nO2x + nO3x + nO4x + nO5x + nO6x + nO7x + nO8x
 plt.figure(figsize = (16, 8))
 
 plt.subplot(2, 3, 1)
-plt.scatter(t_yrs, np.log10(T), s = 2, color = 'k', label = 'my own code')
-plt.scatter(t_Arr_in_yrsx, np.log10(TEvolx), s = 2, color = 'orange', label = 'chimes result', linestyle = '--')
+plt.plot(t_yrs, np.log10(T), color = 'k', label = 'my code')
+plt.plot(t_Arr_in_yrsx, np.log10(TEvolx), color = 'orange', label = 'chimes result', linestyle = ':', linewidth = 4)
 plt.xlim(0, 20000)
 plt.ylim(1, 8)
+plt.xlabel('Time (years)')
+plt.ylabel('log_T (K)')
 plt.legend()
 
 plt.subplot(2, 3, 2)
@@ -472,26 +474,27 @@ plt.plot(T, nO6/nO, label = 'nO6', color = 'pink')
 plt.plot(T, nO7/nO, label = 'nO7', color = 'gold')
 plt.plot(T, nO8/nO, label = 'nO8', color = 'cyan')
 
-plt.plot(TEvolx, nO0x/nOx, color = 'r', linestyle = ':')
-plt.plot(TEvolx, nO1x/nOx, color = 'g', linestyle = ':')
-plt.plot(TEvolx, nO2x/nOx, color = 'b', linestyle = ':')
-plt.plot(TEvolx, nO3x/nOx, color = 'orange', linestyle = ':')
-plt.plot(TEvolx, nO4x/nOx, color = 'purple', linestyle = ':')
-plt.plot(TEvolx, nO5x/nOx, color = 'lime', linestyle = ':')
-plt.plot(TEvolx, nO6x/nOx, color = 'pink', linestyle = ':')
-plt.plot(TEvolx, nO7x/nOx, color = 'gold', linestyle = ':')
-plt.plot(TEvolx, nO8x/nOx, color = 'cyan', linestyle = ':')
+plt.plot(TEvolx, nO0x/nOx, color = 'r', linestyle = ':', linewidth = 4)
+plt.plot(TEvolx, nO1x/nOx, color = 'g', linestyle = ':', linewidth = 4)
+plt.plot(TEvolx, nO2x/nOx, color = 'b', linestyle = ':', linewidth = 4)
+plt.plot(TEvolx, nO3x/nOx, color = 'orange', linestyle = ':', linewidth = 4)
+plt.plot(TEvolx, nO4x/nOx, color = 'purple', linestyle = ':', linewidth = 4)
+plt.plot(TEvolx, nO5x/nOx, color = 'lime', linestyle = ':', linewidth = 4)
+plt.plot(TEvolx, nO6x/nOx, color = 'pink', linestyle = ':', linewidth = 4)
+plt.plot(TEvolx, nO7x/nOx, color = 'gold', linestyle = ':', linewidth = 4)
+plt.plot(TEvolx, nO8x/nOx, color = 'cyan', linestyle = ':', linewidth = 4)
 
 plt.yscale('log')
 plt.xscale('log')
 plt.ylim(2e-3, 1.2)
 plt.xlim(1e4, 1e7)
 #plt.legend()
+plt.xlabel('T (K)')
 
 
 plt.tight_layout()
 
-plt.savefig('result_v5_HCN.png')
+plt.savefig('Only_O.png')
 
 plt.show()
 
