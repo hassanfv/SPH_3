@@ -35,9 +35,9 @@ relativeTolerance         1.0e-10
 absoluteTolerance         1.0e-14
 explicitTolerance         0.05 
 scale_metal_tolerances    1 
-IncludeCarbon             0
-IncludeNitrogen           1 
-IncludeOxygen             0
+IncludeCarbon             1
+IncludeNitrogen           0 
+IncludeOxygen             1
 IncludeNeon               0 
 IncludeMagnesium          0
 IncludeSilicon            0

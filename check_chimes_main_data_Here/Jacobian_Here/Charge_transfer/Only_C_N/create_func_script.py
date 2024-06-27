@@ -110,12 +110,14 @@ spec_iState += spec_iState2
 spec_list += ['Cm']
 spec_iState += [-1]
 #---------- 
-elm = 'N'   
-AtmNum = getAtmNum(elm)
-spec_list2 = [elm+roman_num[i] for i in range(AtmNum+1)]
-spec_iState2 = [i for i in range(AtmNum+1)] # current species ionization states
-spec_list += spec_list2
-spec_iState += spec_iState2
+
+if False:
+  elm = 'N'   
+  AtmNum = getAtmNum(elm)
+  spec_list2 = [elm+roman_num[i] for i in range(AtmNum+1)]
+  spec_iState2 = [i for i in range(AtmNum+1)] # current species ionization states
+  spec_list += spec_list2
+  spec_iState += spec_iState2
 
 #---------- 
 elm = 'O'   
