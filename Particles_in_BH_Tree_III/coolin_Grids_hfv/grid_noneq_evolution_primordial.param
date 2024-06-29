@@ -28,15 +28,15 @@ n_iterations    15000
 # Global Variables
 StaticMolCooling          1 
 Tmol_K                    1.0e1
-InitIonState              2
+InitIonState              6
 grain_temperature         1.0 
 cmb_temperature           2.725 
 relativeTolerance         1.0e-10
 absoluteTolerance         1.0e-14
-explicitTolerance         0.05 
+explicitTolerance         0.00005 
 scale_metal_tolerances    1 
 IncludeCarbon             1
-IncludeNitrogen           0 
+IncludeNitrogen           1 
 IncludeOxygen             1
 IncludeNeon               0 
 IncludeMagnesium          0

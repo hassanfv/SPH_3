@@ -26,23 +26,19 @@ def gfree(T):
 
 #----- Lambda
 def Lambda(T, nHI, nHII, nHm, nHeI, nHeII, nHeIII, nCI, nCII, nCIII, nCIV, nCV, 
-           nCVI, nCVII, nNI, nNII, nNIII, nNIV, nNV, nNVI, nNVII, nNVIII, 
-           nOI, nOII, nOIII, nOIV, nOV, nOVI, nOVII, nOVIII, nOIX, nCm, nOm):
+           nCVI, nCVII, nCm, nNI, nNII, nNIII, nNIV, nNV, nNVI, nNVII, 
+           nNVIII, nOI, nOII, nOIII, nOIV, nOV, nOVI, nOVII, nOVIII, nOIX, 
+           nOm):
 
   Tx = np.log10(T)
 
   ne = (
          1 * nHII - nHm + (nHeII + 2.0 * nHeIII) + 1 * nCII + 2 * nCIII + 3 * nCIV
-       + 4 * nCV + 5 * nCVI + 6 * nCVII + 1 * nNII + 2 * nNIII
-       + 3 * nNIV + 4 * nNV + 5 * nNVI + 6 * nNVII + 7 * nNVIII + 1 * nOII + 2 * nOIII + 3 * nOIV + 4 * nOV + 5 * nOVI + 6 * nOVII
-       + 7 * nOVIII + 8 * nOIX - 1 * nCm - 1 * nOm
+       + 4 * nCV + 5 * nCVI + 6 * nCVII + -1 * nCm + 1 * nNII
+       + 2 * nNIII + 3 * nNIV + 4 * nNV + 5 * nNVI + 6 * nNVII + 7 * nNVIII
+       + 1 * nOII + 2 * nOIII + 3 * nOIV + 4 * nOV + 5 * nOVI
+       + 6 * nOVII + 7 * nOVIII + 8 * nOIX + -1 * nOm
        )
-
-  cFree = (
-            1 * nHII + nHeII + 4.0 * nHeIII + 1 * nCII + 4 * nCIII + 9 * nCIV
-          + 16 * nCV + 25 * nCVI + 36 * nCVII + 1 * nNII + 4 * nNIII
-          + 9 * nNIV + 16 * nNV + 25 * nNVI + 36 * nNVII + 49 * nNVIII + 1 * nOII + 4 * nOIII + 9 * nOIV + 16 * nOV + 25 * nOVI + 36 * nOVII
-          + 49 * nOVIII + 64 * nOIX )
 
   #----- # Glover & Jappsen - 2007 -----
   z = 0.0 # current time redshift!
@@ -87,7 +83,6 @@ def Lambda(T, nHI, nHII, nHm, nHeI, nHeII, nHeIII, nCI, nCII, nCIII, nCIV, nCV,
         + 10**gOVII(Tx) * nOVII * ne
         + 10**gOVIII(Tx) * nOVIII * ne
         + 10**gOIX(Tx) * nOIX * ne
-        + gfree(T) * ne * cFree # free-free emission
         + LCompton)
 
   return Lamb
@@ -596,15 +591,15 @@ y0 = [
       ]
 
 
-A_v = 1.0
+A_v = 0.1
 G0 = 0.01
-dust_ratio = 1.0
+dust_ratio = 0.00001
 
 t_span = (1*3.16e7, 10000*3.16e7)
 
 solution = solve_ivp(func, t_span, y0, method='LSODA', dense_output=True)
 
-t = np.linspace(t_span[0], t_span[1], 10000) # This 10000 is not years, it is the number of points in linspace !!!!
+t = np.linspace(t_span[0], t_span[1], 50000) # This 10000 is not years, it is the number of points in linspace !!!!
 y = solution.sol(t)
 
 print(y.shape)

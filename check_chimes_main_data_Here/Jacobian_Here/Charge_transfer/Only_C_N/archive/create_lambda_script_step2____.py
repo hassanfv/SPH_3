@@ -32,7 +32,7 @@ roman_num = [
 
 #neutrals = ['CI', 'NI', 'OI', 'NeI', 'MgI', 'SiI', 'SI', 'CaI', 'FeI']
 
-excludeList = ['CI', 'CII', 'NII', 'OI', 'SiII', 'FeII', 'Cm', 'Om'] # Except Cm and Om, others are treated as 2d and 4d !! double check to make sure!!
+excludeList = ['CI', 'CII', 'NII', 'OI', 'SiII', 'FeII'] # These are treated as 2d and 4d!!! Double check to make sure no species is missed!!!
 
 grain_recomb_list = ['CII', 'OII', 'SiII', 'FeII', 'MgII', 'SII', 'CaII', 'CaIII'] # HII and HeII are not included as they are hard-coded!
 
@@ -49,10 +49,8 @@ elm = 'C'
 AtmNum = getAtmNum(elm)
 spec_list = [elm+roman_num[i] for i in range(AtmNum+1)] # current species list
 spec_iState = [i for i in range(AtmNum+1)] # current species ionization states
-spec_list += ['Cm']
-spec_iState += [-1]
 
-if True:
+if False:
   #---------------------------------------------------------------------------------------------------
   elm = 'N'   
   AtmNum = getAtmNum(elm)
@@ -70,8 +68,6 @@ if True:
   spec_iState2 = [i for i in range(AtmNum+1)] # current species ionization states
   spec_list += spec_list2
   spec_iState += spec_iState2
-  spec_list += ['Om']
-  spec_iState += [-1]
   #---------------------------------------------------------------------------------------------------
   
 if False:
@@ -136,11 +132,11 @@ for x in spec_list:
 
 strx = strx[:-2]
 
-#if 'CI' in spec_list: # 'CI' is only used just to know that Carbon is activated... we could use any other Carbon ions name here!
-#  strx += ', nCm'
+if 'CI' in spec_list: # 'CI' is only used just to know that Carbon is activated... we could use any other Carbon ions name here!
+  strx += ', nCm'
 
-#if 'OI' in spec_list:
-#  strx += ', nOm'
+if 'OI' in spec_list:
+  strx += ', nOm'
 
 strx += '):\n\n'
 
@@ -157,8 +153,28 @@ for k, x in zip(spec_iState, spec_list):
       str_ne += f'\n{6 * " "}'
   kk += 1
 
+if 'CI' in spec_list: # 'CI' is only used just to know that Carbon is activated... we could use any other Carbon ions name here!
+  str_ne += ' - 1 * nCm'
+
+if 'OI' in spec_list:
+  str_ne += ' - 1 * nOm'
+
 str_ne += f'\n{7 * " "})\n\n'
 strx += str_ne
+
+
+
+str_free = f'  cFree = (\n{11 * " "} 1 * nHII + nHeII + 4.0 * nHeIII'
+kk = 3
+for k, x in zip(spec_iState, spec_list):
+  if k !=0:
+    str_free += f' + {(k)**2} * n{x}'
+    if not (kk % 6):
+      str_free += f'\n{9 * " "}'
+  kk += 1
+
+str_free += ' )\n\n'
+strx += str_free
 
 
 strx += '  #----- # Glover & Jappsen - 2007 -----\n'
@@ -201,6 +217,7 @@ for x in spec_list:
   if x in grain_recomb_list:
     strx += f'  {5 * " "} + 10**grain_recomb_cooling_rate * n{x} * ne # grain_recombination cooling!\n' 
 
+strx += f'  {5 * " "} + gfree(T) * ne * cFree # free-free emission\n'
 strx += f'  {5 * " "} + LCompton)\n\n'
 #strx += f'  {5 * " "} - (Lcr_H0 + Lcr_He0 + Lcr_Hep + Lcr_C0 + Lcr_C1 + Lcr_C2 + Lcr_C3 + Lcr_C4 + Lcr_C5)) # (-) multiplied by (-) become (+).\n\n'
 

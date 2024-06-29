@@ -27,23 +27,17 @@ def gfree(T):
 
 #----- Lambda
 def Lambda(T, nHI, nHII, nHm, nHeI, nHeII, nHeIII, nCI, nCII, nCIII, nCIV, nCV, 
-           nCVI, nCVII, nOI, nOII, nOIII, nOIV, nOV, nOVI, nOVII, nOVIII, 
-           nOIX, nCm, nOm):
+           nCVI, nCVII, nCm, nOI, nOII, nOIII, nOIV, nOV, nOVI, nOVII, 
+           nOVIII, nOIX, nOm):
 
   Tx = np.log10(T)
 
   ne = (
          1 * nHII - nHm + (nHeII + 2.0 * nHeIII) + 1 * nCII + 2 * nCIII + 3 * nCIV
-       + 4 * nCV + 5 * nCVI + 6 * nCVII + 1 * nOII + 2 * nOIII
-       + 3 * nOIV + 4 * nOV + 5 * nOVI + 6 * nOVII + 7 * nOVIII + 8 * nOIX
-       - 1 * nCm - 1 * nOm
+       + 4 * nCV + 5 * nCVI + 6 * nCVII + -1 * nCm + 1 * nOII
+       + 2 * nOIII + 3 * nOIV + 4 * nOV + 5 * nOVI + 6 * nOVII + 7 * nOVIII
+       + 8 * nOIX + -1 * nOm
        )
-
-  cFree = (
-            1 * nHII + nHeII + 4.0 * nHeIII + 1 * nCII + 4 * nCIII + 9 * nCIV
-          + 16 * nCV + 25 * nCVI + 36 * nCVII + 1 * nOII + 4 * nOIII
-          + 9 * nOIV + 16 * nOV + 25 * nOVI + 36 * nOVII + 49 * nOVIII + 64 * nOIX
-          )
 
   #----- # Glover & Jappsen - 2007 -----
   z = 0.0 # current time redshift!
@@ -80,7 +74,6 @@ def Lambda(T, nHI, nHII, nHm, nHeI, nHeII, nHeIII, nCI, nCII, nCIII, nCIV, nCV,
         + 10**gOVII(Tx) * nOVII * ne
         + 10**gOVIII(Tx) * nOVIII * ne
         + 10**gOIX(Tx) * nOIX * ne
-        + 0.0*gfree(T) * ne * cFree # free-free emission
         + LCompton)
 
   return Lamb
@@ -450,21 +443,21 @@ nHe0_i = 0.0001 * nHe
 nHep_i = 0.001 * nHe
 nHepp_i= nHe - nHe0_i - nHep_i
  
-nCm_i = 1e-6 * nC
-nC0_i = 1e-5 * nC
-nC1_i = 1e-5 * nC
+nCm_i = 1e-29 * nC
+nC0_i = 1e-15 * nC
+nC1_i = 1e-15 * nC
 nC2_i = 1e-4 * nC
 nC3_i = 1e-4 * nC
 nC4_i = 1e-3 * nC
 nC5_i = 1e-2 * nC
 nC6_i = nC - (nCm_i + nC0_i + nC1_i + nC2_i + nC3_i + nC4_i + nC5_i)
 
-nOm_i = 1e-7 * nO
+nOm_i = 1e-6 * nO
 nO0_i = 1e-5 * nO
 nO1_i = 1e-5 * nO
-nO2_i = 1e-5 * nO
-nO3_i = 1e-5 * nO
-nO4_i = 1e-2 * nO
+nO2_i = 1e-4 * nO
+nO3_i = 1e-4 * nO
+nO4_i = 1e-3 * nO
 nO5_i = 1e-2 * nO
 nO6_i = 1e-2 * nO
 nO7_i = 1e-2 * nO

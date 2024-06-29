@@ -67,7 +67,7 @@ def Lambda(T, nHI, nHII, nHm, nHeI, nHeII, nHeIII, nOI, nOII, nOIII, nOIV, nOV,
         + 10**gOVII(Tx) * nOVII * ne
         + 10**gOVIII(Tx) * nOVIII * ne
         + 10**gOIX(Tx) * nOIX * ne
-        + gfree(T) * ne * cFree # free-free emission
+        + 0.0*gfree(T) * ne * cFree # free-free emission
         + LCompton)
 
   return Lamb
