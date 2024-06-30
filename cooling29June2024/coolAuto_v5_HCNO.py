@@ -565,7 +565,7 @@ nO4_i = 1e-5 * nO
 nO5_i = 1e-5 * nO
 nO6_i = 1e-5 * nO
 nO7_i = 1e-5 * nO
-nO8_i = nO - (nOm_i + nO0_i + nO1_i + nO2_i + nO3_i + nO4_i + nO5_i + nO6_i)
+nO8_i = nO - (nOm_i + nO0_i + nO1_i + nO2_i + nO3_i + nO4_i + nO5_i + nO6_i + nO7_i)
 
 y0 = [
       nH0_i, nHp_i, nHm_i, nHe0_i, nHep_i, nHepp_i,
