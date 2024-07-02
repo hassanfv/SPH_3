@@ -16,34 +16,34 @@ delta_log_T    1.0
 log_nH_min     3.0 
 log_nH_max     4.0 
 delta_log_nH   1.0
-log_Z_min      0.0 
-log_Z_max      1.0
+log_Z_min      -1.0 
+log_Z_max      0.0
 delta_log_Z    1.0
 
 shield_length_factor  0.0 
 max_shield_length  3.086e20 
 
-n_iterations    15000
+n_iterations    7000
 
 # Global Variables
 StaticMolCooling          1 
 Tmol_K                    1.0e1
-InitIonState              6
+InitIonState              12
 grain_temperature         1.0 
 cmb_temperature           2.725 
-relativeTolerance         1.0e-10
-absoluteTolerance         1.0e-14
-explicitTolerance         0.00005 
+relativeTolerance         1.0e-4
+absoluteTolerance         1.0e-10
+explicitTolerance         0.05 
 scale_metal_tolerances    1 
 IncludeCarbon             1
 IncludeNitrogen           1 
 IncludeOxygen             1
-IncludeNeon               0 
-IncludeMagnesium          0
-IncludeSilicon            0
-IncludeSulphur            0
-IncludeCalcium            0
-IncludeIron               0
+IncludeNeon               1 
+IncludeMagnesium          1
+IncludeSilicon            1
+IncludeSulphur            1
+IncludeCalcium            1
+IncludeIron               1
 redshift                  0.0 
 reionisation_redshift     7.5 
 

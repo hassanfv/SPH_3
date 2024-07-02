@@ -53,7 +53,7 @@ inH = 0
 print('nH = ', 10**densities[inH])
 iTemp = 0
 print('T = ', 10**temperatures[iTemp])
-iZ = 0
+iZ = 1
 print('Z = ', metallicities[iZ])
 
 
@@ -80,7 +80,7 @@ nCm= AbundanceEvolution[iTemp, inH, iZ, 14, :] * 10**densities[inH]
 chimesAbundEvol = AbundanceEvolution[iTemp, inH, iZ, :, :] * 10**densities[inH]
 print(chimesAbundEvol.shape)
 
-dictZ = {'TempEvol': TEvol, 'chimesAbundEvol': chimesAbundEvol}
+dictZ = {'TempEvol': TEvol, 'chimesAbundEvol': chimesAbundEvol, 't_Arr_in_yrs': t_Arr_in_yrs}
 with open('chimesData.pkl', 'wb') as f:
   pickle.dump(dictZ, f)
 

@@ -74,7 +74,7 @@ if True:
   spec_iState += [-1]
   #---------------------------------------------------------------------------------------------------
   
-if False:
+if True:
   #---------------------------------------------------------------------------------------------------
   elm = 'Ne'   
   AtmNum = getAtmNum(elm)
@@ -82,6 +82,8 @@ if False:
   spec_iState2 = [i for i in range(AtmNum+1)] # current species ionization states
   spec_list += spec_list2
   spec_iState += spec_iState2
+  
+if True:
   #---------------------------------------------------------------------------------------------------
   elm = 'Mg'   
   AtmNum = getAtmNum(elm)
@@ -89,6 +91,8 @@ if False:
   spec_iState2 = [i for i in range(AtmNum+1)] # current species ionization states
   spec_list += spec_list2
   spec_iState += spec_iState2
+
+if True:
   #---------------------------------------------------------------------------------------------------
   elm = 'Si'   
   AtmNum = getAtmNum(elm)
@@ -96,6 +100,8 @@ if False:
   spec_iState2 = [i for i in range(AtmNum+1)] # current species ionization states
   spec_list += spec_list2
   spec_iState += spec_iState2
+
+if True:
   #---------------------------------------------------------------------------------------------------
   elm = 'S'   
   AtmNum = getAtmNum(elm)
@@ -103,6 +109,8 @@ if False:
   spec_iState2 = [i for i in range(AtmNum+1)] # current species ionization states
   spec_list += spec_list2
   spec_iState += spec_iState2
+
+if True:
   #---------------------------------------------------------------------------------------------------
   elm = 'Ca'   
   AtmNum = getAtmNum(elm)
@@ -110,6 +118,8 @@ if False:
   spec_iState2 = [i for i in range(AtmNum+1)] # current species ionization states
   spec_list += spec_list2
   spec_iState += spec_iState2
+
+if True:
   #---------------------------------------------------------------------------------------------------
   elm = 'Fe'   
   AtmNum = getAtmNum(elm)
@@ -211,6 +221,12 @@ print(strx)
 with open('output.py', 'w') as file:
     file.write(strx)
 
-
+print('\n\n')
+print('------------------------------------------------')
+print()
+print('        File saved to output.py file       ')
+print()
+print('------------------------------------------------')
+print()
 
 

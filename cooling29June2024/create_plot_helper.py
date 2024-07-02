@@ -1,5 +1,6 @@
 
 import numpy as np
+import pickle
 
 
 #----- getAtmNum
@@ -9,6 +10,27 @@ def getAtmNum(iD):
   n = np.where(iD == iDlist)[0][0]
  
   return AtmNumlist[n]
+
+
+allSpeciesList = np.array([
+    "elec", "H0", "H1", "Hm", "He0", "He1", "He2", "C0", "C1", "C2",
+    "C3", "C4", "C5", "C6", "Cm", "N0", "N1", "N2", "N3", "N4",
+    "N5", "N6", "N7", "O0", "O1", "O2", "O3", "O4", "O5", "O6",
+    "O7", "O8", "Om", "Ne0", "Ne1", "Ne2", "Ne3", "Ne4", "Ne5",
+    "Ne6", "Ne7", "Ne8", "Ne9", "Ne10", "Mg0", "Mg1", "Mg2", "Mg3",
+    "Mg4", "Mg5", "Mg6", "Mg7", "Mg8", "Mg9", "Mg10", "Mg11", "Mg12",
+    "Si0", "Si1", "Si2", "Si3", "Si4", "Si5", "Si6", "Si7", "Si8",
+    "Si9", "Si10", "Si11", "Si12", "Si13", "Si14", "S0", "S1", "S2",
+    "S3", "S4", "S5", "S6", "S7", "S8", "S9", "S10", "S11", "S12",
+    "S13", "S14", "S15", "S16", "Ca0", "Ca1", "Ca2", "Ca3", "Ca4",
+    "Ca5", "Ca6", "Ca7", "Ca8", "Ca9", "Ca10", "Ca11", "Ca12", "Ca13",
+    "Ca14", "Ca15", "Ca16", "Ca17", "Ca18", "Ca19", "Ca20", "Ca21", "Fe0",
+    "Fe1", "Fe2", "Fe3", "Fe4", "Fe5", "Fe6", "Fe7", "Fe8", "Fe9",
+    "Fe10", "Fe11", "Fe12", "Fe13", "Fe14", "Fe15", "Fe16", "Fe17",
+    "Fe18", "Fe19", "Fe20", "Fe21", "Fe22", "Fe23", "Fe24", "Fe25",
+    "Fe26", "H2", "H2p", "H3p", "OH", "H2O", "C2", "O2", "HCOp", "CH",
+    "CH2", "CH3p", "CO", "CHp", "CH2p", "OHp", "H2Op", "H3Op", "COp", "HOCp", "O2p"
+])
 
 
 
@@ -28,10 +50,26 @@ elemAbund = {
 }
 
 
-ActiveElements = ['He', 'C', 'N', 'O', 'Ne'] # H is excluded as its abundance relative to H is 1.0 !
+colors = [
+    '#1f77b4', '#ff7f0e', '#2ca02c', '#d62728', '#9467bd',
+    '#8c564b', '#e377c2', '#7f7f7f', '#bcbd22', '#17becf',
+    '#1f77b4', '#aec7e8', '#ffbb78', '#98df8a', '#ff9896',
+    '#c5b0d5', '#c49c94', '#f7b6d2', '#c7c7c7', '#dbdb8d',
+    '#9edae5', '#393b79', '#5254a3', '#6b6ecf', '#9c9ede',
+    '#637939', '#8ca252'  # Add more colors if needed
+]
+
+#!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+#!!!!!!!!!!!!!! Add more elements here if you want to extend your model !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+#!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+ActiveElements = ['He', 'C', 'N', 'O', 'Ne', 'Mg', 'Si', 'S', 'Ca', 'Fe'] # H is excluded as its abundance relative to H is 1.0 !
 
 
 strx = ''
+
+strx += 'TA = time.time()\n\n'
+
+strx += 'print("Running ...")\n\n'
 
 strx += 'nH = 1000.0\n\n'
 
@@ -61,6 +99,8 @@ for elm in elmList:
     
   AtmNum = getAtmNum(elm)
   spec_list = [elm+str(i) for i in range(AtmNum+1)] # current species list ---> Contents are like C0, C1, ... C6 !!!
+  
+  print(spec_list)
   
   if elm == 'C':
     spec_list += ['Cm']
@@ -159,14 +199,106 @@ for elm in elmList:
 strx += f'T = y[{jj}, :]\n\n'
 
 
-#-------- Constructing section for Result from "test_primordial_hdf5_v2.py" code ---------
+#-------- Constructing section for Result from CHIMES code ---------
+# Note that the abundances are already multiplied by nH when the pickle file was created
+strx += 'with open ("chimesData.pkl", "rb") as f:\n'
+strx += '  data = pickle.load(f)\n\n'
+
+strx += 'TEvolx = data["TempEvol"]\n'
+strx += 'AbundEvol = data["chimesAbundEvol"]\n'
+strx += 't_Arr_in_yrsx = data["t_Arr_in_yrs"]\n\n'
+
+strx+= 'nH0x   = AbundEvol[1, :]\n'
+strx+= 'nHpx   = AbundEvol[2, :]\n'
+
+strx+= 'nHe0x  = AbundEvol[4, :]\n'
+strx+= 'nHepx  = AbundEvol[5, :]\n'
+strx+= 'nHeppx = AbundEvol[6, :]\n\n'
+
+#---- Now other elements ----
+for elm in elmList:
+    
+  AtmNum = getAtmNum(elm)
+  spec_list = [elm+str(i) for i in range(AtmNum+1)] # current species list ---> Contents are like C0, C1, ... C6 !!!
+  
+  if elm == 'C':
+    spec_list += ['Cm']
+  if elm == 'O':
+    spec_list += ['Om']
+
+  for x in spec_list:
+    ndx = np.where(allSpeciesList == x)[0][0]
+    strx += f'n{x}x = AbundEvol[{ndx}, :]\n'
+    
+  strx += f'n{elm}x = '
+  for x in spec_list: # including this: nCx = nC0x + nC1x + nC2x + nC3x + nC4x + nC5x + nC6x
+    strx += f'n{x}x + '
+  strx = strx [:-2] + '\n' 
+  strx += '\n'
+
+#----- Plotting section --------
+strx += 'plt.figure(figsize=(10, 5))\n'
+
+strx += 'plt.scatter(t_yrs, np.log10(T), s=2, color="k", label="my code")\n'
+strx += 'plt.scatter(t_Arr_in_yrsx, np.log10(TEvolx), s=2, color="orange", label="chimes result", linestyle="--")\n'
+strx += 'plt.xlim(0, 10000)\n'
+strx += 'plt.ylim(1, 8)\n'
+strx += 'plt.legend()\n'
+strx += 'plt.savefig("Temp_vs_time.png", dpi = 300)\n'
+strx += 'plt.close()\n\n'
+
+strx += "plt.plot(t_yrs, nHe0, color = 'r', label = 'nHe0')\n"
+strx += "plt.plot(t_yrs, nHep, color = 'g', label = 'nHep')\n"
+strx += "plt.plot(t_yrs, nHepp, color = 'b', label = 'nHepp')\n"
+strx += "plt.plot(t_Arr_in_yrsx, nHe0x, color = 'r', label = 'nHe0 - chimes', linestyle = ':')\n"
+strx += "plt.plot(t_Arr_in_yrsx, nHepx, color = 'g', label = 'nHep - chimes', linestyle = ':')\n"
+strx += "plt.plot(t_Arr_in_yrsx, nHeppx, color = 'b', label = 'nHepp - chimes', linestyle = ':')\n"
+strx += "plt.xlim(0, 10000)\n"
+strx += "plt.ylim(1e-8, 300)\n"
+strx += "plt.yscale('log')\n"
+strx += "plt.title('solve_ivp')\n"
+strx += "plt.legend()\n"
+strx += 'plt.savefig("nH_He_vs_time.png", dpi = 300)\n'
+strx += 'plt.close()\n\n'
 
 
+#---- Now other elements ----
+for elm in elmList:
+    
+  AtmNum = getAtmNum(elm)
+  spec_list = [elm+str(i) for i in range(AtmNum+1)] # current species list ---> Contents are like C0, C1, ... C6 !!!
+  
+  if elm == 'C':
+    spec_list += ['Cm']
+  if elm == 'O':
+    spec_list += ['Om']
 
+  for i, x in enumerate(spec_list):
+    strx += f"plt.plot(T, n{x}/n{elm}, label = 'n{x}', color = '{colors[i]}')\n"
+    strx += f"plt.plot(TEvolx, n{x}x/n{elm}x, label = 'n{x}x', color = '{colors[i]}', linestyle = ':')\n"
+  strx += "plt.yscale('log')\n"
+  strx += "plt.xscale('log')\n"
+  strx += "plt.ylim(2e-3, 1.2)\n"
+  strx += "plt.xlim(1e4, 1e7)\n"
+  strx += f'plt.savefig("n{elm}_vs_time.png", dpi = 300)\n'
+  strx += 'plt.close()\n\n'
+
+strx += "print('Done !!!')\n\n"
+
+strx += "print('Elapsed time = ', time.time() - TA)\n\n"
 
 print(strx)
 
+with open('plotHelper.py', 'w') as file:
+    file.write(strx)
 
+print('\n\n')
+print('------------------------------------------------')
+print()
+print('        File saved to plotHelper.py file       ')
+print()
+print('------------------------------------------------')
+print()
 
 
 
