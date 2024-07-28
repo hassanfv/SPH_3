@@ -23,7 +23,7 @@ delta_log_Z    1.0
 shield_length_factor  0.0 
 max_shield_length  3.086e20 
 
-n_iterations    7000
+n_iterations    20000
 
 # Global Variables
 StaticMolCooling          1 
@@ -38,12 +38,12 @@ scale_metal_tolerances    1
 IncludeCarbon             1
 IncludeNitrogen           1 
 IncludeOxygen             1
-IncludeNeon               1 
-IncludeMagnesium          1
-IncludeSilicon            1
-IncludeSulphur            1
-IncludeCalcium            1
-IncludeIron               1
+IncludeNeon               0 
+IncludeMagnesium          0
+IncludeSilicon            0
+IncludeSulphur            0
+IncludeCalcium            0
+IncludeIron               0
 redshift                  0.0 
 reionisation_redshift     7.5 
 

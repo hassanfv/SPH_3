@@ -41,6 +41,7 @@ grain_rec_reac = np.array(['HII', 'HeII', 'CII', 'OII', 'SiII', 'FeII', 'MgII', 
 grain_rec_prod = np.array(['HI', 'HeI', 'CI', 'OI', 'SiI', 'FeI', 'MgI', 'SI', 'CaI'])#, 'CaII'])
 
 #----- constant rates ------- !!!!!!!!!!! DO NOT FORGET TO HARD-CODE Cm and Om !!!!!!!!!!!!!!!!
+# Fromat: e.g. CII + SiI ---> CI + SiII is shown by ["CII", "SiI", "CI", "SiII"]
 constList = [["CII", "SiI", "CI", "SiII"],
              ["OI", "e", "Om", ""],
              ["CII", "MgI", "CI", "MgII"],
@@ -129,59 +130,60 @@ spec_list += ['Om']
 spec_iState += [-1]
 #----------------------------------
 
-#---------- 
-elm = 'Ne'   
-AtmNum = getAtmNum(elm)
-spec_list2 = [elm+roman_num[i] for i in range(AtmNum+1)]
-spec_iState2 = [i for i in range(AtmNum+1)] # current species ionization states
-spec_list += spec_list2
-spec_iState += spec_iState2
-#----------------------------------
+if False:
+  #---------- 
+  elm = 'Ne'   
+  AtmNum = getAtmNum(elm)
+  spec_list2 = [elm+roman_num[i] for i in range(AtmNum+1)]
+  spec_iState2 = [i for i in range(AtmNum+1)] # current species ionization states
+  spec_list += spec_list2
+  spec_iState += spec_iState2
+  #----------------------------------
 
-#---------- 
-elm = 'Mg'   
-AtmNum = getAtmNum(elm)
-spec_list2 = [elm+roman_num[i] for i in range(AtmNum+1)]
-spec_iState2 = [i for i in range(AtmNum+1)] # current species ionization states
-spec_list += spec_list2
-spec_iState += spec_iState2
-#----------------------------------
+  #---------- 
+  elm = 'Mg'   
+  AtmNum = getAtmNum(elm)
+  spec_list2 = [elm+roman_num[i] for i in range(AtmNum+1)]
+  spec_iState2 = [i for i in range(AtmNum+1)] # current species ionization states
+  spec_list += spec_list2
+  spec_iState += spec_iState2
+  #----------------------------------
 
-#---------- 
-elm = 'Si'   
-AtmNum = getAtmNum(elm)
-spec_list2 = [elm+roman_num[i] for i in range(AtmNum+1)]
-spec_iState2 = [i for i in range(AtmNum+1)] # current species ionization states
-spec_list += spec_list2
-spec_iState += spec_iState2
-#----------------------------------
+  #---------- 
+  elm = 'Si'   
+  AtmNum = getAtmNum(elm)
+  spec_list2 = [elm+roman_num[i] for i in range(AtmNum+1)]
+  spec_iState2 = [i for i in range(AtmNum+1)] # current species ionization states
+  spec_list += spec_list2
+  spec_iState += spec_iState2
+  #----------------------------------
 
-#---------- 
-elm = 'S'   
-AtmNum = getAtmNum(elm)
-spec_list2 = [elm+roman_num[i] for i in range(AtmNum+1)]
-spec_iState2 = [i for i in range(AtmNum+1)] # current species ionization states
-spec_list += spec_list2
-spec_iState += spec_iState2
-#----------------------------------
+  #---------- 
+  elm = 'S'   
+  AtmNum = getAtmNum(elm)
+  spec_list2 = [elm+roman_num[i] for i in range(AtmNum+1)]
+  spec_iState2 = [i for i in range(AtmNum+1)] # current species ionization states
+  spec_list += spec_list2
+  spec_iState += spec_iState2
+  #----------------------------------
 
-#---------- 
-elm = 'Ca'   
-AtmNum = getAtmNum(elm)
-spec_list2 = [elm+roman_num[i] for i in range(AtmNum+1)]
-spec_iState2 = [i for i in range(AtmNum+1)] # current species ionization states
-spec_list += spec_list2
-spec_iState += spec_iState2
-#----------------------------------
+  #---------- 
+  elm = 'Ca'   
+  AtmNum = getAtmNum(elm)
+  spec_list2 = [elm+roman_num[i] for i in range(AtmNum+1)]
+  spec_iState2 = [i for i in range(AtmNum+1)] # current species ionization states
+  spec_list += spec_list2
+  spec_iState += spec_iState2
+  #----------------------------------
 
-#---------- 
-elm = 'Fe'   
-AtmNum = getAtmNum(elm)
-spec_list2 = [elm+roman_num[i] for i in range(AtmNum+1)]
-spec_iState2 = [i for i in range(AtmNum+1)] # current species ionization states
-spec_list += spec_list2
-spec_iState += spec_iState2
-#----------------------------------
+  #---------- 
+  elm = 'Fe'   
+  AtmNum = getAtmNum(elm)
+  spec_list2 = [elm+roman_num[i] for i in range(AtmNum+1)]
+  spec_iState2 = [i for i in range(AtmNum+1)] # current species ionization states
+  spec_list += spec_list2
+  spec_iState += spec_iState2
+  #----------------------------------
 
 print()
 print('-----------> spec_list <----------')
@@ -192,7 +194,7 @@ print(spec_iState)
 
 
 # Writing to text files
-file1 = open('func.py', 'w')
+file1 = open('func_JacobVersion.py', 'w')
 
 tmp = '#----- func\n'
 file1.write(tmp)
@@ -262,6 +264,12 @@ tmp = '\n\n'
 file1.write(tmp)
 #--------------------------------------------------------
 
+print()
+print(f'spec_list = {spec_list}')
+print()
+
+fileJ = open('funcJ.py', 'w')
+
 #----------- writing the ODEs to the file ---------------
 oneTimerCa = 0
 for jj in range(len(spec_list)):
@@ -273,6 +281,8 @@ for jj in range(len(spec_list)):
   oneTimerConst = 0
 
   file1.write(ode)
+  
+  nX_lst = []
 
   oneTimer = 0 # To make sure the grain_rec if statements are activated only once!
 
@@ -320,7 +330,7 @@ for jj in range(len(spec_list)):
       
       strx = str1 + str2
       
-      spaces = ' ' * (31 - len(strx))
+      #spaces = ' ' * (31 - len(strx))
       
       NNN = 31 - len(strx)
       strx = strx + NNN * ' ' + f'   (ndx = {nt[j]})'
@@ -343,17 +353,28 @@ for jj in range(len(spec_list)):
         if (iD in [a, b, c]) and (a in spec_list) and ((b in spec_list) or (b == 'e')): # list of reactants.
           if checker == 0: # checker is used for the paranthesis in the begining of the line!!!! Good idea!
             tmp = f'(\n{Nspace * " "} - 10**R_{a}_to_{x}_via_{b}(Tx) * n{a} * n{b}'
+            nX_lst += [f'n{a}', f'n{b}']
+            nX_lst += [f'n{x}']
+            if len(y) != 0:
+              nX_lst += [f'n{y}']
+              
             ode = ode + tmp
             checker = 1
             file1.write(tmp)
           else:
             tmp = f'\n{Nspace * " "} - 10**R_{a}_to_{x}_via_{b}(Tx) * n{a} * n{b}'
+            nX_lst += [f'n{a}', f'n{b}']
+            nX_lst += [f'n{x}']
+            if len(y) != 0:
+              nX_lst += [f'n{y}']
+              
             ode = ode + tmp
             checker = 1
             file1.write(tmp)
         if (iD in grain_rec_reac) and (checker == 1) and (oneTimer == 0): # if it is the reactant then we lose it so it needs to be subtracted!
             nn = np.where(grain_rec_reac == iD)[0][0]
             tmp = f'\n{Nspace * " "} - 10**grain_rec_{iD}_to_{grain_rec_prod[nn]} * n{iD} * ne # grain_recombination'
+            nX_lst += [f'n{iD}', f'ne']
             ode = ode + tmp
             oneTimer = 1
             file1.write(tmp)
@@ -361,6 +382,7 @@ for jj in range(len(spec_list)):
         if (iD in grain_rec_prod) and (checker == 1) and (oneTimer == 0): #if it is the product then we gain it so it needs to be dded!
             nn = np.where(grain_rec_prod == iD)[0][0]
             tmp = f'\n{Nspace * " "} + 10**grain_rec_{grain_rec_reac[nn]}_to_{iD} * n{grain_rec_reac[nn]} * ne # grain_recombination'
+            nX_lst += [f'n{grain_rec_reac[nn]}']
             ode = ode + tmp
             oneTimer = 1
             file1.write(tmp)
@@ -369,12 +391,14 @@ for jj in range(len(spec_list)):
         #--- Due to the complexiy I prefer to hard-code these two lines!!!
         if (iD == 'CaII') and (checker == 1) and (oneTimerCa == 0): # checker is needed so that it is not added as the first line because it hasn't paranthesis (!!
           tmp = f'\n{Nspace * " "} + 10**grain_rec_CaIII_to_CaII * nCaIII * ne # grain_recombination'
+          nX_lst += [f'nCaIII']
           ode = ode + tmp
           oneTimerCa = 1
           file1.write(tmp)
           
         if (iD == 'CaIII') and (checker == 1) and (oneTimerCa == 1): # checker is needed so that it is not added as the first line because it hasn't paranthesis (!!
           tmp = f'\n{Nspace * " "} - 10**grain_rec_CaIII_to_CaII * nCaIII * ne # grain_recombination'
+          nX_lst += [f'nCaIII']
           ode = ode + tmp
           oneTimerCa = 2
           file1.write(tmp)
@@ -383,27 +407,39 @@ for jj in range(len(spec_list)):
         if (iD in [x, y, z]) and (x in spec_list) and ((y in spec_list) or (y == 'e') or (len(y) == 0)): # list of products.
           if checker == 0:
             tmp = f'(\n{Nspace * " "} + 10**R_{a}_to_{x}_via_{b}(Tx) * n{a} * n{b}'
+            nX_lst += [f'n{a}', f'n{b}']
+            nX_lst += [f'n{x}']
+            if len(y) != 0:
+              nX_lst += [f'n{y}']
+              
             ode = ode + tmp
             checker = 1
             file1.write(tmp)
           else:
             tmp = f'\n{Nspace * " "} + 10**R_{a}_to_{x}_via_{b}(Tx) * n{a} * n{b}'
+            nX_lst += [f'n{a}', f'n{b}']
+            nX_lst += [f'n{x}']
+            if len(y) != 0:
+              nX_lst += [f'n{y}']
             ode = ode + tmp
             checker = 1
             file1.write(tmp)
   
-  
+
   #------- HII & HeII Case A recombination --------
   if iD == 'HI':
     tmp = f'\n{Nspace * " "} + 10**R_HII_to_HI_via_e_caseA(Tx) * nHII * ne # H CaseA'
+    nX_lst += [f'nHII']
     ode += tmp
     file1.write(tmp)
   if iD == 'HII':
     tmp = f'\n{Nspace * " "} - 10**R_HII_to_HI_via_e_caseA(Tx) * nHII * ne # H CaseA'
+    nX_lst += [f'nHII']
     ode += tmp
     file1.write(tmp)
   if iD == 'HeI':
     tmp = f'\n{Nspace * " "} + 10**R_HeII_to_HeI_via_e_caseA(Tx) * nHeII * ne # He CaseA'
+    nX_lst += [f'nHeII']
     ode += tmp
     file1.write(tmp)
   if iD == 'HeII':
@@ -420,35 +456,84 @@ for jj in range(len(spec_list)):
     if (reacz[0] in spec_list) and ((reacz[1] in spec_list) or (reacz[1] == 'e')):
       if iD == reacz[0]:
         tmp = f'\n{Nspace * " "} - const_{reacz[0]}_{reacz[1]}_to_{prodz[0]}_{prodz[1]} * n{reacz[0]} * n{reacz[1]} # constant rate'
+        nX_lst += [f'n{reacz[0]}', f'n{reacz[1]}']
         ode += tmp
         file1.write(tmp)
         
       if iD == reacz[1]:
         tmp = f'\n{Nspace * " "} - const_{reacz[0]}_{reacz[1]}_to_{prodz[0]}_{prodz[1]} * n{reacz[0]} * n{reacz[1]} # constant rate'
+        nX_lst += [f'n{reacz[0]}', f'n{reacz[1]}']
         ode += tmp
         file1.write(tmp)
 
       if iD == prodz[0]:
         tmp = f'\n{Nspace * " "} + const_{reacz[0]}_{reacz[1]}_to_{prodz[0]}_{prodz[1]} * n{reacz[0]} * n{reacz[1]} # constant rate'
+        nX_lst += [f'n{reacz[0]}', f'n{reacz[1]}']
         ode += tmp
         file1.write(tmp)
 
       if iD == prodz[1]:
         tmp = f'\n{Nspace * " "} + const_{reacz[0]}_{reacz[1]}_to_{prodz[0]}_{prodz[1]} * n{reacz[0]} * n{reacz[1]} # constant rate'
+        nX_lst += [f'n{reacz[0]}', f'n{reacz[1]}']
         ode += tmp
         file1.write(tmp)
               
         
-        
+  
+  nX_lst = np.array(nX_lst)
+  nX_lst = np.unique(nX_lst)
+  
   file1.write(f'\n{Nspace * " "})\n\n')
 
-  ode = ode + f'\n{Nspace * " "})\n\n' # this is just for printing in the terminal! 
+  ode = ode + f'\n{Nspace * " "})\n' # this is just for printing in the terminal! 
 
   print()
-  print(ode)
+  #print('------------------------')
+  #print(ode)
+  #print('------------------------')
   print()
   print()
+  #print(nX_lst)
+  
+  #------------------------
+  odeJ = f'#----- dn{iD}_dt_f\n'
+  odeJ += f'def dn{iD}_dt_f(\n{(12+len(iD)) * " "}Tx, '
+  kk = 1
+  for x in nX_lst:
+    odeJ += f'{x}, '
+    if not (kk % 8):
+      odeJ += f'\n{(12+len(iD)) * " "}'
+    kk += 1
+  odeJ = odeJ[:-2]
+  odeJ += f'\n{(11+len(iD)) * " "}):\n\n'
+  
+  odeJ += ode
+  
+  odeJ += f'\n  return dn{iD}_dt\n\n\n'
+  #------------------------
+  
+  print()
+  print(odeJ)
+  
+  fileJ.write(odeJ)  # Write the string to the file
+  
+  #--------- odeJCall (calling the function)---------------
+  odeJCall = f'dn{iD}_dt = dn{iD}_dt_f(\n{(18+len(iD)) * " "}Tx, '
+  kk = 1
+  for x in nX_lst:
+    odeJCall += f'{x}, '
+    if not (kk % 8):
+      odeJCall += f'\n{(18+len(iD)) * " "}'
+    kk += 1
+  odeJCall = odeJCall[:-2]
+  odeJCall += f')\n\n'
+  #------------------------
+  
+  print()
+  print(odeJCall)
+  s()
 
+  #s()
 
 #------ Adding the Lamb line ---------
 tmp = f'  Lamb = Lambda(\n{16 * " "}T, '

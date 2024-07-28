@@ -129,59 +129,60 @@ spec_list += ['Om']
 spec_iState += [-1]
 #----------------------------------
 
-#---------- 
-elm = 'Ne'   
-AtmNum = getAtmNum(elm)
-spec_list2 = [elm+roman_num[i] for i in range(AtmNum+1)]
-spec_iState2 = [i for i in range(AtmNum+1)] # current species ionization states
-spec_list += spec_list2
-spec_iState += spec_iState2
-#----------------------------------
+if False:
+  #---------- 
+  elm = 'Ne'   
+  AtmNum = getAtmNum(elm)
+  spec_list2 = [elm+roman_num[i] for i in range(AtmNum+1)]
+  spec_iState2 = [i for i in range(AtmNum+1)] # current species ionization states
+  spec_list += spec_list2
+  spec_iState += spec_iState2
+  #----------------------------------
 
-#---------- 
-elm = 'Mg'   
-AtmNum = getAtmNum(elm)
-spec_list2 = [elm+roman_num[i] for i in range(AtmNum+1)]
-spec_iState2 = [i for i in range(AtmNum+1)] # current species ionization states
-spec_list += spec_list2
-spec_iState += spec_iState2
-#----------------------------------
+  #---------- 
+  elm = 'Mg'   
+  AtmNum = getAtmNum(elm)
+  spec_list2 = [elm+roman_num[i] for i in range(AtmNum+1)]
+  spec_iState2 = [i for i in range(AtmNum+1)] # current species ionization states
+  spec_list += spec_list2
+  spec_iState += spec_iState2
+  #----------------------------------
 
-#---------- 
-elm = 'Si'   
-AtmNum = getAtmNum(elm)
-spec_list2 = [elm+roman_num[i] for i in range(AtmNum+1)]
-spec_iState2 = [i for i in range(AtmNum+1)] # current species ionization states
-spec_list += spec_list2
-spec_iState += spec_iState2
-#----------------------------------
+  #---------- 
+  elm = 'Si'   
+  AtmNum = getAtmNum(elm)
+  spec_list2 = [elm+roman_num[i] for i in range(AtmNum+1)]
+  spec_iState2 = [i for i in range(AtmNum+1)] # current species ionization states
+  spec_list += spec_list2
+  spec_iState += spec_iState2
+  #----------------------------------
 
-#---------- 
-elm = 'S'   
-AtmNum = getAtmNum(elm)
-spec_list2 = [elm+roman_num[i] for i in range(AtmNum+1)]
-spec_iState2 = [i for i in range(AtmNum+1)] # current species ionization states
-spec_list += spec_list2
-spec_iState += spec_iState2
-#----------------------------------
+  #---------- 
+  elm = 'S'   
+  AtmNum = getAtmNum(elm)
+  spec_list2 = [elm+roman_num[i] for i in range(AtmNum+1)]
+  spec_iState2 = [i for i in range(AtmNum+1)] # current species ionization states
+  spec_list += spec_list2
+  spec_iState += spec_iState2
+  #----------------------------------
 
-#---------- 
-elm = 'Ca'   
-AtmNum = getAtmNum(elm)
-spec_list2 = [elm+roman_num[i] for i in range(AtmNum+1)]
-spec_iState2 = [i for i in range(AtmNum+1)] # current species ionization states
-spec_list += spec_list2
-spec_iState += spec_iState2
-#----------------------------------
+  #---------- 
+  elm = 'Ca'   
+  AtmNum = getAtmNum(elm)
+  spec_list2 = [elm+roman_num[i] for i in range(AtmNum+1)]
+  spec_iState2 = [i for i in range(AtmNum+1)] # current species ionization states
+  spec_list += spec_list2
+  spec_iState += spec_iState2
+  #----------------------------------
 
-#---------- 
-elm = 'Fe'   
-AtmNum = getAtmNum(elm)
-spec_list2 = [elm+roman_num[i] for i in range(AtmNum+1)]
-spec_iState2 = [i for i in range(AtmNum+1)] # current species ionization states
-spec_list += spec_list2
-spec_iState += spec_iState2
-#----------------------------------
+  #---------- 
+  elm = 'Fe'   
+  AtmNum = getAtmNum(elm)
+  spec_list2 = [elm+roman_num[i] for i in range(AtmNum+1)]
+  spec_iState2 = [i for i in range(AtmNum+1)] # current species ionization states
+  spec_list += spec_list2
+  spec_iState += spec_iState2
+  #----------------------------------
 
 print()
 print('-----------> spec_list <----------')
@@ -262,6 +263,10 @@ tmp = '\n\n'
 file1.write(tmp)
 #--------------------------------------------------------
 
+print()
+print(f'spec_list = {spec_list}')
+print()
+
 #----------- writing the ODEs to the file ---------------
 oneTimerCa = 0
 for jj in range(len(spec_list)):
@@ -279,6 +284,16 @@ for jj in range(len(spec_list)):
   for i in range(len(elmList)):
 
     nt = np.where(reactants[:, 0] == i)[0] 
+    
+    
+    #print(reactants.shape)
+    #print(reactants)
+    print(f'elmList[i] = {elmList[i]}')
+    print(f'iD = {iD}')
+    print(f'nt = {nt} ---> where reactants[:, 0] == {elmList[i]}')
+    print(f'reactants[nt] = {reactants[nt]}')
+    print()
+    print()
 
     N = len(nt)
 
@@ -320,7 +335,7 @@ for jj in range(len(spec_list)):
       
       strx = str1 + str2
       
-      spaces = ' ' * (31 - len(strx))
+      #spaces = ' ' * (31 - len(strx))
       
       NNN = 31 - len(strx)
       strx = strx + NNN * ' ' + f'   (ndx = {nt[j]})'
@@ -392,7 +407,8 @@ for jj in range(len(spec_list)):
             checker = 1
             file1.write(tmp)
   
-  
+  s()
+
   #------- HII & HeII Case A recombination --------
   if iD == 'HI':
     tmp = f'\n{Nspace * " "} + 10**R_HII_to_HI_via_e_caseA(Tx) * nHII * ne # H CaseA'
