@@ -34,360 +34,360 @@ def func(t, y):
   const_CI_e_to_Cm_ = 2.2500E-15 # constant/rates
 
   dnHI_dt = (
-             - 10**R_HI_to_HII_via_e(Tx) * nHI * ne
+             - R_HI_to_HII_via_e * nHI * ne
              + 10**grain_rec_HII_to_HI * nHII * ne # grain_recombination
-             - 10**R_HI_to_Hm_via_e(Tx) * nHI * ne
-             - 10**R_Hm_to_HI_via_HI(Tx) * nHm * nHI
-             + 10**R_Hm_to_HI_via_HI(Tx) * nHm * nHI
-             + 10**R_Hm_to_HI_via_e(Tx) * nHm * ne
-             + 10**R_Hm_to_HI_via_HII(Tx) * nHm * nHII
-             + 10**R_HeI_to_HeII_via_HII(Tx) * nHeI * nHII
-             + 10**R_HeII_to_HeI_via_Hm(Tx) * nHeII * nHm
-             - 10**R_HeII_to_HeI_via_HI(Tx) * nHeII * nHI
-             - 10**R_HeIII_to_HeII_via_HI(Tx) * nHeIII * nHI
-             + 10**R_CI_to_CII_via_HII(Tx) * nCI * nHII
-             - 10**R_CII_to_CI_via_HI(Tx) * nCII * nHI
-             - 10**R_CIII_to_CII_via_HI(Tx) * nCIII * nHI
-             - 10**R_CIV_to_CIII_via_HI(Tx) * nCIV * nHI
-             - 10**R_CV_to_CIV_via_HI(Tx) * nCV * nHI
-             - 10**R_CVI_to_CV_via_HI(Tx) * nCVI * nHI
-             + 10**R_Cm_to_CI_via_HII(Tx) * nCm * nHII
-             + 10**R_NI_to_NII_via_HII(Tx) * nNI * nHII
-             - 10**R_NII_to_NI_via_HI(Tx) * nNII * nHI
-             - 10**R_NIII_to_NII_via_HI(Tx) * nNIII * nHI
-             - 10**R_NIV_to_NIII_via_HI(Tx) * nNIV * nHI
-             - 10**R_NV_to_NIV_via_HI(Tx) * nNV * nHI
-             - 10**R_NVI_to_NV_via_HI(Tx) * nNVI * nHI
-             + 10**R_OI_to_OII_via_HII(Tx) * nOI * nHII
-             - 10**R_OII_to_OI_via_HI(Tx) * nOII * nHI
-             - 10**R_OIII_to_OII_via_HI(Tx) * nOIII * nHI
-             - 10**R_OIV_to_OIII_via_HI(Tx) * nOIV * nHI
-             - 10**R_OV_to_OIV_via_HI(Tx) * nOV * nHI
-             - 10**R_OVI_to_OV_via_HI(Tx) * nOVI * nHI
-             + 10**R_Om_to_OI_via_HII(Tx) * nOm * nHII
+             - R_HI_to_Hm_via_e * nHI * ne
+             - R_Hm_to_HI_via_HI * nHm * nHI
+             + R_Hm_to_HI_via_HI * nHm * nHI
+             + R_Hm_to_HI_via_e * nHm * ne
+             + R_Hm_to_HI_via_HII * nHm * nHII
+             + R_HeI_to_HeII_via_HII * nHeI * nHII
+             + R_HeII_to_HeI_via_Hm * nHeII * nHm
+             - R_HeII_to_HeI_via_HI * nHeII * nHI
+             - R_HeIII_to_HeII_via_HI * nHeIII * nHI
+             + R_CI_to_CII_via_HII * nCI * nHII
+             - R_CII_to_CI_via_HI * nCII * nHI
+             - R_CIII_to_CII_via_HI * nCIII * nHI
+             - R_CIV_to_CIII_via_HI * nCIV * nHI
+             - R_CV_to_CIV_via_HI * nCV * nHI
+             - R_CVI_to_CV_via_HI * nCVI * nHI
+             + R_Cm_to_CI_via_HII * nCm * nHII
+             + R_NI_to_NII_via_HII * nNI * nHII
+             - R_NII_to_NI_via_HI * nNII * nHI
+             - R_NIII_to_NII_via_HI * nNIII * nHI
+             - R_NIV_to_NIII_via_HI * nNIV * nHI
+             - R_NV_to_NIV_via_HI * nNV * nHI
+             - R_NVI_to_NV_via_HI * nNVI * nHI
+             + R_OI_to_OII_via_HII * nOI * nHII
+             - R_OII_to_OI_via_HI * nOII * nHI
+             - R_OIII_to_OII_via_HI * nOIII * nHI
+             - R_OIV_to_OIII_via_HI * nOIV * nHI
+             - R_OV_to_OIV_via_HI * nOV * nHI
+             - R_OVI_to_OV_via_HI * nOVI * nHI
+             + R_Om_to_OI_via_HII * nOm * nHII
              + 10**R_HII_to_HI_via_e_caseA(Tx) * nHII * ne # H CaseA
             )
 
   dnHII_dt = (
-              + 10**R_HI_to_HII_via_e(Tx) * nHI * ne
+              + R_HI_to_HII_via_e * nHI * ne
               - 10**grain_rec_HII_to_HI * nHII * ne # grain_recombination
-              - 10**R_Hm_to_HI_via_HII(Tx) * nHm * nHII
-              - 10**R_HeI_to_HeII_via_HII(Tx) * nHeI * nHII
-              + 10**R_HeII_to_HeI_via_HI(Tx) * nHeII * nHI
-              + 10**R_HeIII_to_HeII_via_HI(Tx) * nHeIII * nHI
-              - 10**R_CI_to_CII_via_HII(Tx) * nCI * nHII
-              + 10**R_CII_to_CI_via_HI(Tx) * nCII * nHI
-              + 10**R_CIII_to_CII_via_HI(Tx) * nCIII * nHI
-              + 10**R_CIV_to_CIII_via_HI(Tx) * nCIV * nHI
-              + 10**R_CV_to_CIV_via_HI(Tx) * nCV * nHI
-              + 10**R_CVI_to_CV_via_HI(Tx) * nCVI * nHI
-              - 10**R_Cm_to_CI_via_HII(Tx) * nCm * nHII
-              - 10**R_NI_to_NII_via_HII(Tx) * nNI * nHII
-              + 10**R_NII_to_NI_via_HI(Tx) * nNII * nHI
-              + 10**R_NIII_to_NII_via_HI(Tx) * nNIII * nHI
-              + 10**R_NIV_to_NIII_via_HI(Tx) * nNIV * nHI
-              + 10**R_NV_to_NIV_via_HI(Tx) * nNV * nHI
-              + 10**R_NVI_to_NV_via_HI(Tx) * nNVI * nHI
-              - 10**R_OI_to_OII_via_HII(Tx) * nOI * nHII
-              + 10**R_OII_to_OI_via_HI(Tx) * nOII * nHI
-              + 10**R_OIII_to_OII_via_HI(Tx) * nOIII * nHI
-              + 10**R_OIV_to_OIII_via_HI(Tx) * nOIV * nHI
-              + 10**R_OV_to_OIV_via_HI(Tx) * nOV * nHI
-              + 10**R_OVI_to_OV_via_HI(Tx) * nOVI * nHI
-              - 10**R_Om_to_OI_via_HII(Tx) * nOm * nHII
+              - R_Hm_to_HI_via_HII * nHm * nHII
+              - R_HeI_to_HeII_via_HII * nHeI * nHII
+              + R_HeII_to_HeI_via_HI * nHeII * nHI
+              + R_HeIII_to_HeII_via_HI * nHeIII * nHI
+              - R_CI_to_CII_via_HII * nCI * nHII
+              + R_CII_to_CI_via_HI * nCII * nHI
+              + R_CIII_to_CII_via_HI * nCIII * nHI
+              + R_CIV_to_CIII_via_HI * nCIV * nHI
+              + R_CV_to_CIV_via_HI * nCV * nHI
+              + R_CVI_to_CV_via_HI * nCVI * nHI
+              - R_Cm_to_CI_via_HII * nCm * nHII
+              - R_NI_to_NII_via_HII * nNI * nHII
+              + R_NII_to_NI_via_HI * nNII * nHI
+              + R_NIII_to_NII_via_HI * nNIII * nHI
+              + R_NIV_to_NIII_via_HI * nNIV * nHI
+              + R_NV_to_NIV_via_HI * nNV * nHI
+              + R_NVI_to_NV_via_HI * nNVI * nHI
+              - R_OI_to_OII_via_HII * nOI * nHII
+              + R_OII_to_OI_via_HI * nOII * nHI
+              + R_OIII_to_OII_via_HI * nOIII * nHI
+              + R_OIV_to_OIII_via_HI * nOIV * nHI
+              + R_OV_to_OIV_via_HI * nOV * nHI
+              + R_OVI_to_OV_via_HI * nOVI * nHI
+              - R_Om_to_OI_via_HII * nOm * nHII
               - 10**R_HII_to_HI_via_e_caseA(Tx) * nHII * ne # H CaseA
              )
 
   dnHm_dt = (
-             + 10**R_HI_to_Hm_via_e(Tx) * nHI * ne
-             - 10**R_Hm_to_HI_via_HI(Tx) * nHm * nHI
-             - 10**R_Hm_to_HI_via_e(Tx) * nHm * ne
-             - 10**R_Hm_to_HI_via_HII(Tx) * nHm * nHII
-             - 10**R_HeII_to_HeI_via_Hm(Tx) * nHeII * nHm
+             + R_HI_to_Hm_via_e * nHI * ne
+             - R_Hm_to_HI_via_HI * nHm * nHI
+             - R_Hm_to_HI_via_e * nHm * ne
+             - R_Hm_to_HI_via_HII * nHm * nHII
+             - R_HeII_to_HeI_via_Hm * nHeII * nHm
             )
 
   dnHeI_dt = (
-              - 10**R_HeI_to_HeII_via_HII(Tx) * nHeI * nHII
+              - R_HeI_to_HeII_via_HII * nHeI * nHII
               + 10**grain_rec_HeII_to_HeI * nHeII * ne # grain_recombination
-              - 10**R_HeI_to_HeII_via_e(Tx) * nHeI * ne
-              + 10**R_HeII_to_HeI_via_Hm(Tx) * nHeII * nHm
-              + 10**R_HeII_to_HeI_via_HI(Tx) * nHeII * nHI
-              + 10**R_CI_to_CII_via_HeII(Tx) * nCI * nHeII
-              + 10**R_CII_to_CIII_via_HeII(Tx) * nCII * nHeII
-              - 10**R_CIV_to_CIII_via_HeI(Tx) * nCIV * nHeI
-              - 10**R_CV_to_CIV_via_HeI(Tx) * nCV * nHeI
-              + 10**R_NII_to_NIII_via_HeII(Tx) * nNII * nHeII
-              - 10**R_NIII_to_NII_via_HeI(Tx) * nNIII * nHeI
-              - 10**R_NIV_to_NIII_via_HeI(Tx) * nNIV * nHeI
-              - 10**R_NV_to_NIV_via_HeI(Tx) * nNV * nHeI
-              + 10**R_OI_to_OII_via_HeII(Tx) * nOI * nHeII
-              - 10**R_OIII_to_OII_via_HeI(Tx) * nOIII * nHeI
-              - 10**R_OIV_to_OIII_via_HeI(Tx) * nOIV * nHeI
-              - 10**R_OV_to_OIV_via_HeI(Tx) * nOV * nHeI
+              - R_HeI_to_HeII_via_e * nHeI * ne
+              + R_HeII_to_HeI_via_Hm * nHeII * nHm
+              + R_HeII_to_HeI_via_HI * nHeII * nHI
+              + R_CI_to_CII_via_HeII * nCI * nHeII
+              + R_CII_to_CIII_via_HeII * nCII * nHeII
+              - R_CIV_to_CIII_via_HeI * nCIV * nHeI
+              - R_CV_to_CIV_via_HeI * nCV * nHeI
+              + R_NII_to_NIII_via_HeII * nNII * nHeII
+              - R_NIII_to_NII_via_HeI * nNIII * nHeI
+              - R_NIV_to_NIII_via_HeI * nNIV * nHeI
+              - R_NV_to_NIV_via_HeI * nNV * nHeI
+              + R_OI_to_OII_via_HeII * nOI * nHeII
+              - R_OIII_to_OII_via_HeI * nOIII * nHeI
+              - R_OIV_to_OIII_via_HeI * nOIV * nHeI
+              - R_OV_to_OIV_via_HeI * nOV * nHeI
               + 10**R_HeII_to_HeI_via_e_caseA(Tx) * nHeII * ne # He CaseA
              )
 
   dnHeII_dt = (
-               + 10**R_HeI_to_HeII_via_HII(Tx) * nHeI * nHII
+               + R_HeI_to_HeII_via_HII * nHeI * nHII
                - 10**grain_rec_HeII_to_HeI * nHeII * ne # grain_recombination
-               + 10**R_HeI_to_HeII_via_e(Tx) * nHeI * ne
-               - 10**R_HeII_to_HeIII_via_e(Tx) * nHeII * ne
-               - 10**R_HeII_to_HeI_via_Hm(Tx) * nHeII * nHm
-               - 10**R_HeII_to_HeI_via_HI(Tx) * nHeII * nHI
-               + 10**R_HeIII_to_HeII_via_HI(Tx) * nHeIII * nHI
-               + 10**R_HeIII_to_HeII_via_e(Tx) * nHeIII * ne
-               - 10**R_CI_to_CII_via_HeII(Tx) * nCI * nHeII
-               - 10**R_CII_to_CIII_via_HeII(Tx) * nCII * nHeII
-               + 10**R_CIV_to_CIII_via_HeI(Tx) * nCIV * nHeI
-               + 10**R_CV_to_CIV_via_HeI(Tx) * nCV * nHeI
-               - 10**R_NII_to_NIII_via_HeII(Tx) * nNII * nHeII
-               + 10**R_NIII_to_NII_via_HeI(Tx) * nNIII * nHeI
-               + 10**R_NIV_to_NIII_via_HeI(Tx) * nNIV * nHeI
-               + 10**R_NV_to_NIV_via_HeI(Tx) * nNV * nHeI
-               - 10**R_OI_to_OII_via_HeII(Tx) * nOI * nHeII
-               + 10**R_OIII_to_OII_via_HeI(Tx) * nOIII * nHeI
-               + 10**R_OIV_to_OIII_via_HeI(Tx) * nOIV * nHeI
-               + 10**R_OV_to_OIV_via_HeI(Tx) * nOV * nHeI
+               + R_HeI_to_HeII_via_e * nHeI * ne
+               - R_HeII_to_HeIII_via_e * nHeII * ne
+               - R_HeII_to_HeI_via_Hm * nHeII * nHm
+               - R_HeII_to_HeI_via_HI * nHeII * nHI
+               + R_HeIII_to_HeII_via_HI * nHeIII * nHI
+               + R_HeIII_to_HeII_via_e * nHeIII * ne
+               - R_CI_to_CII_via_HeII * nCI * nHeII
+               - R_CII_to_CIII_via_HeII * nCII * nHeII
+               + R_CIV_to_CIII_via_HeI * nCIV * nHeI
+               + R_CV_to_CIV_via_HeI * nCV * nHeI
+               - R_NII_to_NIII_via_HeII * nNII * nHeII
+               + R_NIII_to_NII_via_HeI * nNIII * nHeI
+               + R_NIV_to_NIII_via_HeI * nNIV * nHeI
+               + R_NV_to_NIV_via_HeI * nNV * nHeI
+               - R_OI_to_OII_via_HeII * nOI * nHeII
+               + R_OIII_to_OII_via_HeI * nOIII * nHeI
+               + R_OIV_to_OIII_via_HeI * nOIV * nHeI
+               + R_OV_to_OIV_via_HeI * nOV * nHeI
                - 10**R_HeII_to_HeI_via_e_caseA(Tx) * nHeII * ne # He CaseA
               )
 
   dnHeIII_dt = (
-                + 10**R_HeII_to_HeIII_via_e(Tx) * nHeII * ne
-                - 10**R_HeIII_to_HeII_via_HI(Tx) * nHeIII * nHI
-                - 10**R_HeIII_to_HeII_via_e(Tx) * nHeIII * ne
+                + R_HeII_to_HeIII_via_e * nHeII * ne
+                - R_HeIII_to_HeII_via_HI * nHeIII * nHI
+                - R_HeIII_to_HeII_via_e * nHeIII * ne
                )
 
   dnCI_dt = (
-             - 10**R_CI_to_CII_via_HeII(Tx) * nCI * nHeII
+             - R_CI_to_CII_via_HeII * nCI * nHeII
              + 10**grain_rec_CII_to_CI * nCII * ne # grain_recombination
-             - 10**R_CI_to_CII_via_HII(Tx) * nCI * nHII
-             - 10**R_CI_to_CII_via_e(Tx) * nCI * ne
-             + 10**R_CII_to_CI_via_HI(Tx) * nCII * nHI
-             + 10**R_CII_to_CI_via_e(Tx) * nCII * ne
-             + 10**R_Cm_to_CI_via_HII(Tx) * nCm * nHII
+             - R_CI_to_CII_via_HII * nCI * nHII
+             - R_CI_to_CII_via_e * nCI * ne
+             + R_CII_to_CI_via_HI * nCII * nHI
+             + R_CII_to_CI_via_e * nCII * ne
+             + R_Cm_to_CI_via_HII * nCm * nHII
              - const_CI_e_to_Cm_ * nCI * ne # constant rate
             )
 
   dnCII_dt = (
-              + 10**R_CI_to_CII_via_HeII(Tx) * nCI * nHeII
+              + R_CI_to_CII_via_HeII * nCI * nHeII
               - 10**grain_rec_CII_to_CI * nCII * ne # grain_recombination
-              + 10**R_CI_to_CII_via_HII(Tx) * nCI * nHII
-              + 10**R_CI_to_CII_via_e(Tx) * nCI * ne
-              - 10**R_CII_to_CI_via_HI(Tx) * nCII * nHI
-              - 10**R_CII_to_CIII_via_HeII(Tx) * nCII * nHeII
-              - 10**R_CII_to_CI_via_e(Tx) * nCII * ne
-              - 10**R_CII_to_CIII_via_e(Tx) * nCII * ne
-              + 10**R_CIII_to_CII_via_HI(Tx) * nCIII * nHI
-              + 10**R_CIII_to_CII_via_e(Tx) * nCIII * ne
+              + R_CI_to_CII_via_HII * nCI * nHII
+              + R_CI_to_CII_via_e * nCI * ne
+              - R_CII_to_CI_via_HI * nCII * nHI
+              - R_CII_to_CIII_via_HeII * nCII * nHeII
+              - R_CII_to_CI_via_e * nCII * ne
+              - R_CII_to_CIII_via_e * nCII * ne
+              + R_CIII_to_CII_via_HI * nCIII * nHI
+              + R_CIII_to_CII_via_e * nCIII * ne
              )
 
   dnCIII_dt = (
-               + 10**R_CII_to_CIII_via_HeII(Tx) * nCII * nHeII
-               + 10**R_CII_to_CIII_via_e(Tx) * nCII * ne
-               - 10**R_CIII_to_CII_via_HI(Tx) * nCIII * nHI
-               - 10**R_CIII_to_CII_via_e(Tx) * nCIII * ne
-               - 10**R_CIII_to_CIV_via_e(Tx) * nCIII * ne
-               + 10**R_CIV_to_CIII_via_HeI(Tx) * nCIV * nHeI
-               + 10**R_CIV_to_CIII_via_HI(Tx) * nCIV * nHI
-               + 10**R_CIV_to_CIII_via_e(Tx) * nCIV * ne
+               + R_CII_to_CIII_via_HeII * nCII * nHeII
+               + R_CII_to_CIII_via_e * nCII * ne
+               - R_CIII_to_CII_via_HI * nCIII * nHI
+               - R_CIII_to_CII_via_e * nCIII * ne
+               - R_CIII_to_CIV_via_e * nCIII * ne
+               + R_CIV_to_CIII_via_HeI * nCIV * nHeI
+               + R_CIV_to_CIII_via_HI * nCIV * nHI
+               + R_CIV_to_CIII_via_e * nCIV * ne
               )
 
   dnCIV_dt = (
-              + 10**R_CIII_to_CIV_via_e(Tx) * nCIII * ne
-              - 10**R_CIV_to_CIII_via_HeI(Tx) * nCIV * nHeI
-              - 10**R_CIV_to_CIII_via_HI(Tx) * nCIV * nHI
-              - 10**R_CIV_to_CIII_via_e(Tx) * nCIV * ne
-              - 10**R_CIV_to_CV_via_e(Tx) * nCIV * ne
-              + 10**R_CV_to_CIV_via_e(Tx) * nCV * ne
-              + 10**R_CV_to_CIV_via_HI(Tx) * nCV * nHI
-              + 10**R_CV_to_CIV_via_HeI(Tx) * nCV * nHeI
+              + R_CIII_to_CIV_via_e * nCIII * ne
+              - R_CIV_to_CIII_via_HeI * nCIV * nHeI
+              - R_CIV_to_CIII_via_HI * nCIV * nHI
+              - R_CIV_to_CIII_via_e * nCIV * ne
+              - R_CIV_to_CV_via_e * nCIV * ne
+              + R_CV_to_CIV_via_e * nCV * ne
+              + R_CV_to_CIV_via_HI * nCV * nHI
+              + R_CV_to_CIV_via_HeI * nCV * nHeI
              )
 
   dnCV_dt = (
-             + 10**R_CIV_to_CV_via_e(Tx) * nCIV * ne
-             - 10**R_CV_to_CVI_via_e(Tx) * nCV * ne
-             - 10**R_CV_to_CIV_via_e(Tx) * nCV * ne
-             - 10**R_CV_to_CIV_via_HI(Tx) * nCV * nHI
-             - 10**R_CV_to_CIV_via_HeI(Tx) * nCV * nHeI
-             + 10**R_CVI_to_CV_via_HI(Tx) * nCVI * nHI
-             + 10**R_CVI_to_CV_via_e(Tx) * nCVI * ne
+             + R_CIV_to_CV_via_e * nCIV * ne
+             - R_CV_to_CVI_via_e * nCV * ne
+             - R_CV_to_CIV_via_e * nCV * ne
+             - R_CV_to_CIV_via_HI * nCV * nHI
+             - R_CV_to_CIV_via_HeI * nCV * nHeI
+             + R_CVI_to_CV_via_HI * nCVI * nHI
+             + R_CVI_to_CV_via_e * nCVI * ne
             )
 
   dnCVI_dt = (
-              + 10**R_CV_to_CVI_via_e(Tx) * nCV * ne
-              - 10**R_CVI_to_CVII_via_e(Tx) * nCVI * ne
-              - 10**R_CVI_to_CV_via_HI(Tx) * nCVI * nHI
-              - 10**R_CVI_to_CV_via_e(Tx) * nCVI * ne
-              + 10**R_CVII_to_CVI_via_e(Tx) * nCVII * ne
+              + R_CV_to_CVI_via_e * nCV * ne
+              - R_CVI_to_CVII_via_e * nCVI * ne
+              - R_CVI_to_CV_via_HI * nCVI * nHI
+              - R_CVI_to_CV_via_e * nCVI * ne
+              + R_CVII_to_CVI_via_e * nCVII * ne
              )
 
   dnCVII_dt = (
-               + 10**R_CVI_to_CVII_via_e(Tx) * nCVI * ne
-               - 10**R_CVII_to_CVI_via_e(Tx) * nCVII * ne
+               + R_CVI_to_CVII_via_e * nCVI * ne
+               - R_CVII_to_CVI_via_e * nCVII * ne
               )
 
   dnCm_dt = (
-             - 10**R_Cm_to_CI_via_HII(Tx) * nCm * nHII
+             - R_Cm_to_CI_via_HII * nCm * nHII
              + const_CI_e_to_Cm_ * nCI * ne # constant rate
             )
 
   dnNI_dt = (
-             - 10**R_NI_to_NII_via_HII(Tx) * nNI * nHII
-             - 10**R_NI_to_NII_via_e(Tx) * nNI * ne
-             + 10**R_NII_to_NI_via_HI(Tx) * nNII * nHI
-             + 10**R_NII_to_NI_via_e(Tx) * nNII * ne
+             - R_NI_to_NII_via_HII * nNI * nHII
+             - R_NI_to_NII_via_e * nNI * ne
+             + R_NII_to_NI_via_HI * nNII * nHI
+             + R_NII_to_NI_via_e * nNII * ne
             )
 
   dnNII_dt = (
-              + 10**R_NI_to_NII_via_HII(Tx) * nNI * nHII
-              + 10**R_NI_to_NII_via_e(Tx) * nNI * ne
-              - 10**R_NII_to_NI_via_HI(Tx) * nNII * nHI
-              - 10**R_NII_to_NIII_via_HeII(Tx) * nNII * nHeII
-              - 10**R_NII_to_NI_via_e(Tx) * nNII * ne
-              - 10**R_NII_to_NIII_via_e(Tx) * nNII * ne
-              + 10**R_NIII_to_NII_via_HeI(Tx) * nNIII * nHeI
-              + 10**R_NIII_to_NII_via_HI(Tx) * nNIII * nHI
-              + 10**R_NIII_to_NII_via_e(Tx) * nNIII * ne
+              + R_NI_to_NII_via_HII * nNI * nHII
+              + R_NI_to_NII_via_e * nNI * ne
+              - R_NII_to_NI_via_HI * nNII * nHI
+              - R_NII_to_NIII_via_HeII * nNII * nHeII
+              - R_NII_to_NI_via_e * nNII * ne
+              - R_NII_to_NIII_via_e * nNII * ne
+              + R_NIII_to_NII_via_HeI * nNIII * nHeI
+              + R_NIII_to_NII_via_HI * nNIII * nHI
+              + R_NIII_to_NII_via_e * nNIII * ne
              )
 
   dnNIII_dt = (
-               + 10**R_NII_to_NIII_via_HeII(Tx) * nNII * nHeII
-               + 10**R_NII_to_NIII_via_e(Tx) * nNII * ne
-               - 10**R_NIII_to_NII_via_HeI(Tx) * nNIII * nHeI
-               - 10**R_NIII_to_NII_via_HI(Tx) * nNIII * nHI
-               - 10**R_NIII_to_NII_via_e(Tx) * nNIII * ne
-               - 10**R_NIII_to_NIV_via_e(Tx) * nNIII * ne
-               + 10**R_NIV_to_NIII_via_HeI(Tx) * nNIV * nHeI
-               + 10**R_NIV_to_NIII_via_HI(Tx) * nNIV * nHI
-               + 10**R_NIV_to_NIII_via_e(Tx) * nNIV * ne
+               + R_NII_to_NIII_via_HeII * nNII * nHeII
+               + R_NII_to_NIII_via_e * nNII * ne
+               - R_NIII_to_NII_via_HeI * nNIII * nHeI
+               - R_NIII_to_NII_via_HI * nNIII * nHI
+               - R_NIII_to_NII_via_e * nNIII * ne
+               - R_NIII_to_NIV_via_e * nNIII * ne
+               + R_NIV_to_NIII_via_HeI * nNIV * nHeI
+               + R_NIV_to_NIII_via_HI * nNIV * nHI
+               + R_NIV_to_NIII_via_e * nNIV * ne
               )
 
   dnNIV_dt = (
-              + 10**R_NIII_to_NIV_via_e(Tx) * nNIII * ne
-              - 10**R_NIV_to_NIII_via_HeI(Tx) * nNIV * nHeI
-              - 10**R_NIV_to_NIII_via_HI(Tx) * nNIV * nHI
-              - 10**R_NIV_to_NIII_via_e(Tx) * nNIV * ne
-              - 10**R_NIV_to_NV_via_e(Tx) * nNIV * ne
-              + 10**R_NV_to_NIV_via_HeI(Tx) * nNV * nHeI
-              + 10**R_NV_to_NIV_via_HI(Tx) * nNV * nHI
-              + 10**R_NV_to_NIV_via_e(Tx) * nNV * ne
+              + R_NIII_to_NIV_via_e * nNIII * ne
+              - R_NIV_to_NIII_via_HeI * nNIV * nHeI
+              - R_NIV_to_NIII_via_HI * nNIV * nHI
+              - R_NIV_to_NIII_via_e * nNIV * ne
+              - R_NIV_to_NV_via_e * nNIV * ne
+              + R_NV_to_NIV_via_HeI * nNV * nHeI
+              + R_NV_to_NIV_via_HI * nNV * nHI
+              + R_NV_to_NIV_via_e * nNV * ne
              )
 
   dnNV_dt = (
-             + 10**R_NIV_to_NV_via_e(Tx) * nNIV * ne
-             - 10**R_NV_to_NIV_via_HeI(Tx) * nNV * nHeI
-             - 10**R_NV_to_NIV_via_HI(Tx) * nNV * nHI
-             - 10**R_NV_to_NIV_via_e(Tx) * nNV * ne
-             - 10**R_NV_to_NVI_via_e(Tx) * nNV * ne
-             + 10**R_NVI_to_NV_via_HI(Tx) * nNVI * nHI
-             + 10**R_NVI_to_NV_via_e(Tx) * nNVI * ne
+             + R_NIV_to_NV_via_e * nNIV * ne
+             - R_NV_to_NIV_via_HeI * nNV * nHeI
+             - R_NV_to_NIV_via_HI * nNV * nHI
+             - R_NV_to_NIV_via_e * nNV * ne
+             - R_NV_to_NVI_via_e * nNV * ne
+             + R_NVI_to_NV_via_HI * nNVI * nHI
+             + R_NVI_to_NV_via_e * nNVI * ne
             )
 
   dnNVI_dt = (
-              + 10**R_NV_to_NVI_via_e(Tx) * nNV * ne
-              - 10**R_NVI_to_NV_via_HI(Tx) * nNVI * nHI
-              - 10**R_NVI_to_NVII_via_e(Tx) * nNVI * ne
-              - 10**R_NVI_to_NV_via_e(Tx) * nNVI * ne
-              + 10**R_NVII_to_NVI_via_e(Tx) * nNVII * ne
+              + R_NV_to_NVI_via_e * nNV * ne
+              - R_NVI_to_NV_via_HI * nNVI * nHI
+              - R_NVI_to_NVII_via_e * nNVI * ne
+              - R_NVI_to_NV_via_e * nNVI * ne
+              + R_NVII_to_NVI_via_e * nNVII * ne
              )
 
   dnNVII_dt = (
-               + 10**R_NVI_to_NVII_via_e(Tx) * nNVI * ne
-               - 10**R_NVII_to_NVI_via_e(Tx) * nNVII * ne
-               - 10**R_NVII_to_NVIII_via_e(Tx) * nNVII * ne
-               + 10**R_NVIII_to_NVII_via_e(Tx) * nNVIII * ne
+               + R_NVI_to_NVII_via_e * nNVI * ne
+               - R_NVII_to_NVI_via_e * nNVII * ne
+               - R_NVII_to_NVIII_via_e * nNVII * ne
+               + R_NVIII_to_NVII_via_e * nNVIII * ne
               )
 
   dnNVIII_dt = (
-                + 10**R_NVII_to_NVIII_via_e(Tx) * nNVII * ne
-                - 10**R_NVIII_to_NVII_via_e(Tx) * nNVIII * ne
+                + R_NVII_to_NVIII_via_e * nNVII * ne
+                - R_NVIII_to_NVII_via_e * nNVIII * ne
                )
 
   dnOI_dt = (
-             - 10**R_OI_to_OII_via_HeII(Tx) * nOI * nHeII
+             - R_OI_to_OII_via_HeII * nOI * nHeII
              + 10**grain_rec_OII_to_OI * nOII * ne # grain_recombination
-             - 10**R_OI_to_OII_via_e(Tx) * nOI * ne
-             - 10**R_OI_to_OII_via_HII(Tx) * nOI * nHII
-             + 10**R_OII_to_OI_via_HI(Tx) * nOII * nHI
-             + 10**R_OII_to_OI_via_e(Tx) * nOII * ne
-             + 10**R_Om_to_OI_via_HII(Tx) * nOm * nHII
+             - R_OI_to_OII_via_e * nOI * ne
+             - R_OI_to_OII_via_HII * nOI * nHII
+             + R_OII_to_OI_via_HI * nOII * nHI
+             + R_OII_to_OI_via_e * nOII * ne
+             + R_Om_to_OI_via_HII * nOm * nHII
              - const_OI_e_to_Om_ * nOI * ne # constant rate
             )
 
   dnOII_dt = (
-              + 10**R_OI_to_OII_via_HeII(Tx) * nOI * nHeII
+              + R_OI_to_OII_via_HeII * nOI * nHeII
               - 10**grain_rec_OII_to_OI * nOII * ne # grain_recombination
-              + 10**R_OI_to_OII_via_e(Tx) * nOI * ne
-              + 10**R_OI_to_OII_via_HII(Tx) * nOI * nHII
-              - 10**R_OII_to_OI_via_HI(Tx) * nOII * nHI
-              - 10**R_OII_to_OI_via_e(Tx) * nOII * ne
-              - 10**R_OII_to_OIII_via_e(Tx) * nOII * ne
-              + 10**R_OIII_to_OII_via_HeI(Tx) * nOIII * nHeI
-              + 10**R_OIII_to_OII_via_HI(Tx) * nOIII * nHI
-              + 10**R_OIII_to_OII_via_e(Tx) * nOIII * ne
+              + R_OI_to_OII_via_e * nOI * ne
+              + R_OI_to_OII_via_HII * nOI * nHII
+              - R_OII_to_OI_via_HI * nOII * nHI
+              - R_OII_to_OI_via_e * nOII * ne
+              - R_OII_to_OIII_via_e * nOII * ne
+              + R_OIII_to_OII_via_HeI * nOIII * nHeI
+              + R_OIII_to_OII_via_HI * nOIII * nHI
+              + R_OIII_to_OII_via_e * nOIII * ne
              )
 
   dnOIII_dt = (
-               + 10**R_OII_to_OIII_via_e(Tx) * nOII * ne
-               - 10**R_OIII_to_OII_via_HeI(Tx) * nOIII * nHeI
-               - 10**R_OIII_to_OII_via_HI(Tx) * nOIII * nHI
-               - 10**R_OIII_to_OII_via_e(Tx) * nOIII * ne
-               - 10**R_OIII_to_OIV_via_e(Tx) * nOIII * ne
-               + 10**R_OIV_to_OIII_via_e(Tx) * nOIV * ne
-               + 10**R_OIV_to_OIII_via_HI(Tx) * nOIV * nHI
-               + 10**R_OIV_to_OIII_via_HeI(Tx) * nOIV * nHeI
+               + R_OII_to_OIII_via_e * nOII * ne
+               - R_OIII_to_OII_via_HeI * nOIII * nHeI
+               - R_OIII_to_OII_via_HI * nOIII * nHI
+               - R_OIII_to_OII_via_e * nOIII * ne
+               - R_OIII_to_OIV_via_e * nOIII * ne
+               + R_OIV_to_OIII_via_e * nOIV * ne
+               + R_OIV_to_OIII_via_HI * nOIV * nHI
+               + R_OIV_to_OIII_via_HeI * nOIV * nHeI
               )
 
   dnOIV_dt = (
-              + 10**R_OIII_to_OIV_via_e(Tx) * nOIII * ne
-              - 10**R_OIV_to_OV_via_e(Tx) * nOIV * ne
-              - 10**R_OIV_to_OIII_via_e(Tx) * nOIV * ne
-              - 10**R_OIV_to_OIII_via_HI(Tx) * nOIV * nHI
-              - 10**R_OIV_to_OIII_via_HeI(Tx) * nOIV * nHeI
-              + 10**R_OV_to_OIV_via_HeI(Tx) * nOV * nHeI
-              + 10**R_OV_to_OIV_via_HI(Tx) * nOV * nHI
-              + 10**R_OV_to_OIV_via_e(Tx) * nOV * ne
+              + R_OIII_to_OIV_via_e * nOIII * ne
+              - R_OIV_to_OV_via_e * nOIV * ne
+              - R_OIV_to_OIII_via_e * nOIV * ne
+              - R_OIV_to_OIII_via_HI * nOIV * nHI
+              - R_OIV_to_OIII_via_HeI * nOIV * nHeI
+              + R_OV_to_OIV_via_HeI * nOV * nHeI
+              + R_OV_to_OIV_via_HI * nOV * nHI
+              + R_OV_to_OIV_via_e * nOV * ne
              )
 
   dnOV_dt = (
-             + 10**R_OIV_to_OV_via_e(Tx) * nOIV * ne
-             - 10**R_OV_to_OIV_via_HeI(Tx) * nOV * nHeI
-             - 10**R_OV_to_OIV_via_HI(Tx) * nOV * nHI
-             - 10**R_OV_to_OIV_via_e(Tx) * nOV * ne
-             - 10**R_OV_to_OVI_via_e(Tx) * nOV * ne
-             + 10**R_OVI_to_OV_via_HI(Tx) * nOVI * nHI
-             + 10**R_OVI_to_OV_via_e(Tx) * nOVI * ne
+             + R_OIV_to_OV_via_e * nOIV * ne
+             - R_OV_to_OIV_via_HeI * nOV * nHeI
+             - R_OV_to_OIV_via_HI * nOV * nHI
+             - R_OV_to_OIV_via_e * nOV * ne
+             - R_OV_to_OVI_via_e * nOV * ne
+             + R_OVI_to_OV_via_HI * nOVI * nHI
+             + R_OVI_to_OV_via_e * nOVI * ne
             )
 
   dnOVI_dt = (
-              + 10**R_OV_to_OVI_via_e(Tx) * nOV * ne
-              - 10**R_OVI_to_OV_via_HI(Tx) * nOVI * nHI
-              - 10**R_OVI_to_OV_via_e(Tx) * nOVI * ne
-              - 10**R_OVI_to_OVII_via_e(Tx) * nOVI * ne
-              + 10**R_OVII_to_OVI_via_e(Tx) * nOVII * ne
+              + R_OV_to_OVI_via_e * nOV * ne
+              - R_OVI_to_OV_via_HI * nOVI * nHI
+              - R_OVI_to_OV_via_e * nOVI * ne
+              - R_OVI_to_OVII_via_e * nOVI * ne
+              + R_OVII_to_OVI_via_e * nOVII * ne
              )
 
   dnOVII_dt = (
-               + 10**R_OVI_to_OVII_via_e(Tx) * nOVI * ne
-               - 10**R_OVII_to_OVI_via_e(Tx) * nOVII * ne
-               - 10**R_OVII_to_OVIII_via_e(Tx) * nOVII * ne
-               + 10**R_OVIII_to_OVII_via_e(Tx) * nOVIII * ne
+               + R_OVI_to_OVII_via_e * nOVI * ne
+               - R_OVII_to_OVI_via_e * nOVII * ne
+               - R_OVII_to_OVIII_via_e * nOVII * ne
+               + R_OVIII_to_OVII_via_e * nOVIII * ne
               )
 
   dnOVIII_dt = (
-                + 10**R_OVII_to_OVIII_via_e(Tx) * nOVII * ne
-                - 10**R_OVIII_to_OVII_via_e(Tx) * nOVIII * ne
-                - 10**R_OVIII_to_OIX_via_e(Tx) * nOVIII * ne
-                + 10**R_OIX_to_OVIII_via_e(Tx) * nOIX * ne
+                + R_OVII_to_OVIII_via_e * nOVII * ne
+                - R_OVIII_to_OVII_via_e * nOVIII * ne
+                - R_OVIII_to_OIX_via_e * nOVIII * ne
+                + R_OIX_to_OVIII_via_e * nOIX * ne
                )
 
   dnOIX_dt = (
-              + 10**R_OVIII_to_OIX_via_e(Tx) * nOVIII * ne
-              - 10**R_OIX_to_OVIII_via_e(Tx) * nOIX * ne
+              + R_OVIII_to_OIX_via_e * nOVIII * ne
+              - R_OIX_to_OVIII_via_e * nOIX * ne
              )
 
   dnOm_dt = (
-             - 10**R_Om_to_OI_via_HII(Tx) * nOm * nHII
+             - R_Om_to_OI_via_HII * nOm * nHII
              + const_OI_e_to_Om_ * nOI * ne # constant rate
             )
 

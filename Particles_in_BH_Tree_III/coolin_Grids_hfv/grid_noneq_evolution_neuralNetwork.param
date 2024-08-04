@@ -5,29 +5,31 @@ chimes_data_path            /home/pc/CHIMES/chimes-data
 driver_mode          noneq_evolution
 IO_mode		     grid 
 
-output_file    ./grid_noneq_evolution_primordialX.hdf5
-UV_field       None
-shield_mode None
-dust_depletion None 
+output_file    ./grid_noneq_evolution_NeuralNet.hdf5
+UV_field       S04
+bolometric_AGN_luminosity_cgs  1.0e46
+distance_to_AGN_kpc 1.0
+shield_mode    Jeans
+dust_depletion DC16
 
-log_T_min      7.0
-log_T_max      8.0
-delta_log_T    1.0
-log_nH_min     3.0 
-log_nH_max     4.0 
-delta_log_nH   1.0
+log_T_min       3.0
+log_T_max      11.0
+delta_log_T    0.1
+log_nH_min     -4.0 
+log_nH_max      4.0 
+delta_log_nH   0.1
 log_Z_min      -1.0 
-log_Z_max      0.0
-delta_log_Z    1.0
+log_Z_max      -1.0
+delta_log_Z     1.0
 
-shield_length_factor  0.0 
+shield_length_factor  1.0 
 max_shield_length  3.086e20 
 
-n_iterations    50
+n_iterations    100
 
 # Global Variables
 StaticMolCooling          1 
-Tmol_K                    1.0e1
+Tmol_K                    1.0e5 
 InitIonState              12
 grain_temperature         1.0 
 cmb_temperature           2.725 

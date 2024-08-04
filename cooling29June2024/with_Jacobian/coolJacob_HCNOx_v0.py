@@ -9,6 +9,7 @@ from scipy.interpolate import RegularGridInterpolator
 import time
 
 
+
 #----- Lambda
 def Lambda(T, nHI, nHII, nHm, nHeI, nHeII, nHeIII, nCI, nCII, nCIII, nCIV, nCV, 
            nCVI, nCVII, nCm, nNI, nNII, nNIII, nNIV, nNV, nNVI, nNVII, 
@@ -491,14 +492,14 @@ def func(t, y):
 
   dT_dt = -1.0 * (gamma - 1.0) / kB / ntot * (Lamb + 1. / (gamma - 1.) * kB * T * dntot_dt)
 
-  return np.array([
+  return [
           dnHI_dt, dnHII_dt, dnHm_dt, dnHeI_dt, dnHeII_dt, dnHeIII_dt,
           dnCI_dt, dnCII_dt, dnCIII_dt, dnCIV_dt, dnCV_dt, dnCVI_dt,
           dnCVII_dt, dnCm_dt, dnNI_dt, dnNII_dt, dnNIII_dt, dnNIV_dt,
           dnNV_dt, dnNVI_dt, dnNVII_dt, dnNVIII_dt, dnOI_dt, dnOII_dt,
           dnOIII_dt, dnOIV_dt, dnOV_dt, dnOVI_dt, dnOVII_dt, dnOVIII_dt,
           dnOIX_dt, dnOm_dt, dT_dt
-         ])
+         ]
 
 
 
@@ -576,18 +577,46 @@ dust_ratio = 0.01
 
 t_span = (1*3.16e7, 10000*3.16e7)
 
+N = len(y0)
+H = 1e-8
+
+#----- compute_jacobian
+def compute_jacobian(x):
+    J = np.zeros((N, N))
+    t = 1.0 # t is never used in func!!! do 1.0 is just a random choice and could be any thing!
+    for col in range(N):
+        x_plus = np.copy(x)
+        x_minus = np.copy(x)
+        
+        x_plus[col] += H
+        #x_minus[col] -= H
+
+        f_plus = func(t, x_plus)
+        #f_minus = func(t, x_minus)
+        
+        TT = time.time()
+        f = func(t, x)
+        #print(f'Inside Elapsed time = {time.time() - TT}')
+
+        for row in range(N):
+            J[row, col] = (f_plus[row] - f[row]) / H
+    return J
 
 
-T001 = time.time()
-#solution = solve_ivp(func, t_span, y0, method="LSODA", atol=1e-3, rtol=1e-2, options={'min_step': 0.01*3.16e7})
+T11 = time.time()
+J = compute_jacobian(y0)
+print(f'Elapsed time = {time.time() - T11}')
 
-t_eval = np.arange(t_span[0], t_span[1], 1*3.16e7)  # Steps of 0.01
-solution = solve_ivp(func, t_span, y0, method='LSODA', t_eval=t_eval, atol=1e-5, rtol=1e-4)
-
-
-print(f'Elapsed time = {time.time() - T001}')
+print(J)
 
 
+
+
+
+s()
+
+
+solution = solve_ivp(func, t_span, y0, method="LSODA", dense_output=True)
 
 t = np.linspace(t_span[0], t_span[1], 50000) # This 10000 is not years, it is the number of points in linspace !!!!
 y = solution.sol(t)

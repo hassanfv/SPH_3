@@ -570,22 +570,43 @@ y0 = [
       T_i
       ]
 
+
+def adams_bashforth_2_step(func, y0, t):
+    n = len(t)
+    k = len(y0)
+    y = np.zeros((n, k))  # Correctly initialized to handle multiple variables over time
+    y[0] = y0  # Set initial condition directly with y0 assumed to be a correct array
+
+    # Bootstrap with a single Euler step to compute y[1]
+    y[1] = y[0] + (t[1] - t[0]) * func(t[0], y[0])
+
+    # Adams-Bashforth 2-step method for subsequent steps
+    for i in range(1, n - 1):
+        h = t[i+1] - t[i]
+        y[i+1] = y[i] + h * (1.5 * func(t[i], y[i]) - 0.5 * func(t[i-1], y[i-1]))
+    return y
+
+
 A_v = 1.0
 G0 = 0.01
 dust_ratio = 0.01
 
-t_span = (1*3.16e7, 10000*3.16e7)
 
 
+# Time points at which to solve, densely across the range for detailed plotting later
+t = np.arange(1., 10, 0.0001)*3.16e7  # This 50000 is the number of points in linspace
 
-T001 = time.time()
-#solution = solve_ivp(func, t_span, y0, method="LSODA", atol=1e-3, rtol=1e-2, options={'min_step': 0.01*3.16e7})
+TT = time.time()
+solution = adams_bashforth_2_step(func, y0, t)
+print('Elapsed time = ', time.time() - TT)
 
-t_eval = np.arange(t_span[0], t_span[1], 1*3.16e7)  # Steps of 0.01
-solution = solve_ivp(func, t_span, y0, method='LSODA', t_eval=t_eval, atol=1e-5, rtol=1e-4)
+# Convert the solution for plotting and analysis
+t_yrs = t / 3.16e7
+y = solution.T  # Transpose to match the shape used in your original code
 
 
-print(f'Elapsed time = {time.time() - T001}')
+s()
+
 
 
 
