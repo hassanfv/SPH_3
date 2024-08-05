@@ -30,7 +30,7 @@ def mainFunc(nbeg, nend):
 
     lst = inLists[i]
 
-    OutFile = './grid_' + str(i) + '.hdf5'
+    OutFile = f'./grid_{i:03}_rkpc_{lst[0]:.2f}_Lsh_{lst[1]:.2f}.hdf5'
 
     Lsh = 10**lst[1] # Here the Lsh = min(Lsh, L_max) condition is implemented in "createInputList_Aug24.py"
 

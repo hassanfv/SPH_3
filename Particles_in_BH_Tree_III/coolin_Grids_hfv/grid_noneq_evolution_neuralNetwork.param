@@ -12,12 +12,12 @@ distance_to_AGN_kpc 1.0
 shield_mode    Jeans
 dust_depletion DC16
 
-log_T_min       3.0
+log_T_min      11.0
 log_T_max      11.0
-delta_log_T    0.1
+delta_log_T    1.0
 log_nH_min     -4.0 
 log_nH_max      4.0 
-delta_log_nH   0.1
+delta_log_nH    0.1
 log_Z_min      -1.0 
 log_Z_max      -1.0
 delta_log_Z     1.0
@@ -25,7 +25,7 @@ delta_log_Z     1.0
 shield_length_factor  1.0 
 max_shield_length  3.086e20 
 
-n_iterations    100
+n_iterations    10000
 
 # Global Variables
 StaticMolCooling          1 

@@ -55,7 +55,7 @@ print('temperatures = ', temperatures)
 
 inH = 0
 print('nH = ', 10**densities[inH])
-iTemp = 20  #20 --> 1e6
+iTemp = 0  #20 --> 1e6
 print('T = ', 10**temperatures[iTemp])
 iZ = 0
 print('Z = ', metallicities[iZ])
@@ -64,13 +64,11 @@ print('Z = ', metallicities[iZ])
 
 TEvol = TemperatureEvolution[iTemp, inH, iZ, :]
 
-for _ in TEvol:
-  print(_)
 
 
 plt.scatter(t_Arr_in_yrs, TEvol, s = 5)
 
-plt.ylim(1e3, 1e7)
+#plt.ylim(1e3, 1e7)
 plt.yscale('log')
 
 plt.show()
