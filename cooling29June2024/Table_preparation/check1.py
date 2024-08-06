@@ -17,7 +17,7 @@ TimeArray_seconds
 '''
 
 
-f = h5py.File('grid_noneq_evolution_NeuralNet_.hdf5', 'r')
+f = h5py.File('grid_noneq_evolution_NeuralNet_rkpc_0.1.hdf5', 'r')
 
 # Print the attributes of HDF5 objects
 for name, obj in f.items():
@@ -53,28 +53,36 @@ temperatures = f['TableBins/Temperatures'][:]
 
 print('temperatures = ', temperatures)
 
-inH = 0
+inH = 54
+inH2= 51
 print('nH = ', 10**densities[inH])
-iTemp = 30  #20 --> 1e6
-iTemp2 = 25  #20 --> 1e6
+print('nH2 = ', 10**densities[inH2])
+nHRatio = 10**densities[inH2] / 10**densities[inH]
+print()
+print(f'nHRatio = {nHRatio}')
+print()
+
+iTemp = 0  #20 --> 1e6
+iTemp2 = 0  #20 --> 1e6
 print('T = ', 10**temperatures[iTemp])
 iZ = 0
 print('Z = ', metallicities[iZ])
 
 TEvol = TemperatureEvolution[iTemp, inH, iZ, :]
-TEvol2= TemperatureEvolution[iTemp2, inH, iZ, :]
+TEvol2= TemperatureEvolution[iTemp, inH2, iZ, :]
 
+
+t_Arr_in_yrs2 = nHRatio * t_Arr_in_yrs
 
 plt.scatter(t_Arr_in_yrs, TEvol, s = 5, color = 'k')
-plt.scatter(t_Arr_in_yrs + 522, TEvol2, s = 5, color = 'orange')
-
-
-
-
+plt.scatter(t_Arr_in_yrs2, TEvol2, s = 5, color = 'orange')
 
 
 
 plt.ylim(1e3, 1e7)
+
+#plt.xlim(0, 3000)
+
 plt.yscale('log')
 
 plt.show()
