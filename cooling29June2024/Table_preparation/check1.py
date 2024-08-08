@@ -16,8 +16,10 @@ TemperatureEvolution
 TimeArray_seconds
 '''
 
+rkpci = 0.8
+NHj = 18
 
-f = h5py.File('grid_noneq_evolution_NeuralNet_rkpc_0.1.hdf5', 'r')
+f = h5py.File(f'./hdf5_files/grid_noneq_evolution_NeuralNet_rkpc_{rkpci}_NH_{NHj}.hdf5', 'r')
 
 # Print the attributes of HDF5 objects
 for name, obj in f.items():
@@ -53,8 +55,8 @@ temperatures = f['TableBins/Temperatures'][:]
 
 print('temperatures = ', temperatures)
 
-inH = 54
-inH2= 51
+inH = 38
+inH2= 39
 print('nH = ', 10**densities[inH])
 print('nH2 = ', 10**densities[inH2])
 nHRatio = 10**densities[inH2] / 10**densities[inH]
@@ -79,7 +81,7 @@ plt.scatter(t_Arr_in_yrs2, TEvol2, s = 5, color = 'orange')
 
 
 
-plt.ylim(1e3, 1e7)
+plt.ylim(1e3, 5e5)
 
 #plt.xlim(0, 3000)
 
