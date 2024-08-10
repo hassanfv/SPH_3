@@ -17,7 +17,8 @@ TimeArray_seconds
 '''
 
 
-f = h5py.File('grid_noneq_evolution_NeuralNet_rkpc_0.70.hdf5', 'r')
+#f = h5py.File('./hdf5_files/grid_noneq_evolution_NeuralNet_rkpc_0.50_NH_19.4.hdf5', 'r')
+f = h5py.File('grid_noneq_evolution_NeuralNet_rkpc_0.60.hdf5', 'r')
 
 # Print the attributes of HDF5 objects
 for name, obj in f.items():
@@ -53,7 +54,8 @@ temperatures = f['TableBins/Temperatures'][:]
 
 print('temperatures = ', temperatures)
 
-inH = -2
+inH = 78
+print('lognH = ', densities[inH])
 print('nH = ', 10**densities[inH])
 iTemp = 0  #20 --> 1e6
 print('T = ', 10**temperatures[iTemp])

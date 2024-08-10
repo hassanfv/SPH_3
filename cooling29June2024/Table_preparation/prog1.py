@@ -16,8 +16,8 @@ def find_nearest_indices(array, value):
 
 
 
-rkpc = [0.6, 0.8, 1.0]
-NH = [18, 19, 20]
+rkpc = [0.50, 0.55, 0.60]
+NH = [19.0, 19.2, 19.4]
 
 nH = np.arange(-2., 2.01, 0.1) #!!!!!!!!!!!!!!!!!!!!!!! CHECK len to be consistent with CHIMES !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
@@ -29,7 +29,7 @@ print(Res.shape)
 
 for i, rkpci in enumerate(rkpc):
   for j, NHj in enumerate(NH):
-    nam = f'./hdf5_files/grid_noneq_evolution_NeuralNet_rkpc_{rkpci}_NH_{NHj}.hdf5'
+    nam = f'./hdf5_files/grid_noneq_evolution_NeuralNet_rkpc_{rkpci:.2f}_NH_{NHj:.1f}.hdf5'
     f = h5py.File(nam, 'r')
     
     TEvol = f['TemperatureEvolution'][:] # (1, 41, 1, 5001) ---> (T, nH, Z, t)
@@ -50,17 +50,13 @@ dictx = {'rkpc': rkpc, 'NH': NH, 'nH': nH_arr, 'T': Res}
 
 # T ---> (3, 3, 41, 5001) ---> (rkpc, NH, nH, t)
 
-rkpc_i = 0.75 # This is in kpc !
-NH_i = 19.5 # This is in log !
-nH_i = 1.85 # This is in log !
+rkpc_i = 0.53 # This is in kpc !
+NH_i = 19.35 # This is in log !
+nH_i = 1.95 # This is in log !
 
 rkpc_idx_low, rkpc_idx_high = find_nearest_indices(rkpc, rkpc_i)
 NH_idx_low, NH_idx_high = find_nearest_indices(NH, NH_i)
 nH_idx_low, nH_idx_high = find_nearest_indices(nH, nH_i)
-
-print(rkpc_idx_low, rkpc_idx_high)
-print(NH_idx_low, NH_idx_high)
-print(nH_idx_low, nH_idx_high)
 
 Tarr = Res.copy()
 
@@ -89,11 +85,6 @@ T_interp = (
             T111 * xd * yd * zd
            )
 
-print()
-print(T_interp)
-
-print()
-print(t_Arr_in_yrs)
 
 plt.scatter(t_Arr_in_yrs, Tarr[rkpc_idx_low, NH_idx_low, nH_idx_low, :], color = 'b', s = 5)
 plt.scatter(t_Arr_in_yrs, T_interp, color = 'r', s = 5)

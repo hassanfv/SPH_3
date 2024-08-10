@@ -12,24 +12,24 @@ distance_to_AGN_kpc 0.60
 shield_mode    Jeans
 dust_depletion DC16
 
-log_T_min      5.0
-log_T_max      5.0
-delta_log_T    1.0
+log_T_min       5.0
+log_T_max       5.0
+delta_log_T     1.0
 log_nH_min     -2.0
 log_nH_max      2.0
-delta_log_nH    0.1
+delta_log_nH    0.05
 log_Z_min      -1.0 
 log_Z_max      -1.0
 delta_log_Z     1.0
 
 shield_length_factor  1.0 
-max_shield_length  2.512e19
+max_shield_length  1.0e20
 
 n_iterations    5000
 
 # Global Variables
 StaticMolCooling          1 
-Tmol_K                    1.0e1 
+Tmol_K                    1.0e5
 InitIonState              12
 grain_temperature         1.0 
 cmb_temperature           2.725 
@@ -38,14 +38,14 @@ absoluteTolerance         1.0e-10
 explicitTolerance         0.05 
 scale_metal_tolerances    1 
 IncludeCarbon             1
-IncludeNitrogen           0 
-IncludeOxygen             0
-IncludeNeon               0
-IncludeMagnesium          0
-IncludeSilicon            0
-IncludeSulphur            0
-IncludeCalcium            0
-IncludeIron               0
+IncludeNitrogen           1 
+IncludeOxygen             1
+IncludeNeon               1
+IncludeMagnesium          1
+IncludeSilicon            1
+IncludeSulphur            1
+IncludeCalcium            1
+IncludeIron               1
 redshift                  0.0 
 reionisation_redshift     7.5 
 
