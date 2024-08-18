@@ -18,7 +18,7 @@ TimeArray_seconds
 
 
 #f = h5py.File('./hdf5_files/grid_noneq_evolution_NeuralNet_rkpc_0.50_NH_19.4.hdf5', 'r')
-f = h5py.File('grid_noneq_evolution_NeuralNetX.hdf5', 'r')
+f = h5py.File('grid_noneq_evolution_NeuralNetX_r_kpc_0.55_NH_21.25.hdf5', 'r')
 
 # Print the attributes of HDF5 objects
 for name, obj in f.items():
@@ -70,12 +70,15 @@ print('Z = ', metallicities[iZ])
 TEvol = TemperatureEvolution[iTemp, inH, iZ, :]
 
 
-
+#--- This file can be used in prog1.py to compare the exact solution with the interpolated one! -------
+tmp = {'t': t_Arr_in_yrs, 'T': np.log10(TEvol)}
+with open('tmp.pkl', 'wb') as f:
+  pickle.dump(tmp, f)
+#------------------------------------------------------------------------------------------------------
 
 plt.scatter(t_Arr_in_yrs, np.log10(TEvol), s = 5)
 
-plt.ylim(3.9, 5.1)
-#plt.yscale('log')
+plt.ylim(3.75, 5.1)
 
 plt.show()
 

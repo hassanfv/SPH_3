@@ -18,11 +18,14 @@ def find_nearest_indices(array, value):
 
 
 
-rkpc = [0.50, 0.55, 0.60]
-NH = [19.0, 19.2, 19.4]
+rkpc = [0.50, 0.60, 0.70]
+NH = [20.5, 21.0, 21.5]
 
 nH = np.arange(-2., 2.01, 0.1) #!!!!!!!!!!!!!!!!!!!!!!! CHECK len to be consistent with CHIMES !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
+
+#grid_noneq_evolution_NeuralNetX_r_kpc_0.50_NH_20.5.hdf5
+#grid_noneq_evolution_NeuralNetX_r_kpc_0.50_NH_21.0
 
 
 Res = np.zeros((len(rkpc), len(NH), 41, 5001))  # 41 is len(nH) and we can get it from TEvol.shape! 5001 is len(time)
@@ -31,7 +34,7 @@ print(Res.shape)
 
 for i, rkpci in enumerate(rkpc):
   for j, NHj in enumerate(NH):
-    nam = f'./hdf5_files/grid_noneq_evolution_NeuralNet_rkpc_{rkpci:.2f}_NH_{NHj:.1f}.hdf5'
+    nam = f'./hdf5_files/grid_noneq_evolution_NeuralNetX_r_kpc_{rkpci:.2f}_NH_{NHj:.1f}.hdf5'
     f = h5py.File(nam, 'r')
     
     TEvol = f['TemperatureEvolution'][:] # (1, 41, 1, 5001) ---> (T, nH, Z, t)
@@ -57,8 +60,8 @@ with open('datax.pkl', 'wb') as f:
 
 # T ---> (3, 3, 41, 5001) ---> (rkpc, NH, nH, t)
 
-rkpc_i = 0.58 # This is in kpc !
-NH_i = 19.35 # This is in log !
+rkpc_i = 0.65 # This is in kpc !
+NH_i = 21.45 # This is in log !
 nH_i = 2.0 # This is in log !
 
 rkpc_idx_low, rkpc_idx_high = find_nearest_indices(rkpc, rkpc_i)
@@ -93,13 +96,22 @@ T_interp = (
            )
 
 
+#----- The file is created in test1.py --------- Check if tmp.pkl is updated for this currect data in prog1.py !!!!
+with open('tmp.pkl', 'rb') as f:
+  tmp = pickle.load(f)
+tt = tmp['t']
+TT = tmp['T']
+#-----------------------------------------------
+
 plt.scatter(t_Arr_in_yrs, Tarr[rkpc_idx_low, NH_idx_low, nH_idx_low, :], color = 'b', s = 5)
 plt.scatter(t_Arr_in_yrs, T_interp, color = 'r', s = 5)
 plt.scatter(t_Arr_in_yrs, Tarr[rkpc_idx_high, NH_idx_high, nH_idx_high, :], color = 'green', s = 5)
 
+plt.scatter(tt, TT, color = 'gold', s = 5) #--------- Check if tmp.pkl is updated for this currect data in prog1.py !!!!
+
 plt.title(f'{rkpc_i}')
 
-plt.ylim(3.9, 5.1)
+plt.ylim(3.75, 5.1)
 
 #plt.yscale('log')
 
