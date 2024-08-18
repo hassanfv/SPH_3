@@ -18,7 +18,7 @@ TimeArray_seconds
 
 
 #f = h5py.File('./hdf5_files/grid_noneq_evolution_NeuralNet_rkpc_0.50_NH_19.4.hdf5', 'r')
-f = h5py.File('grid_noneq_evolution_NeuralNetX.hdf5', 'r')
+f = h5py.File('grid_noneq_evolution_NeuralNet.hdf5', 'r')
 
 # Print the attributes of HDF5 objects
 for name, obj in f.items():
@@ -57,25 +57,32 @@ temperatures = f['TableBins/Temperatures'][:]
 
 print('temperatures = ', temperatures)
 
-inH = -1
-print('lognH = ', densities[inH])
-print('nH = ', 10**densities[inH])
-iTemp = 0  #20 --> 1e6
-print('T = ', 10**temperatures[iTemp])
-iZ = 0
-print('Z = ', metallicities[iZ])
 
-#N_elem = 32 # 32 is from e upto Om i.e. from electron upto Neutral Oxygen
-
-TEvol = TemperatureEvolution[iTemp, inH, iZ, :]
+#----- plot_h
+def plot_h1(inH):
+  TEvol = TemperatureEvolution[0, inH, 0, :]
+  nHx = densities[inH]
+  print('nH = ', 10**nHx)
+  #plt.plot(t_Arr_in_yrs*10, np.log10(TEvol), label = f'lognH = {nHx:.2f} cm^-3', linewidth = 2, color = 'b')
+  plt.scatter(t_Arr_in_yrs, np.log10(TEvol), label = f'lognH = {nHx:.2f} cm^-3', color = 'b', s = 5)
 
 
+#----- plot_h
+def plot_h2(inH):
+  TEvol = TemperatureEvolution[0, inH, 0, :]
+  nHx = densities[inH]
+  print('nH = ', 10**nHx)
+  #plt.plot(t_Arr_in_yrs, np.log10(TEvol), label = f'lognH = {nHx:.2f} cm^-3', linewidth = 2, color = 'orange', linestyle = ':')
+  plt.scatter(t_Arr_in_yrs, np.log10(TEvol), label = f'lognH = {nHx:.2f} cm^-3', color = 'orange', s = 5)
 
 
-plt.scatter(t_Arr_in_yrs, np.log10(TEvol), s = 5)
+plot_h1(0)
+plot_h2(0)
 
-plt.ylim(3.9, 5.1)
-#plt.yscale('log')
+#plt.xlim(351554, 351750)
+#plt.ylim(3.340, 6.411)
+
+plt.legend()
 
 plt.show()
 

@@ -1,0 +1,25 @@
+Dear Dr. Richings.
+
+I hope you are doing well.
+
+I have a question and I would be grateful for your comments.
+
+I ran CHIMES with the initial temperature of 1e5 K and varying nH in the range -2 < lognH < 2 with the step of 0.05 dex. The metallicity is fixed at logZ = -1.
+The UV field is S04 with luminosity of 1.0e46 and distance 0.6kpc from the AGN.
+
+I set shield_mode to "jeans" but I kept the shield length always fixed at 1.0e20 over the whole simulation. To keep the shield length fixed at 1.0e20, I modified the "compute_jeans_shield_length" function in the "shielding_utils.py" as shown below:
+
+
+def compute_jeans_shield_length(T, nH, shield_length_factor, max_shield_length):
+    return max_shield_length
+
+As shown above, the shield length will always be max_shield_length which is set to 1.0e20 in the param file. I also attached the param file I used for this simulation.
+
+I then plot the Temperature evolution over time for several nH values. Please see the attached plot. As shown in the plot, when the density reaches lognH = 1.95, we have an abrupt drop in the temperature which I am not sure if it is a correct behavior. We do not see this sudden decrease for lognH = 1.90 which is only 0.05 dex lower that lognH = 1.95. We see this abrupt drop also for lognH = 2.0.
+
+I would be grateful if you could kindly comment on the observation.
+Many thanks.
+Best regards,
+Hassan
+
+

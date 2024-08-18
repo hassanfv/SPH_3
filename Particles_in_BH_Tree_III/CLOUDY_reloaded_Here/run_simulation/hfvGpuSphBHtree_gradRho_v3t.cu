@@ -981,7 +981,7 @@ int main()
   cudaMalloc((void **)&d_leftover_mass, sizeof(float));
   cudaMemcpy(d_leftover_mass, &leftover_mass, sizeof(float), cudaMemcpyHostToDevice);
 
-  //float RR0 = maxRange - 0.02; // particles at this radius will not be moved.... my boundary condition to avoid very low density and nspli problem!!!
+  //float RR0 = maxRange - 0.02; // particles at this radius will not be moved.... my boundary condition to avoid very low density and nsplit problem!!!
 
   // **************************************************************
   // *********************** MAIN LOOP ****************************
@@ -1014,7 +1014,7 @@ int main()
 
     //****************** position evolution (BH fixed at [0, 0, 0]) *******************
     
-    r_evolve<<<gridSize, blockSize>>>(d_Typ, d_x, d_y, d_z, d_vx, d_vy, d_vz, dt, ndx_BH, N);!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+    r_evolve<<<gridSize, blockSize>>>(d_Typ, d_x, d_y, d_z, d_vx, d_vy, d_vz, dt, ndx_BH, N);//!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
     //r_evolve_fixPos_atRadiusRR0<<<gridSize, blockSize>>>(d_Typ, d_x, d_y, d_z, d_vx, d_vy, d_vz, dt, ndx_BH, N, RR0); //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
     cudaDeviceSynchronize(); //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
     

@@ -2,8 +2,10 @@
 import numpy as np
 import h5py
 import matplotlib.pyplot as plt
+import pickle
 
 
+#----- find_nearest_indices
 def find_nearest_indices(array, value):
     idx = np.searchsorted(array, value)
     if idx == 0:
@@ -41,7 +43,12 @@ for i, rkpci in enumerate(rkpc):
     for k, nHk in enumerate(nH_arr):
       Res[i, j, k, :] = np.log10(TEvol[0, k, 0, :])
 
-dictx = {'rkpc': rkpc, 'NH': NH, 'nH': nH_arr, 'T': Res}
+#dictx = {'rkpc': rkpc, 'NH': NH, 'nH': nH_arr, 'T': Res}
+
+with open('datax.pkl', 'wb') as f:
+  pickle.dump(TEvol, f)
+
+
 
 #-----------------------------------------------------------------------------------------------
 #-----------------------------------------------------------------------------------------------
@@ -50,9 +57,9 @@ dictx = {'rkpc': rkpc, 'NH': NH, 'nH': nH_arr, 'T': Res}
 
 # T ---> (3, 3, 41, 5001) ---> (rkpc, NH, nH, t)
 
-rkpc_i = 0.53 # This is in kpc !
+rkpc_i = 0.58 # This is in kpc !
 NH_i = 19.35 # This is in log !
-nH_i = 1.95 # This is in log !
+nH_i = 2.0 # This is in log !
 
 rkpc_idx_low, rkpc_idx_high = find_nearest_indices(rkpc, rkpc_i)
 NH_idx_low, NH_idx_high = find_nearest_indices(NH, NH_i)

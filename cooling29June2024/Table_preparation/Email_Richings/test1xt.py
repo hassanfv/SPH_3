@@ -9,7 +9,7 @@ from numba import njit
 import struct
 import glob
 
-f = h5py.File('grid_noneq_evolution_NeuralNet_rkpc_0.60.hdf5', 'r')
+f = h5py.File('grid_noneq_evolution_NeuralNet.hdf5', 'r')
  
 TemperatureEvolution = f['TemperatureEvolution'][:]
 
@@ -28,22 +28,17 @@ def plot_h(inH):
   print('nH = ', nHx)
   #plt.plot(t_Arr_in_yrs, np.log10(TEvol), label = f'lognH = {nHx:.2f} cm^-3', linewidth = 2)
   plt.scatter(t_Arr_in_yrs, np.log10(TEvol), label = f'lognH = {nHx:.2f} cm^-3', s = 1)
-  #plt.ylim(3.9, 5.1)
 
 
-plot_h(75)
-plot_h(76)
-plot_h(77)
-plot_h(78)
-plot_h(79)
-plot_h(80)
+plot_h(5)
+plot_h(-1)
 
 plt.xlabel('t (years)')
 plt.ylabel('logT')
 
 plt.legend()
 
-plt.savefig('plot.png', dpi = 200, bbox_inches = 'tight')
+plt.savefig('plotx.png', dpi = 200, bbox_inches = 'tight')
 
 plt.show()
 
