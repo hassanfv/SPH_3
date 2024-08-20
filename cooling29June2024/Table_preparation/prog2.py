@@ -51,8 +51,8 @@ def generate_temperature_evolution(rkpc, NH, Tarr, rkpc_i, NH_i, total_time):
 
 
 
-rkpc = np.array([0.50, 0.55, 0.60])
-NH = np.array([19.0, 19.2, 19.4])
+rkpc = np.array([0.50, 0.60, 0.70])
+NH = np.array([20.5, 21.0, 21.5])
 
 nH = np.arange(-2., 2.01, 0.1) #!!!!!!!!!!!!!!!!!!!!!!! CHECK len to be consistent with CHIMES !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
@@ -62,7 +62,7 @@ print(Res.shape)
 
 for i, rkpci in enumerate(rkpc):
   for j, NHj in enumerate(NH):
-    nam = f'./hdf5_files/grid_noneq_evolution_NeuralNet_rkpc_{rkpci:.2f}_NH_{NHj:.1f}.hdf5'
+    nam = f'./hdf5_files/grid_noneq_evolution_NeuralNetX_r_kpc_{rkpci:.2f}_NH_{NHj:.1f}.hdf5'
     f = h5py.File(nam, 'r')
     
     TEvol = f['TemperatureEvolution'][:] # (1, 41, 1, 5001) ---> (T, nH, Z, t)
@@ -79,10 +79,8 @@ for i, rkpci in enumerate(rkpc):
 #-----------------------------------------------------------------------------------------------
 #-----------------------------------------------------------------------------------------------
 
-# T ---> (3, 3, 41, 5001) ---> (rkpc, NH, nH, t)
-
-rkpc_i = 0.58 # This is in kpc !
-NH_i = 19.35 # This is in log !
+rkpc_i = 0.55 # This is in kpc !
+NH_i = 21.25 # This is in log !
 
 Tarr = Res.copy()
 
@@ -90,16 +88,19 @@ total_time = 5001
 T_interp = generate_temperature_evolution(rkpc, NH, Tarr, rkpc_i, NH_i, total_time)
 
 
-
-print()
-print('T_interp = ', T_interp)
+#----- The file is created in test1.py --------- Check if tmp.pkl is updated for this currect data in prog1.py !!!!
+with open('tmp.pkl', 'rb') as f:
+  tmp = pickle.load(f)
+tt = tmp['t']
+TT = tmp['T']
+#-----------------------------------------------
 
 plt.scatter(t_Arr_in_yrs, T_interp, color = 'r', s = 5)
+plt.scatter(tt, TT, color = 'gold', s = 5) #--------- Check if tmp.pkl is updated for this currect data in prog1.py !!!!
 
 plt.title(f'{rkpc_i}')
 
-plt.ylim(3.9, 5.1)
-#plt.yscale('log')
+plt.ylim(3.75, 5.1)
 
 plt.show()
 

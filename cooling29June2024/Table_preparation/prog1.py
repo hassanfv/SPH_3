@@ -60,8 +60,8 @@ with open('datax.pkl', 'wb') as f:
 
 # T ---> (3, 3, 41, 5001) ---> (rkpc, NH, nH, t)
 
-rkpc_i = 0.65 # This is in kpc !
-NH_i = 21.45 # This is in log !
+rkpc_i = 0.55 # This is in kpc !
+NH_i = 21.25 # This is in log !
 nH_i = 2.0 # This is in log !
 
 rkpc_idx_low, rkpc_idx_high = find_nearest_indices(rkpc, rkpc_i)
