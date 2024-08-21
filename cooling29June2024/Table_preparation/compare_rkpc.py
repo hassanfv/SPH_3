@@ -140,7 +140,7 @@ nHx = densities[inH]
 print('nH = ', 10**nHx)
 plt.scatter(t_Arr_in_yrs, np.log10(TEvol), label = f'rkpc = 0.1', s = 5)
 
-
+'''
 #===============================================================================================================
 f = h5py.File('grid_noneq_evolution_NeuralNetX_r_kpc_1.0.hdf5', 'r')
 TemperatureEvolution = f['TemperatureEvolution'][:]
@@ -163,11 +163,11 @@ TEvol = TemperatureEvolution[0, inH, 0, :]
 nHx = densities[inH]
 print('nH = ', 10**nHx)
 plt.scatter(t_Arr_in_yrs, np.log10(TEvol), label = f'rkpc = 1.0', s = 5)
-
+'''
 
 plt.legend()
 
-#plt.savefig('optically_thin.png')
+plt.savefig('Lsh_1e16_nH_1e3.png')
 
 plt.show()
 
