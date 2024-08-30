@@ -54,7 +54,7 @@ def generate_temperature_evolution(rkpc, NH, Tarr, rkpc_i, NH_i, total_time):
 rkpc = np.array([0.50, 0.60, 0.70])
 NH = np.array([20.5, 21.0, 21.5])
 
-nH = np.arange(-2., 2.01, 0.1) #!!!!!!!!!!!!!!!!!!!!!!! CHECK len to be consistent with CHIMES !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+#nH = np.arange(-2., 2.01, 0.1) #!!!!!!!!!!!!!!!!!!!!!!! CHECK len to be consistent with CHIMES !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
 Res = np.zeros((len(rkpc), len(NH), 5001))  # 41 is len(nH) and we can get it from TEvol.shape! 5001 is len(time)
 
@@ -69,7 +69,7 @@ for i, rkpci in enumerate(rkpc):
     
     t_Arr_in_sec = f['TimeArray_seconds'][:]
     t_Arr_in_yrs = t_Arr_in_sec / (3600. * 24. * 365.25)
-    nH_arr = f['TableBins/Densities'][:]
+    #nH_arr = f['TableBins/Densities'][:]
 
     Res[i, j, :] = np.log10(TEvol[0, -1, 0, :]) # -1 means we take the last nH
 
@@ -88,7 +88,7 @@ total_time = 5001
 T_interp = generate_temperature_evolution(rkpc, NH, Tarr, rkpc_i, NH_i, total_time)
 
 
-#----- The file is created in test1.py --------- Check if tmp.pkl is updated for this currect data in prog1.py !!!!
+#----- The file is created in test1.py --------- Check if tmp.pkl is updated for this current data in prog1.py !!!!
 with open('tmp.pkl', 'rb') as f:
   tmp = pickle.load(f)
 tt = tmp['t']

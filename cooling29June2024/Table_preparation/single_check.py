@@ -17,27 +17,15 @@ TimeArray_seconds
 '''
 
 
-#f = h5py.File('./hdf5_files/grid_noneq_evolution_NeuralNet_rkpc_0.50_NH_19.4.hdf5', 'r')
-f = h5py.File('grid_noneq_evolution_NeuralNetX_r_kpc_0.55_NH_21.25.hdf5', 'r')
-
-# Print the attributes of HDF5 objects
-for name, obj in f.items():
-  print(name)
-  for key, val in obj.attrs.items():
-    print("    %s: %s" % (key, val))
-
-print('\n\n')
+f = h5py.File(f'./grid_noneq_evolution_NeuralNet.hdf5', 'r')
 
  
 TemperatureEvolution = f['TemperatureEvolution'][:]
 print(f'TemperatureEvolution.shape = {TemperatureEvolution.shape}\n')
 #print(f'TemperatureEvolution = {TemperatureEvolution}\n')
 
-AbundanceEvolution = f['AbundanceEvolution'][:]
+AbundanceEvolution = f['AbundanceEvolution']
 print('AbundanceEvolution.shape = ', AbundanceEvolution.shape)
-
-with open('datax.pkl', 'wb') as filex:
-  pickle.dump(TemperatureEvolution, filex)
 
 t_Arr_in_sec = f['TimeArray_seconds'][:]
 t_Arr_in_yrs = t_Arr_in_sec / (3600. * 24. * 365.25)
@@ -57,29 +45,26 @@ temperatures = f['TableBins/Temperatures'][:]
 
 print('temperatures = ', temperatures)
 
-inH = -1
-print('lognH = ', densities[inH])
+inH = 0
 print('nH = ', 10**densities[inH])
+
 iTemp = 0  #20 --> 1e6
 print('T = ', 10**temperatures[iTemp])
 iZ = 0
 print('Z = ', metallicities[iZ])
 
-nElm = 2 # 2 ---> HII
-Abund = AbundanceEvolution[iTemp, inH, iZ, nElm, :]   # [iTemp, inH, iZ, elem, time]
-
 TEvol = TemperatureEvolution[iTemp, inH, iZ, :]
 
+plt.scatter(t_Arr_in_yrs, np.log10(TEvol), s = 5, color = 'k')
 
-#--- This file can be used in prog1.py to compare the exact solution with the interpolated one! -------
-tmp = {'t': t_Arr_in_yrs, 'T': np.log10(TEvol), 'fxi': Abund}
-with open('tmp.pkl', 'wb') as f:
-  pickle.dump(tmp, f)
-#------------------------------------------------------------------------------------------------------
 
-plt.scatter(t_Arr_in_yrs, np.log10(TEvol), s = 5)
+plt.ylim(3, 11)
 
-plt.ylim(3.75, 5.1)
+#plt.xlim(0, 3000)
+
+#plt.yscale('log')
+
+plt.savefig('r_0.51.png')
 
 plt.show()
 

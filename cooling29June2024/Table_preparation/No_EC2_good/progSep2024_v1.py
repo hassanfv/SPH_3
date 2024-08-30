@@ -23,6 +23,17 @@ def update_parameters(content, updates):
     return content
 
 
+#----------- Preparing the grid -------
+rkpcG = np.arange(0.01, 1.02, 0.1)
+LshG = np.arange(0.0, 2.51, 0.25)
+
+lst = []
+for rkpc in rkpcG:
+  for Lsh in LshG:
+    lst.append([rkpc, Lsh])
+#--------------------------------------
+
+
 #===== mainFunc
 def mainFunc(nbeg, nend):
 
@@ -37,10 +48,6 @@ def mainFunc(nbeg, nend):
     user_input = {
       "output_file": "   " + OutFile + '\n',
       "distance_to_AGN_kpc": f'{lst[0]:.3f}\n',
-      "log_T_min": "     " + f'6.0\n',
-      "log_T_max": "     " + f'9.0\n',
-      "log_nH_min": "   " +  f'-1.0\n',
-      "log_nH_max": "   " +  f'1.0\n',
       "max_shield_length": " " + f'{Lsh:.3E}\n'}
 
     # Update the parameters in the file content
