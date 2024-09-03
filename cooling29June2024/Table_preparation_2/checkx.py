@@ -20,12 +20,11 @@ TimeArray_seconds
 f = h5py.File(f'./grid_noneq_evolution_NeuralNet.hdf5', 'r')
 
  
-TemperatureEvolution = f['TemperatureEvolution'][:]
-print(f'TemperatureEvolution.shape = {TemperatureEvolution.shape}\n')
-#print(f'TemperatureEvolution = {TemperatureEvolution}\n')
+TempEvol = f['TemperatureEvolution'][:]
+print(f'TempEvol.shape = {TempEvol.shape}\n')
 
-AbundanceEvolution = f['AbundanceEvolution']
-print('AbundanceEvolution.shape = ', AbundanceEvolution.shape)
+AbundEvol = f['AbundanceEvolution']
+print('AbundEvol.shape = ', AbundEvol.shape)
 
 t_Arr_in_sec = f['TimeArray_seconds'][:]
 t_Arr_in_yrs = t_Arr_in_sec / (3600. * 24. * 365.25)
@@ -44,32 +43,29 @@ metallicities = f['TableBins/Metallicities'][:]
 temperatures = f['TableBins/Temperatures'][:]
 
 print('temperatures = ', temperatures)
+print()
+print('densities = ', densities)
 
-inH = 0
-print('nH = ', 10**densities[inH])
+'''
+TempEvol.shape = (37, 41, 1, 101)
+AbundEvol.shape =  (37, 41, 1, 157, 101)
+N_Densities: 41
+N_Metallicities: 1
+N_Temperatures: 37
+'''
 
-iTemp = 0  #20 --> 1e6
-print('T = ', 10**temperatures[iTemp])
-iZ = 0
-print('Z = ', metallicities[iZ])
+ndx_T = 4
+ndx_nH = 39
 
-TEvol = TemperatureEvolution[iTemp, inH, iZ, :]
+TEvol = TempEvol[ndx_T, ndx_nH, 0, :]
 
-plt.scatter(t_Arr_in_yrs, np.log10(TEvol), s = 5, color = 'k')
+print()
+print('TEvol = ', TEvol)
 
-
-plt.ylim(3, 11)
-
-#plt.xlim(0, 3000)
-
-#plt.yscale('log')
-
-plt.savefig('r_0.01.png')
+plt.scatter(t_Arr_in_yrs, np.log10(TEvol), s = 5, color = 'k', label = f'nH = {(10**densities[ndx_nH]):.2f}')
+plt.legend()
 
 plt.show()
-
-
-
 
 
 
