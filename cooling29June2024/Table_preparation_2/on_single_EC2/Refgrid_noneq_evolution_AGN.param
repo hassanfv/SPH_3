@@ -1,6 +1,6 @@
 # General Parameters !!!!!!!!!!! Note to change /home/pc/ to /home/ubuntu/ when in AWS EC2 !!!!!!!!!!!!!!!
-chimes_library_path         /home/pc/CHIMES/chimes/libchimes.so
-chimes_data_path            /home/pc/CHIMES/chimes-data
+chimes_library_path         /home/ubuntu/chimes/libchimes.so 
+chimes_data_path            /home/ubuntu/chimes-data
 
 driver_mode          noneq_evolution
 IO_mode		     grid 

@@ -51,7 +51,7 @@ def mainFunc(i, rkpc_i, Lsh_i):
 
   #---- Executing CHIMES ----
   #command = f"mpirun -np 1 python3 chimes-driver.py {updated_file_name}"
-  command = f"mpirun -np 1 -x LD_LIBRARY_PATH=/path/to/install/dir/lib:$LD_LIBRARY_PATH python3 chimes-driver.py {updated_file_name}"
+  command = f"mpirun -np 96 -x LD_LIBRARY_PATH=/path/to/install/dir/lib:$LD_LIBRARY_PATH python3 chimes-driver.py {updated_file_name}"
   print(command)
   os.system(command)
   #----
@@ -73,12 +73,13 @@ def getModelOutput(OutHDF5FileName):
   nHarr = f['TableBins/Densities'][:]
   Tarr = f['TableBins/Temperatures'][:]
   
-  return TempEvol, AbundEvol
+  return TempEvol, AbundEvol, nHarr, Tarr
 
 
 
 pc_to_cm = 3.086e18
 
+SpName = ['HI', 'OI', 'CI', 'CII', 'CIV', 'SiII', 'SiIV', 'NV', 'FeII', 'MgI', 'MgII', 'SII']
 #                HI OI CI CII CIV SiII SiIV  NV  FeII  MgI  MgII  SII
 SelectSpecies = [1, 23, 7, 8, 10, 58,  60,   19, 111,  44,  45,   73]
 
@@ -108,7 +109,7 @@ for i in range(N_rkpc):
     OutHDF5FileName = mainFunc(counter, rkpcG[i], LshG[j])
     counter += 1
     
-    TempEvol, AbundEvol = getModelOutput(OutHDF5FileName)
+    TempEvol, AbundEvol, nHarr, Tarr = getModelOutput(OutHDF5FileName)
     
     print()
     print('TempEvol.shape = ', TempEvol.shape)
@@ -128,11 +129,11 @@ for i in range(N_rkpc):
     os.remove(OutHDF5FileName)
 
 
-TEvolx = {'TEvol': TEvol, 't': np.arange(N_time)}
+TEvolx = {'TEvol': TEvol, 'nH': nHarr, 'Temp': Tarr, 'rkpc': rkpcG, 'Lsh': LshG, 't': np.arange(N_time)}
 with open('TEvol.pkl', 'wb') as f:
   pickle.dump(TEvolx, f)
 
-AbEvolx = {'AbEvol': AbEvol, 't': np.arange(N_time)}
+AbEvolx = {'AbEvol': AbEvol, 'nH': nHarr, 'Temp': Tarr, 'rkpc': rkpcG, 'Lsh': LshG, 'Species_id': SelectSpecies, 'Species_name': SpName, 't': np.arange(N_time)}
 with open('AbEvol.pkl', 'wb') as f:
   pickle.dump(AbEvolx, f)
 
