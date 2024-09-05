@@ -24,8 +24,8 @@ def update_parameters(content, updates):
 
 
 #----------- Preparing the grid -------
-rkpcG = np.arange(0.01, 1.02, 0.2)# it is in kpc
-LshG = np.arange(0.0, 2.51, 0.5) # it is in log10 ---> We take Lsh in the range 1.0 pc up to ~300 pc.
+rkpcG = np.arange(0.01, 1.02, 0.1)# it is in kpc
+LshG = np.arange(0.0, 2.51, 0.25) # it is in log10 ---> We take Lsh in the range 1.0 pc up to ~300 pc.
 #rkpcG = np.arange(0.01, 1.02, 0.2)# it is in kpc
 #LshG = np.arange(0.0, 2.51, 0.5) # it is in log10 ---> We take Lsh in the range 1.0 pc up to ~300 pc.
 #--------------------------------------
@@ -93,8 +93,8 @@ TA = time.time()
 N_Species = len(SelectSpecies)
 N_rkpc = len(rkpcG)
 N_Lsh = len(LshG)
-N_T = 37 # calculate by looking at grid_***.param !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-N_nH = 41 # calculate by looking at grid_***.param !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+N_T = 73 # calculate by looking at grid_***.param !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+N_nH = 81 # calculate by looking at grid_***.param !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 N_time = 101 # calculate by looking at grid_***.param !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
 TEvol = np.zeros((N_rkpc, N_Lsh, N_nH, N_T, N_time))

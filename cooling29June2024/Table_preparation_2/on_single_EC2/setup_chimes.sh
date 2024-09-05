@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # EC2 Instance Public DNS Address
-PUBLIC_DNS="ec2-18-198-27-134.eu-central-1.compute.amazonaws.com"
+PUBLIC_DNS="ec2-3-74-155-25.eu-central-1.compute.amazonaws.com"
 
 # SSH Key for AWS Instance
 AWS_KEY="keyXtest.pem"

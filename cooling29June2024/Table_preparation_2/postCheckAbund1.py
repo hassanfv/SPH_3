@@ -3,32 +3,50 @@ import numpy as np
 #import pandas as pd
 import pickle
 import matplotlib.pyplot as plt
+import h5py
 
 
-with open('TEvol.pkl', 'rb') as f:
+with open('AbEvol.pkl', 'rb') as f:
   data = pickle.load(f)
 
-#['TEvol', 'nH', 'Temp', 'rkpc', 'Lsh', 't']
+#['AbEvol', 'nH', 'Temp', 'rkpc', 'Lsh', 'Species_id', 'Species_name', 't']
 
 #TEvol = np.zeros((N_rkpc, N_Lsh, N_nH, N_T, N_time))
 #AbEvol = np.zeros((N_rkpc, N_Lsh, N_nH, N_T, N_Species, N_time))
 
-TEvol = data['TEvol']
+AbEvol = data['AbEvol'] # (6, 6, 41, 37, 12, 101)
 nH = data['nH']
 Temp = data['Temp']
 rkpc = data['rkpc']
 Lsh = data['Lsh'] # ---- This is in log10 of parsec ! So 0 means 1.0 pc!
 t = data['t']
 
-print(TEvol.shape)
+Species_id = data['Species_id']
+Species_name = data['Species_name']
+print(AbEvol.shape)
+
+iElm = 3 #!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+#------ Single Chimes Output -----
+f = h5py.File(f'./grid_000_rkpc_0.01_Lsh_18.489.hdf5', 'r')
+#TempEvol = f['TemperatureEvolution'][:]
+AbundEvol = f['AbundanceEvolution'][:]     # (T, nH, Z, Elm, t)
+print(AbundEvol.shape)
+Abchim = np.log10(AbundEvol[0, 0, 0, Species_id[iElm], :])
+print(Abchim)
+#---------------------------------
 
 print()
 print(f'nH = {nH}\n')
 print(f'Temp = {Temp}\n')
 print(f'rkpc = {rkpc}\n')
 print(f'Lsh = {Lsh}\n')
+print(f'Species_id = {Species_id}\n')
+print(f'Species_name = {Species_name}\n')
 
 
+AbEvol = AbEvol[:, :, :, :, iElm, :]
+print('AbEvol.shape = ', AbEvol.shape)
 
 # Helper function to find the bounding indices for interpolation
 def find_bounds(arr, value):
@@ -89,29 +107,34 @@ def multidimensional_interpolate(rkpc, Lsh, nH, T, TEvol, rkpc_x, Lsh_x, nH_x, T
     return TEvol_final
 
 
-rkpc_x = 0.311
-Lsh_x = 1.51 # This is log10 of Lsh in pc!
-nH_x = 3.01
-T_x = 5.61
-TEvol_x = multidimensional_interpolate(rkpc, Lsh, nH, Temp, TEvol, rkpc_x, Lsh_x, nH_x, T_x)
-
-rkpc_x = 0.261
-TEvol_x2= multidimensional_interpolate(rkpc, Lsh, nH, Temp, TEvol, rkpc_x, Lsh_x, nH_x, T_x)
-
-rkpc_x = 0.361
-TEvol_x3= multidimensional_interpolate(rkpc, Lsh, nH, Temp, TEvol, rkpc_x, Lsh_x, nH_x, T_x)
 
 
-TT = TEvol[1, 3, 35, 13, :] # (N_rkpc, N_Lsh, N_nH, N_T, N_time)
-TT2 = TEvol[2, 3, 35, 13, :] # (N_rkpc, N_Lsh, N_nH, N_T, N_time)
 
-plt.scatter(t, TT, s = 5, color = 'k')
-plt.scatter(t, TT2, s = 5, color = 'k')
-plt.scatter(t, TEvol_x, s = 5, color = 'orange')
-plt.scatter(t, TEvol_x2, s = 5, color = 'lime')
-plt.scatter(t, TEvol_x3, s = 5, color = 'blue')
 
-plt.savefig('fig.png', bbox_inches = 'tight')
+rkpc_x = 0.25001
+Lsh_x = 1.50001 # This is log10 of Lsh in pc!
+nH_x = 3.0001
+T_x = 5.60001
+AbEvol_x = multidimensional_interpolate(rkpc, Lsh, nH, Temp, AbEvol, rkpc_x, Lsh_x, nH_x, T_x)
+
+rkpc_x = 0.310001
+AbEvol_x2= multidimensional_interpolate(rkpc, Lsh, nH, Temp, AbEvol, rkpc_x, Lsh_x, nH_x, T_x)
+
+rkpc_x = 0.360
+AbEvol_x3= multidimensional_interpolate(rkpc, Lsh, nH, Temp, AbEvol, rkpc_x, Lsh_x, nH_x, T_x)
+
+
+TT = AbEvol[1, 3, 35, 13, :] # (N_rkpc, N_Lsh, N_nH, N_T, N_elm, N_time)
+TT2 = AbEvol[2, 3, 35, 13, :] # (N_rkpc, N_Lsh, N_nH, N_T, N_elm, N_time)
+
+plt.plot(t, TT, color = 'k', linewidth = 3)
+plt.plot(t, TT2, color = 'grey', linewidth = 3)
+plt.scatter(t, Abchim, s = 5, color = 'r')
+plt.scatter(t, AbEvol_x, s = 5, color = 'orange')
+plt.scatter(t, AbEvol_x2, s = 5, color = 'lime')
+plt.scatter(t, AbEvol_x3, s = 5, color = 'blue')
+
+plt.savefig('fig2.png', bbox_inches = 'tight', dpi = 150)
 
 plt.show()
 

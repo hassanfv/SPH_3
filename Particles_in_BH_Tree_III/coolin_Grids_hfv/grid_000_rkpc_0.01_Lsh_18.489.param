@@ -1,5 +1,5 @@
 # General Parameters !!!!!!!!!!! Note to change /home/pc/ to /home/ubuntu/ when in AWS EC2 !!!!!!!!!!!!!!!
-chimes_library_path         /home/pc/CHIMES/chimes/libchimes.so
+chimes_library_path         /home/pc/CHIMES/chimes/libchimes.so 
 chimes_data_path            /home/pc/CHIMES/chimes-data
 
 driver_mode          noneq_evolution
@@ -8,22 +8,22 @@ IO_mode		     grid
 output_file    ./grid_000_rkpc_0.01_Lsh_18.489.hdf5
 UV_field       S04
 bolometric_AGN_luminosity_cgs  1.0e46
-distance_to_AGN_kpc 0.010
+distance_to_AGN_kpc 0.3600
 shield_mode    Jeans
 
 
-log_T_min      3.0  
-log_T_max     10.2
-delta_log_T    0.1
-log_nH_min    -4.0 
-log_nH_max     4.0 
+log_T_min      5.60001
+log_T_max      5.60001
+delta_log_T    1.0
+log_nH_min     3.0001
+log_nH_max     3.0001
 delta_log_nH   1.0
 log_Z_min     -1.0 
 log_Z_max     -1.0
 delta_log_Z    1.0  
 
 shield_length_factor  1.0 
-max_shield_length  3.086E+18
+max_shield_length  9.986e+19
 
 n_iterations    100
 
