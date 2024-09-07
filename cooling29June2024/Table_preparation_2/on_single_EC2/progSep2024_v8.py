@@ -6,7 +6,11 @@ import os
 import time
 import h5py
 import subprocess
+import glob
 
+
+# Now we remove hdf5 files only after the inner loop is fully completed (check line "hdf5_files = glob.glob("*.hdf5")")! (06 September - 2024)
+# I added: "Checking if hdf5 file is created and visible to the system if not wait for it to happen" (06 September - 2024)
 
 #===== update_parameters
 def update_parameters(content, updates):
@@ -24,7 +28,7 @@ def update_parameters(content, updates):
 
 
 #----------- Preparing the grid -------
-rkpcG = np.arange(0.01, 1.02, 0.1)# it is in kpc
+rkpcG = np.arange(0.01, 0.52, 0.1)# it is in kpc
 LshG = np.arange(0.0, 2.51, 0.25) # it is in log10 ---> We take Lsh in the range 1.0 pc up to ~300 pc.
 #rkpcG = np.arange(0.01, 1.02, 0.2)# it is in kpc
 #LshG = np.arange(0.0, 2.51, 0.5) # it is in log10 ---> We take Lsh in the range 1.0 pc up to ~300 pc.
@@ -32,9 +36,10 @@ LshG = np.arange(0.0, 2.51, 0.25) # it is in log10 ---> We take Lsh in the range
 
 
 #===== mainFunc
-def mainFunc(i, rkpc_i, Lsh_i):
+def mainFunc(rkpc_i, Lsh_i):
 
-  OutFile = f'./grid_{i:03}_rkpc_{rkpc_i:.2f}_Lsh_{np.log10(10**Lsh_i * pc_to_cm):.3f}.hdf5'
+  OutFile = f'./rkpc_{rkpc_i:.2f}_Lsh_{np.log10(10**Lsh_i * pc_to_cm):.3f}.hdf5'
+  OutFile_pkl = f'./rkpc_{rkpc_i:.2f}_Lsh_{np.log10(10**Lsh_i * pc_to_cm):.3f}.pkl'
 
   user_input = {
     "output_file": "   " + OutFile + '\n',
@@ -45,7 +50,7 @@ def mainFunc(i, rkpc_i, Lsh_i):
   updated_content = update_parameters(original_content, user_input)
 
   # Write the updated content to a new file
-  updated_file_name = f'grid_{i:03}_rkpc_{rkpc_i:.2f}_Lsh_{np.log10(10**Lsh_i * pc_to_cm):.3f}.param'
+  updated_file_name = f'rkpc_{rkpc_i:.2f}_Lsh_{np.log10(10**Lsh_i * pc_to_cm):.3f}.param'
   with open(updated_file_name, 'w') as file:
       file.writelines(updated_content)
 
@@ -58,7 +63,7 @@ def mainFunc(i, rkpc_i, Lsh_i):
   
   os.remove(updated_file_name)
 
-  return OutFile
+  return OutFile, OutFile_pkl
 
 
 #===== getModelOutput
@@ -102,12 +107,12 @@ AbEvol = np.zeros((N_rkpc, N_Lsh, N_nH, N_T, N_Species, N_time))
 
 print('N_rkpc * N_Lsh = ', N_rkpc * N_Lsh)
 
-counter = 0
 for i in range(N_rkpc):
   for j in range(N_Lsh):
   
-    OutHDF5FileName = mainFunc(counter, rkpcG[i], LshG[j])
-    counter += 1
+    TAA = time.time()
+  
+    OutHDF5FileName, OutFile_pkl = mainFunc(rkpcG[i], LshG[j])
     
     TempEvol, AbundEvol, nHarr, Tarr = getModelOutput(OutHDF5FileName)
     
@@ -115,30 +120,28 @@ for i in range(N_rkpc):
     print('TempEvol.shape = ', TempEvol.shape)
     print()
     
-    TB = time.time()
-    for k in range(N_nH):
-      for l in range(N_T):
-        TEvol[i, j, k, l, :] = np.log10(TempEvol[l, k, 0, :]) # TEvol[rkpc, Lsh, nH, T, time]
-        for b in range(N_Species):
-          tmp = np.log10(1e-30+AbundEvol[l, k, 0, SelectSpecies[b], :])
-          nt = np.where(tmp < -30.0)[0]
-          if len(nt) > 0:
-            tmp[nt] = -30.0
-          AbEvol[i, j, k, l, b, :] = tmp
+    AbundEvolX = AbundEvol[:, :, 0, SelectSpecies, :]
     
-    os.remove(OutHDF5FileName)
+    print()
+    print('AbundEvolX.shape = ', AbundEvolX.shape)
+    print()
+    
+    dictx = {'TempEvol': TempEvol, 'AbundEvol': AbundEvolX,
+             'nH': nHarr, 'Temp': Tarr, 'rkpc': rkpcG,
+             'Lsh': LshG, 'Species_id': SelectSpecies,
+             'Species_name': SpName, 't': np.arange(N_time)}
+    
+    with open(OutFile_pkl, 'wb') as f:
+      pickle.dump(dictx, f)
+
+    print(f'Elapse time in one main loop = {time.time() - TAA} seconds')
+    print()
 
 
-TEvolx = {'TEvol': TEvol, 'nH': nHarr, 'Temp': Tarr, 'rkpc': rkpcG, 'Lsh': LshG, 't': np.arange(N_time)}
-with open('TEvol.pkl', 'wb') as f:
-  pickle.dump(TEvolx, f)
-
-AbEvolx = {'AbEvol': AbEvol, 'nH': nHarr, 'Temp': Tarr, 'rkpc': rkpcG, 'Lsh': LshG, 'Species_id': SelectSpecies, 'Species_name': SpName, 't': np.arange(N_time)}
-with open('AbEvol.pkl', 'wb') as f:
-  pickle.dump(AbEvolx, f)
 
 
-print(f'Elapsed timeX = {(time.time() - TA):.1f} sec')
+
+print(f'Elapsed TOTAL time = {(time.time() - TA):.1f} sec')
 
 
 
