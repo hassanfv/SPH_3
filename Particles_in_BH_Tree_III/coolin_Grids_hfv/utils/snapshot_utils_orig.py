@@ -213,16 +213,22 @@ class SnapshotData:
 
         return 
 
-
-
-
-
-
-    def load_USER(self): 
+    def load_AREPO(self): 
         with h5py.File(self.driver_pars['input_file'], 'r') as h5file:
+            # Define unit conversions. 
+            hubble = h5file['Header'].attrs['HubbleParam']
 
             if self.driver_pars["snapshot_cosmo_flag"] == 0: 
                 expansion_factor = 1.0 
+            elif self.driver_pars["snapshot_cosmo_flag"] == 1: 
+                redshift = h5file['Header'].attrs['Redshift'] 
+                expansion_factor = 1.0 / (1.0 + redshift) 
+
+            # Arepo units include factors of h^-1
+            unit_mass_in_cgs = self.driver_pars["snapshot_unitMass_cgs"] / hubble  
+            unit_length_in_cgs = self.driver_pars["snapshot_unitLength_cgs"] * expansion_factor / hubble  # co-moving to physical 
+            unit_velocity_in_cgs = self.driver_pars["snapshot_unitVelocity_cgs"] 
+            unit_internal_energy_in_cgs = unit_velocity_in_cgs ** 2.0  
 
             print("Reading in particle data\n" )
             sys.stdout.flush()
@@ -230,49 +236,104 @@ class SnapshotData:
             # Read in metallicity array. 
             # Given as mass fractions relative 
             # to total in the order: 
-            # H, He, C, N, O, Ne, Mg, Si, S, Ca, Fe 
-            GFM_metals = np.array(h5file["PartType0/GFM_Metals"]) # Use Asplund 2009 for this! The shape is (N_part, 11)
+            # H, He, C, N, O, Ne, Mg, Si, Fe, Other 
+            GFM_metals = np.array(h5file["PartType0/GFM_Metals"]) 
 
             # Total metallicity 
-            GFM_Z = np.array(h5file["PartType0/GFM_Metallicity"]) # should be in non-log form (forexample 0.01 instead of -2)!
+            GFM_Z = np.array(h5file["PartType0/GFM_Metallicity"]) 
             
-            # Read in metallicity array. 
-            # Given as mass fractions relative 
-            # to total in the order: 
+            # For chimes-driver, we the metallicity 
+            # array to be in the order: 
             # All_metals, He, C, N, O, Ne, Mg, Si, S, Ca, Fe 
-            self.metallicity_arr = np.array(h5file['PartType0/Metallicity']) # metallicity_arr shape is (N_part, 11)
-            
-            #N_part = len(GFM_Z) 
-            #self.metallicity_arr = np.zeros((N_part, 11)) 
-            #self.metallicity_arr[:, 0] = GFM_Z 
-            #self.metallicity_arr[:, 1] = GFM_metals[:, 1] 
-            #self.metallicity_arr[:, 2] = GFM_metals[:, 2] 
-            #self.metallicity_arr[:, 3] = GFM_metals[:, 3] 
-            #self.metallicity_arr[:, 4] = GFM_metals[:, 4] 
-            #self.metallicity_arr[:, 5] = GFM_metals[:, 5] 
-            #self.metallicity_arr[:, 6] = GFM_metals[:, 6] 
-            #self.metallicity_arr[:, 7] = GFM_metals[:, 7] 
-            #self.metallicity_arr[:, 10] = GFM_metals[:, 8] 
+            N_part = len(GFM_Z) 
+            self.metallicity_arr = np.zeros((N_part, 11)) 
+            self.metallicity_arr[:, 0] = GFM_Z 
+            self.metallicity_arr[:, 1] = GFM_metals[:, 1] 
+            self.metallicity_arr[:, 2] = GFM_metals[:, 2] 
+            self.metallicity_arr[:, 3] = GFM_metals[:, 3] 
+            self.metallicity_arr[:, 4] = GFM_metals[:, 4] 
+            self.metallicity_arr[:, 5] = GFM_metals[:, 5] 
+            self.metallicity_arr[:, 6] = GFM_metals[:, 6] 
+            self.metallicity_arr[:, 7] = GFM_metals[:, 7] 
+            self.metallicity_arr[:, 10] = GFM_metals[:, 8] 
 
-            # nH array 
-            self.nH_arr = np.array(h5file['PartType0/nHG_hfv']) #!!!!!!!!!!!!!
+            # S and Ca are not explicitly tracked in 
+            # Arepo. Assume Solar S/Si and Ca/Si ratios 
+            self.metallicity_arr[:, 8] = GFM_metals[:, 7] * 0.464955 
+            self.metallicity_arr[:, 9] = GFM_metals[:, 7] * 0.0964663 
 
-            # Read in the initial CHIMES abundance array
-            self.init_chem_arr = np.array(h5file['PartType0/InitIonState_hfv']) #!!!!!!!!!!!!!
-            
-            # Temp array
-            self.temperature_arr = np.array(h5file['PartType0/TempG_hfv']) #!!!!!!!!!!!!! 
+            # Calculate nH from the density array 
+            density_arr = np.array(h5file['PartType0/Density'])
+            XH = GFM_metals[:, 0] 
+            self.nH_arr = (unit_mass_in_cgs / (unit_length_in_cgs ** 3)) * density_arr * XH / proton_mass_cgs
+
+            # Either read in the initial CHIMES 
+            # abundance array, or set it by hand. 
+            if self.driver_pars["snapshot_chemistry_array"] == None: 
+                self.init_chem_arr = set_initial_chemistry_abundances(self.metallicity_arr, self.global_pars, self.gas_pars["InitIonState"]) 
+            else: 
+                try: 
+                    self.init_chem_arr = np.array(h5file[self.driver_pars["snapshot_chemistry_array"]]) 
+                except KeyError: 
+                    raise Exception("ERROR: Chemistry array not found. The %s array is not present in the snapshot." % (self.driver_pars["snapshot_chemistry_array"], )) 
+
+            # Calculate temperature from 
+            # the internal energy array                     
+            internal_energy_arr = np.array(h5file['PartType0/InternalEnergy']) 
+            internal_energy_arr *= unit_internal_energy_in_cgs   # cgs 
+
+            # If the simulation was run with CHIMES, we can use the mean molecular 
+            # weights from the non-eqm chemical abundances to calculate the 
+            # temperature. Otherwise, use mu assuming neutral gas. 
+            try: 
+                mmw_mu_arr = np.array(h5file['PartType0/ChimesMu']) 
+            except KeyError: 
+                helium_mass_fraction = self.metallicity_arr[:,1]
+                y_helium = helium_mass_fraction / (4*(1-helium_mass_fraction))
+                mmw_mu_arr = (1.0 + 4*y_helium) / (1+y_helium+ElectronAbundance) 
+              
+            self.temperature_arr = (2.0 / 3.0) * mmw_mu_arr * proton_mass_cgs * internal_energy_arr / boltzmann_cgs 
+
+            # Read in stellar fluxes, if needed. 
+            if self.driver_pars['UV_field'] == "StellarFluxes": 
+                if driver_pars["compute_stellar_fluxes"] == 0: 
+                    try: 
+                        self.ChimesFluxIon_arr = np.array(h5file[self.driver_pars["snapshot_flux_ion_array"]]) 
+                    except KeyError: 
+                        raise Exception("ERROR: could not find array %s in the snapshot. You will need to compute the stellar fluxes, using the compute_stellar_fluxes parameter. Aborting." % (self.driver_pars["snapshot_flux_ion_array"], ))
+
+                    try: 
+                        self.ChimesFluxG0_arr = np.array(h5file[self.driver_pars["snapshot_flux_G0_array"]]) 
+                    except KeyError: 
+                        raise Exception("ERROR: could not find array %s in the snapshot. You will need to compute the stellar fluxes, using the compute_stellar_fluxes parameter. Aborting." % (self.driver_pars["snapshot_flux_G0_array"], ))
                     
-            if self.driver_pars["UV_field"] == "S04": 
-                self.gas_coords_arr = np.array(h5file['PartType0/Coordinates']) * unit_length_in_cgs  # gas_coords_arr shape is (N_part, 3)
+            elif self.driver_pars["UV_field"] == "S04": 
+                self.gas_coords_arr = np.array(h5file['PartType0/Coordinates']) * unit_length_in_cgs 
 
+            if self.driver_pars["disable_shielding_in_HII_regions"] == 1: 
+                try: 
+                    self.HIIregion_delay_time = np.array(h5file[self.driver_pars["snapshot_HIIregion_array"]]) 
+                except KeyError: 
+                    raise Exception("ERROR: could not find array %s in the snapshot." % (self.driver_pars["snapshot_HIIregion_array"], )) 
+                
             # Set the shielding length array 
             self.set_shielding_array() 
 
         return 
 
+    def load_USER(self): 
+        try: 
+            from utils.user_def_utils import user_load_function 
+        except ImportError: 
+            raise Exception("ERROR: trying to load a user-defined snapshot file, but cannot find user_load_function in utils.user_def_utils. Aborting.") 
 
+        # Read in snapshot data 
+        user_load_function(self) 
 
+        # Set the shielding length array 
+        self.set_shielding_array() 
+
+        return 
         
 # Routine to check whether output 
 # arrays already exist in the 
