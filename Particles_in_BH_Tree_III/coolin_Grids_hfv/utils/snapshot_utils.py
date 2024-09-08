@@ -63,159 +63,6 @@ class SnapshotData:
         
         return
 
-    def load_GIZMO(self): 
-        with h5py.File(self.driver_pars['input_file'], 'r') as h5file:
-            # Define unit conversions. 
-            hubble = h5file['Header'].attrs['HubbleParam']
-
-            if self.driver_pars["snapshot_cosmo_flag"] == 0: 
-                expansion_factor = 1.0 
-            elif self.driver_pars["snapshot_cosmo_flag"] == 1: 
-                expansion_factor = h5file['Header'].attrs['Time']
-
-            # Gizmo units include factors of h^-1
-            unit_mass_in_cgs = self.driver_pars["snapshot_unitMass_cgs"] / hubble  
-            unit_length_in_cgs = self.driver_pars["snapshot_unitLength_cgs"] * expansion_factor / hubble  # co-moving to physical 
-            unit_velocity_in_cgs = self.driver_pars["snapshot_unitVelocity_cgs"] 
-            unit_internal_energy_in_cgs = unit_velocity_in_cgs ** 2.0 
-            unit_time_in_cgs = unit_length_in_cgs / unit_velocity_in_cgs 
-
-            print("Reading in particle data\n" )
-            sys.stdout.flush() 
-
-            # Read in metallicity array. 
-            # Given as mass fractions relative 
-            # to total in the order: 
-            # All_metals, He, C, N, O, Ne, Mg, Si, S, Ca, Fe 
-            self.metallicity_arr = np.array(h5file['PartType0/Metallicity'])
-
-            # Calculate nH from the density array 
-            density_arr = np.array(h5file['PartType0/Density'])
-            XH = 1.0 - (self.metallicity_arr[:, 0] + self.metallicity_arr[:, 1]) 
-            self.nH_arr = (unit_mass_in_cgs / (unit_length_in_cgs ** 3)) * density_arr * XH / proton_mass_cgs
-
-            # Either read in the initial CHIMES 
-            # abundance array, or set it by hand. 
-            if self.driver_pars["snapshot_chemistry_array"] == None: 
-                self.init_chem_arr = set_initial_chemistry_abundances(self.metallicity_arr, self.global_pars, self.gas_pars["InitIonState"]) 
-            else: 
-                try: 
-                    self.init_chem_arr = np.array(h5file[self.driver_pars["snapshot_chemistry_array"]]) 
-                except KeyError: 
-                    raise Exception("ERROR: Chemistry array not found. The %s array is not present in the snapshot." % (self.driver_pars["snapshot_chemistry_array"], )) 
-
-            # Calculate temperature from 
-            # the internal energy array                     
-            internal_energy_arr = np.array(h5file['PartType0/InternalEnergy']) 
-            internal_energy_arr *= unit_internal_energy_in_cgs   # cgs 
-
-            # If the simulation was run with CHIMES, we can use the mean molecular 
-            # weights from the non-eqm chemical abundances to calculate the 
-            # temperature. Otherwise, use mu assuming neutral gas. 
-            try: 
-                mmw_mu_arr = np.array(h5file['PartType0/ChimesMu']) 
-            except KeyError: 
-                helium_mass_fraction = self.metallicity_arr[:,1]
-                y_helium = helium_mass_fraction / (4*(1-helium_mass_fraction))
-                mmw_mu_arr = (1.0 + 4*y_helium) / (1+y_helium+ElectronAbundance) 
-              
-            self.temperature_arr = (2.0 / 3.0) * mmw_mu_arr * proton_mass_cgs * internal_energy_arr / boltzmann_cgs 
-
-            # Read in stellar fluxes, if needed. 
-            if self.driver_pars['UV_field'] == "StellarFluxes": 
-                if self.driver_pars["compute_stellar_fluxes"] == 0: 
-                    try: 
-                        self.ChimesFluxIon_arr = np.array(h5file[self.driver_pars["snapshot_flux_ion_array"]]) 
-                    except KeyError: 
-                        raise Exception("ERROR: could not find array %s in the snapshot. You will need to compute the stellar fluxes, using the compute_stellar_fluxes parameter. Aborting." % (self.driver_pars["snapshot_flux_ion_array"], ))
-
-                    try: 
-                        self.ChimesFluxG0_arr = np.array(h5file[self.driver_pars["snapshot_flux_G0_array"]]) 
-                    except KeyError: 
-                        raise Exception("ERROR: could not find array %s in the snapshot. You will need to compute the stellar fluxes, using the compute_stellar_fluxes parameter. Aborting." % (self.driver_pars["snapshot_flux_G0_array"], ))
-                elif self.driver_pars["compute_stellar_fluxes"] == 1: 
-                    # Read in the star and gas particle data 
-                    # needed to compute stellar fluxes. 
-                    self.gas_coords_arr = np.array(h5file['PartType0/Coordinates']) * unit_length_in_cgs 
-
-                    if self.driver_pars["snapshot_cosmo_flag"] == 0: 
-                        time_Myr = h5file['Header'].attrs['Time'] * unit_time_in_cgs / seconds_in_a_Myr
-                    
-                        try:
-                            coords_type4 = np.array(h5file['PartType4/Coordinates']) * unit_length_in_cgs
-                            mass_type4 = np.array(h5file['PartType4/Masses']) * unit_mass_in_cgs
-                            age_type4 = time_Myr - (np.array(h5file['PartType4/StellarFormationTime']) * unit_time_in_cgs / seconds_in_a_Myr) 
-                            self.star_coords_arr = coords_type4
-                            self.star_mass_arr = mass_type4
-                            self.star_age_Myr_arr = age_type4
-                        except KeyError: 
-                            print("Type 4 star particles are not present. Continuing.")
-                            sys.stdout.flush()
-                            self.star_coords_arr = np.empty((0, 3), dtype = np.float32) 
-                            self.star_mass_arr = np.empty(0, dtype = np.float32) 
-                            self.star_age_Myr_arr = np.empty(0, dtype = np.float32) 
-
-                        try:
-                            coords_type2 = np.array(h5file['PartType2/Coordinates']) * unit_length_in_cgs
-                            mass_type2 = np.array(h5file['PartType2/Masses']) * unit_mass_in_cgs
-                            age_type2 = time_Myr - (np.array(h5file['PartType2/StellarFormationTime']) * unit_time_in_cgs / seconds_in_a_Myr)
-                            self.star_coords_arr = np.concatenate((self.star_coords_arr, coords_type2)) 
-                            self.star_mass_arr = np.concatenate((self.star_mass_arr, mass_type2)) 
-                            self.star_age_Myr_arr = np.concatenate((self.star_age_Myr_arr, age_type2)) 
-                        except KeyError: 
-                            print("Type 2 star particles are not present. Continuing.")
-                            sys.stdout.flush()
-
-                        try:
-                            coords_type3 = np.array(h5file['PartType3/Coordinates']) * unit_length_in_cgs
-                            mass_type3 = np.array(h5file['PartType3/Masses']) * unit_mass_in_cgs
-                            age_type3 = time_Myr - (np.array(h5file['PartType3/StellarFormationTime']) * unit_time_in_cgs / seconds_in_a_Myr)
-                            self.star_coords_arr = np.concatenate((self.star_coords_arr, coords_type3)) 
-                            self.star_mass_arr = np.concatenate((self.star_mass_arr, mass_type3)) 
-                            self.star_age_Myr_arr = np.concatenate((self.star_age_Myr_arr, age_type3)) 
-                        except KeyError:                               
-                            print("Type 3 star particles are not present. Continuing.")
-                            sys.stdout.flush()
-
-                    else: 
-                        omega0 = h5file['Header'].attrs['Omega0'] 
-                        H0_cgs = hubble * 3.2407789e-18            # Convert HubbleParam (in 100 km/s/Mpc) to s^-1 
-                        try: 
-                            self.star_coords_arr = np.concatenate((self.star_coords_arr, np.array(h5file['PartType4/Coordinates']) * unit_length_in_cgs)) 
-                            self.star_mass_arr = np.concatenate((self.star_mass_arr, np.array(h5file['PartType4/Masses']) * unit_mass_in_cgs)) 
-                            a_form = np.array(h5file['PartType4/StellarFormationTime']) 
-                            x_form = (omega0 / (1.0 - omega0)) / (a_form ** 3.0) 
-                            x_now = (omega0 / (1.0 - omega0)) / (expansion_factor ** 3.0) 
-                            
-                            self.star_age_Myr_arr = (2. / (3. * np.sqrt(1 - omega0))) * np.log(np.sqrt(x_form * x_now)/ ((np.sqrt(1.0 + x_now) - 1.0) * (np.sqrt(1.0 + x_form) + 1.0)))
-                            self.star_age_Myr_arr /= H0_cgs 
-                            self.star_age_Myr_arr /= seconds_in_a_Mpc 
-                        except KeyError: 
-                            print("Type 4 star particles are not present. Continuing.")
-                            sys.stdout.flush()
-                            self.star_coords_arr = np.empty((0, 3), dtype = np.float32) 
-                            self.star_mass_arr = np.empty(0, dtype = np.float32) 
-                            self.star_age_Myr_arr = np.empty(0, dtype = np.float32) 
-
-                else: 
-                    raise Exception("compute_stellar_fluxes == %d not recognised. Aborting." % (self.driver_pars["compute_stellar_fluxes"], )) 
-            elif self.driver_pars["UV_field"] == "S04": 
-                self.gas_coords_arr = np.array(h5file['PartType0/Coordinates']) * unit_length_in_cgs 
-
-            if self.driver_pars["disable_shielding_in_HII_regions"] == 1: 
-                try: 
-                    self.HIIregion_delay_time = np.array(h5file[self.driver_pars["snapshot_HIIregion_array"]]) 
-                except KeyError: 
-                    raise Exception("ERROR: could not find array %s in the snapshot." % (self.driver_pars["snapshot_HIIregion_array"], )) 
-            
-            # Set the shielding length array 
-            self.set_shielding_array() 
-
-        return 
-
-
-
-
 
 
     def load_USER(self): 
@@ -226,15 +73,6 @@ class SnapshotData:
 
             print("Reading in particle data\n" )
             sys.stdout.flush()
-
-            # Read in metallicity array. 
-            # Given as mass fractions relative 
-            # to total in the order: 
-            # H, He, C, N, O, Ne, Mg, Si, S, Ca, Fe 
-            GFM_metals = np.array(h5file["PartType0/GFM_Metals"]) # Use Asplund 2009 for this! The shape is (N_part, 11)
-
-            # Total metallicity 
-            GFM_Z = np.array(h5file["PartType0/GFM_Metallicity"]) # should be in non-log form (forexample 0.01 instead of -2)!
             
             # Read in metallicity array. 
             # Given as mass fractions relative 
@@ -267,7 +105,7 @@ class SnapshotData:
                 self.gas_coords_arr = np.array(h5file['PartType0/Coordinates']) * unit_length_in_cgs  # gas_coords_arr shape is (N_part, 3)
 
             # Set the shielding length array 
-            self.set_shielding_array() 
+            self.set_shielding_array() # Use the same approach as before for the Shielding Length (No need to do any thing here!)!
 
         return 
 
