@@ -5,6 +5,7 @@ import pickle
 import matplotlib.pyplot as plt
 import h5py
 
+pc_to_cm = 3.086e18
 
 #------ Single Chimes Output -----
 f = h5py.File(f'./SingleChimesRun.hdf5', 'r')
@@ -106,15 +107,15 @@ nH_x = 3.0001
 T_x = 5.60001
 TEvol_x = multidimensional_interpolate(rkpc, Lsh, nH, Temp, TEvol, rkpc_x, Lsh_x, nH_x, T_x)
 
-rkpc_x = 0.301
+rkpc_x = 0.231
 TEvol_x2= multidimensional_interpolate(rkpc, Lsh, nH, Temp, TEvol, rkpc_x, Lsh_x, nH_x, T_x)
 
-rkpc_x = 0.351
+rkpc_x = 0.281
 TEvol_x3= multidimensional_interpolate(rkpc, Lsh, nH, Temp, TEvol, rkpc_x, Lsh_x, nH_x, T_x)
 
 
-TT = TEvol[1, 3, 35, 13, :] # (N_rkpc, N_Lsh, N_nH, N_T, N_time)
-TT2 = TEvol[2, 3, 35, 13, :] # (N_rkpc, N_Lsh, N_nH, N_T, N_time)
+TT = TEvol[2, 6, 70, 26, :] # (N_rkpc, N_Lsh, N_nH, N_T, N_time)
+TT2 = TEvol[3, 6, 70, 26, :] # (N_rkpc, N_Lsh, N_nH, N_T, N_time)
 
 plt.scatter(t, TT, s = 5, color = 'k')
 plt.scatter(t, TT2, s = 5, color = 'k')
