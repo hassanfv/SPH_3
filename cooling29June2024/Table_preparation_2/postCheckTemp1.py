@@ -15,6 +15,10 @@ Tchim = np.log10(TempEvol[0, 0, 0, :])
 print(Tchim)
 #---------------------------------
 
+plt.scatter(np.arange(101), Tchim, s = 5, color = 'k')
+plt.ylim(3, 8)
+plt.show()
+s()
 
 
 with open('TEvol.pkl', 'rb') as f:

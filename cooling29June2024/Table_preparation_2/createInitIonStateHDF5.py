@@ -2,6 +2,17 @@ import h5py
 import numpy as np
 
 
+
+#------ Single Chimes Output -----
+f = h5py.File(f'./SingleChimesRun.hdf5', 'r')
+#TempEvol = f['TemperatureEvolution'][:]
+AbundEvol = f['AbundanceEvolution'][:]     # (T, nH, Z, Elm, t)
+print(AbundEvol.shape)
+Abchim = AbundEvol[0, 0, 0, :, -1]
+print(Abchim)
+#---------------------------------
+
+
 '''
 Amass = {
           "H": 1.008,    # Hydrogen
@@ -19,18 +30,26 @@ Amass = {
 '''
 
 Amass = np.array([1.008, 4.0026, 12.011, 14.007, 15.999, 20.180, 24.305, 28.085, 32.06, 40.078, 55.845])
-ElmAbund = np.array([12.00, 10.93, 8.43, 7.83, 8.69, 7.93, 7.60, 7.51, 7.12, 6.34, 7.50])
+ElmAbund_solar = np.array([12.00, 10.93, 8.43, 7.83, 8.69, 7.93, 7.60, 7.51, 7.12, 6.34, 7.50])
+ElmAbund_OneTenthSolar = np.array([12.00, 10.93, 7.43, 6.83, 7.69, 6.93, 6.60, 6.51, 6.12, 5.34, 6.50])
 
-ElmMass = Amass * 10**(ElmAbund - 12.0)
+ElmMass = Amass * 10**(ElmAbund_OneTenthSolar - 12.0)
 print(ElmMass)
 print()
 
+ElmMass[0] = 0
+
 MassFrac = ElmMass / np.sum(ElmMass)
+#MassFrac[0] = 0.0
+MassFrac[0] = np.sum(ElmMass) # as explained in snapshot_utils.py, the first value should be the total mass fraction!
 print('MassFrac = ', MassFrac)
 print()
 
-nHG = np.arange(-4.0, 4.01, 0.1)
-TempG = np.arange(3.0, 10.21, 0.1)
+s()
+
+
+nHG = 10**np.arange(-4.0, 4.01, 0.2)
+TempG = 10**np.arange(3.0, 10.21, 0.2)
 N_nH = len(nHG)
 N_T = len(TempG)
 Npart = N_nH * N_T
@@ -39,6 +58,7 @@ nH_arr = np.zeros(Npart)
 T_arr = np.zeros(Npart)
 MassFrac_arr = np.zeros((Npart, 11))
 coord_arr = np.zeros((Npart, 3))
+initial_chemical_state = np.zeros((Npart, 157))
 
 dist = 0.11 # kpc !!!!!!!!!!!!!!!!!!!!!!! TO BE VARIED !!!!!!!!
 
@@ -50,13 +70,27 @@ for i in range(N_nH):
     MassFrac_arr[k, :] = MassFrac
     r = dist**(1./3.)
     coord_arr[k, :] = [r, r, r]
+    initial_chemical_state[k, :] = Abchim
     k += 1
 
 print(coord_arr)
 
+print()
+print(MassFrac_arr)
+
+print('----------')
+nt = np.where((nH_arr < 1000) & (nH_arr > 500) & (T_arr < 2e6) & (T_arr > 9e5))
+print(nt)
+print()
+print('nHHH = ', nH_arr[nt])
+print()
+print('TTT = ', T_arr[nt])
+jj = 1200
+print(nH_arr[jj], T_arr[jj])
 s()
 
-filename = 'sample_data.hdf5'
+
+filename = 'hfvInput.hdf5'
 
 # Open a new HDF5 file to write data
 with h5py.File(filename, 'w') as file:
@@ -72,16 +106,13 @@ with h5py.File(filename, 'w') as file:
     nH = nHG
     part_type0.create_dataset('nHG_hfv', data=nH_arr)
     
-    # Generate initial chemical states for each particle; it is for 157 species! Try to use CHIMES output for it ! THINK !!!!
-    #initial_chemical_state = np.random.randint(0, 10, size=(N_part, 20))  # Integer states
+    # Generate initial chemical states for each particle; it is for 157 species!
     part_type0.create_dataset('InitIonState_hfv', data=initial_chemical_state)
     
-    # Generate random temperature values for each particle.
-    temperature = np.random.rand(N_part) * 1e4  # Temperatures between 0 and 10,000
+    # Temperature values for each particle.
     part_type0.create_dataset('TempG_hfv', data=T_arr)
     
-    # Generate random 3D coordinates for each particle.
-    coordinates = np.random.rand(N_part, 3)  # 3D coordinates
+    # 3D coordinates for each particle.
     part_type0.create_dataset('Coordinates', data=coord_arr)
 
 

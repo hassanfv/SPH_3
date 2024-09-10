@@ -68,8 +68,7 @@ class SnapshotData:
     def load_USER(self): 
         with h5py.File(self.driver_pars['input_file'], 'r') as h5file:
 
-            if self.driver_pars["snapshot_cosmo_flag"] == 0: 
-                expansion_factor = 1.0 
+            unit_length_in_cgs = self.driver_pars["snapshot_unitLength_cgs"]
 
             print("Reading in particle data\n" )
             sys.stdout.flush()
