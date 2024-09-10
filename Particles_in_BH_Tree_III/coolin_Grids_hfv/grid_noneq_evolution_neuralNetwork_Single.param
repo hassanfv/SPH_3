@@ -14,15 +14,15 @@ shield_mode    Jeans
 log_T_min       6.0
 log_T_max       6.0
 delta_log_T     1.0
-log_nH_min      2.8
-log_nH_max      2.8
+log_nH_min      3.0
+log_nH_max      3.0
 delta_log_nH    1.0
 log_Z_min      -1.0 
 log_Z_max      -1.0
 delta_log_Z     1.0
 
 shield_length_factor  1.0 
-max_shield_length  1.000e17
+max_shield_length  1.000e20
 
 n_iterations    100
 

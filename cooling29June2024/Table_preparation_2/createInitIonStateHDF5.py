@@ -7,9 +7,9 @@ import numpy as np
 f = h5py.File(f'./SingleChimesRun.hdf5', 'r')
 #TempEvol = f['TemperatureEvolution'][:]
 AbundEvol = f['AbundanceEvolution'][:]     # (T, nH, Z, Elm, t)
-print(AbundEvol.shape)
-Abchim = AbundEvol[0, 0, 0, :, -1]
-print(Abchim)
+#print(AbundEvol.shape)
+Abchim = AbundEvol[0, 0, 0, :, 0]
+#print(Abchim)
 #---------------------------------
 
 
@@ -29,24 +29,30 @@ Amass = {
 }
 '''
 
+
 Amass = np.array([1.008, 4.0026, 12.011, 14.007, 15.999, 20.180, 24.305, 28.085, 32.06, 40.078, 55.845])
 ElmAbund_solar = np.array([12.00, 10.93, 8.43, 7.83, 8.69, 7.93, 7.60, 7.51, 7.12, 6.34, 7.50])
 ElmAbund_OneTenthSolar = np.array([12.00, 10.93, 7.43, 6.83, 7.69, 6.93, 6.60, 6.51, 6.12, 5.34, 6.50])
 
-ElmMass = Amass * 10**(ElmAbund_OneTenthSolar - 12.0)
+ElmMass = Amass * 10**(ElmAbund_solar - 12.0) # ARE YOU SURE WHICH ONE YOU CHOSE (solar or another)?????!!!!!!!!!!!!!!!!?????????
 print(ElmMass)
 print()
 
-ElmMass[0] = 0
-
 MassFrac = ElmMass / np.sum(ElmMass)
-#MassFrac[0] = 0.0
-MassFrac[0] = np.sum(ElmMass) # as explained in snapshot_utils.py, the first value should be the total mass fraction!
-print('MassFrac = ', MassFrac)
+print('MassFrac Before = ', MassFrac)
+print()
+metal_mass = np.sum(ElmMass[2:]) / np.sum(ElmMass)
+print('metal_mass = ', metal_mass)
+print()
+MassFrac[0] = metal_mass # as explained in snapshot_utils.py, the first value should be All metals mass fraction!
+print('MassFrac After = ', MassFrac)
 print()
 
-s()
-
+#!!!!! CHIMES !!!!!!!!!!!!!
+MassFrac = np.array([0.0129, 0.2806, 2.07e-3, 8.36e-4, 5.49e-3, 1.41e-3, 5.91e-4, 6.83e-4, 4.09e-4, 6.44e-5, 1.1e-3]) * 0.1
+print('MassFrac CHIMES = ', MassFrac)
+print()
+#----------------------
 
 nHG = 10**np.arange(-4.0, 4.01, 0.2)
 TempG = 10**np.arange(3.0, 10.21, 0.2)
@@ -85,9 +91,9 @@ print()
 print('nHHH = ', nH_arr[nt])
 print()
 print('TTT = ', T_arr[nt])
-jj = 1200
+jj = 1310
 print(nH_arr[jj], T_arr[jj])
-s()
+
 
 
 filename = 'hfvInput.hdf5'
