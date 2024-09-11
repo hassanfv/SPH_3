@@ -48,7 +48,7 @@ MassFrac[0] = metal_mass # as explained in snapshot_utils.py, the first value sh
 print('MassFrac After = ', MassFrac)
 print()
 
-#!!!!! CHIMES !!!!!!!!!!!!!
+#!!!!! CHIMES !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! OVERRIDES ABOVE MASS FRACTION !!!!!!!!!!!!!!!
 MassFrac = np.array([0.0129, 0.2806, 2.07e-3, 8.36e-4, 5.49e-3, 1.41e-3, 5.91e-4, 6.83e-4, 4.09e-4, 6.44e-5, 1.1e-3]) * 0.1
 print('MassFrac CHIMES = ', MassFrac)
 print()
@@ -79,20 +79,21 @@ for i in range(N_nH):
     initial_chemical_state[k, :] = Abchim
     k += 1
 
-print(coord_arr)
+print(f'coord_arr = {coord_arr}')
 
 print()
 print(MassFrac_arr)
 
 print('----------')
-nt = np.where((nH_arr < 1000) & (nH_arr > 500) & (T_arr < 2e6) & (T_arr > 9e5))
+nt = np.where((nH_arr < 1000) & (nH_arr > 500) & (T_arr < 4e5) & (T_arr > 1e5))
 print(nt)
 print()
 print('nHHH = ', nH_arr[nt])
 print()
 print('TTT = ', T_arr[nt])
-jj = 1310
+jj = 1269
 print(nH_arr[jj], T_arr[jj])
+
 
 
 
