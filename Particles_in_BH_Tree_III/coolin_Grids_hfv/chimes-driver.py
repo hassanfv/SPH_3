@@ -65,6 +65,11 @@ class ChimesDriver(object):
             self.ChimesFluxG0_arr = data_list[6]
         elif driver_pars["UV_field"] == "S04" and driver_pars["IO_mode"] == "snapshot":
             self.distance_to_AGN = data_list[5] 
+            print()
+            print('YYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYY')
+            print('distance_to_AGN = ', data_list[5])
+            print('YYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYY')
+            print()
 
         self.N_part = len(self.nH_arr) 
         
@@ -193,8 +198,15 @@ class ChimesDriver(object):
                 # Set at 1 kpc for now. This will be
                 # replaced for each particle later. 
                 self.myGasVars.isotropic_photon_density[0] = compute_AGN_isotropic_photon_density(self.driver_pars["bolometric_AGN_luminosity_cgs"], 1.0)
+                #self.myGasVars.isotropic_photon_density[0] = 446.200826446281
+                print('2222222222222222 For SnapShot 22222222222222222222222')
+                print('self.myGasVars.isotropic_photon_density[0] = ', self.myGasVars.isotropic_photon_density[0])
+                print('22222222222222222222222222222222222222222222222222222')
             else: 
                 self.myGasVars.isotropic_photon_density[0] = compute_AGN_isotropic_photon_density(self.driver_pars["bolometric_AGN_luminosity_cgs"], self.driver_pars["distance_to_AGN_kpc"])
+                print('11111111111111111111111111111111111111111111111111111')
+                print('self.myGasVars.isotropic_photon_density[0] = ', self.myGasVars.isotropic_photon_density[0])
+                print('11111111111111111111111111111111111111111111111111111')
             self.myGasVars.G0_parameter[0] = self.spectra_table.G0_parameter[0]  
             self.myGasVars.H2_dissocJ[0] = self.spectra_table.H2_dissocJ[0] 
         else: 
@@ -410,7 +422,10 @@ class ChimesDriver(object):
                     self.myGasVars.G0_parameter[j + 1] = self.ChimesFluxG0_arr[i, j] / max(self.ChimesFluxIon_arr[i, j], 1.0e-100) 
                     self.myGasVars.H2_dissocJ[j + 1] = self.myGasVars.G0_parameter[j + 1] * self.spectra_table.H2_dissocJ[j + 1] / self.spectra_table.G0_parameter[j + 1]
             elif self.driver_pars["UV_field"] == "S04" and self.driver_pars["IO_mode"] == "snapshot":
-                self.myGasVars.isotropic_photon_density[0] = compute_AGN_isotropic_photon_density(self.driver_pars["bolometric_AGN_luminosity_cgs"], self.distance_to_AGN[i])
+                self.myGasVars.isotropic_photon_density[0] = 446.2008#compute_AGN_isotropic_photon_density(self.driver_pars["bolometric_AGN_luminosity_cgs"], self.distance_to_AGN[i])
+                print('3333333333333333 For SnapShot 33333333333333333333333')
+                print('self.myGasVars.isotropic_photon_density[0] = ', self.myGasVars.isotropic_photon_density[0])
+                print('33333333333333333333333333333333333333333333333333333')
                 
             atomic_masses = np.array([4., 12., 14., 16., 20., 24., 28., 32., 40., 56.])
             metal_number_abundances = self.metallicity_arr[i, 1:11] / (atomic_masses * XH)
@@ -649,6 +664,12 @@ def main():
                     N_star = len(star_mass_arr)
             elif driver_pars["UV_field"] == "S04": 
                 gas_coords_arr = my_snapshot_data.gas_coords_arr 
+                print()
+                print('XXXXXXXXXXXXXXXXXXXXXXXXXXXX')
+                print('gas_coords_arr = ', gas_coords_arr)
+                print()
+                print('XXXXXXXXXXXXXXXXXXXXXXXXXXXX')
+                print()
 
             if driver_pars["driver_mode"] == "noneq_evolution": 
                 # Save copies of the full temperature and 

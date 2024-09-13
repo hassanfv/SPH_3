@@ -9,7 +9,7 @@ input_file     ./hfvInput.hdf5
 output_file    ./grid_noneq_evolution_Snap.hdf5
 UV_field       S04
 bolometric_AGN_luminosity_cgs  1.0e46
-distance_to_AGN_kpc 0.20
+distance_to_AGN_kpc 0.11
 shield_mode    Jeans
 
 snapshot_type  USER
@@ -25,14 +25,14 @@ log_Z_max      -1.0
 delta_log_Z     1.0
 
 shield_length_factor  1.0 
-max_shield_length  1.000e17
+max_shield_length  1.000e19
 
 n_iterations    100
 
 # Global Variables
 StaticMolCooling          1 
 Tmol_K                    1.0e5
-InitIonState              2
+InitIonState              4
 grain_temperature         10.0 
 cmb_temperature           2.725 
 relativeTolerance         1.0e-8

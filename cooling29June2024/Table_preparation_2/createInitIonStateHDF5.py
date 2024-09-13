@@ -9,8 +9,9 @@ f = h5py.File(f'./SingleChimesRun.hdf5', 'r')
 AbundEvol = f['AbundanceEvolution'][:]     # (T, nH, Z, Elm, t)
 #print(AbundEvol.shape)
 Abchim = AbundEvol[0, 0, 0, :, 0]
-#print(Abchim)
+print(Abchim)
 #---------------------------------
+
 
 
 '''
@@ -49,13 +50,14 @@ print('MassFrac After = ', MassFrac)
 print()
 
 #!!!!! CHIMES !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! OVERRIDES ABOVE MASS FRACTION !!!!!!!!!!!!!!!
-MassFrac = np.array([0.0129, 0.2806, 2.07e-3, 8.36e-4, 5.49e-3, 1.41e-3, 5.91e-4, 6.83e-4, 4.09e-4, 6.44e-5, 1.1e-3]) * 0.1
+#MassFrac = np.array([0.0129, 0.2806, 2.07e-3, 8.36e-4, 5.49e-3, 1.41e-3, 5.91e-4, 6.83e-4, 4.09e-4, 6.44e-5, 1.1e-3]) # Original solar metallicity
+MassFrac = np.array([1.29e-03, 2.5306e-01, 2.07e-04, 8.36e-05, 5.49e-04, 1.41e-04, 5.91e-05, 6.83e-05, 4.09e-05, 6.44e-06, 1.1e-04]) # 0.1 Z_sun
 print('MassFrac CHIMES = ', MassFrac)
 print()
 #----------------------
 
-nHG = 10**np.arange(-4.0, 4.01, 0.2)
-TempG = 10**np.arange(3.0, 10.21, 0.2)
+nHG = 10**np.arange(-1.0, 4.01, 0.2)
+TempG = 10**np.arange(4.0, 7.21, 0.5)
 N_nH = len(nHG)
 N_T = len(TempG)
 Npart = N_nH * N_T
@@ -74,8 +76,8 @@ for i in range(N_nH):
     nH_arr[k] = nHG[i]
     T_arr[k] = TempG[j]
     MassFrac_arr[k, :] = MassFrac
-    r = dist**(1./3.)
-    coord_arr[k, :] = [r, r, r]
+    x = y = z = 1./np.sqrt(3.) * dist # we assume x = y = z for simplicity! dist = sqrt(x*x + y*y + z*z)
+    coord_arr[k, :] = [x, y, z]
     initial_chemical_state[k, :] = Abchim
     k += 1
 
@@ -85,13 +87,13 @@ print()
 print(MassFrac_arr)
 
 print('----------')
-nt = np.where((nH_arr < 1000) & (nH_arr > 500) & (T_arr < 4e5) & (T_arr > 1e5))
+nt = np.where((nH_arr < 1000) & (nH_arr > 500) & (T_arr < 6e5) & (T_arr > 1e5))
 print(nt)
 print()
 print('nHHH = ', nH_arr[nt])
 print()
 print('TTT = ', T_arr[nt])
-jj = 1269
+jj = 1
 print(nH_arr[jj], T_arr[jj])
 
 

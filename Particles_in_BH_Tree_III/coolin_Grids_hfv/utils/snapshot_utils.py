@@ -47,6 +47,10 @@ class SnapshotData:
             for i in range(len(self.nH_arr)): 
                 self.shieldLength_arr[i] = compute_jeans_shield_length(self.temperature_arr[i], self.nH_arr[i], self.driver_pars["shield_length_factor"], self.driver_pars["max_shield_length"]) 
                 
+            print('aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa')
+            print('self.shieldLength_arr[0] = ', self.shieldLength_arr[0])
+            print('aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa')
+                
         elif self.driver_pars['shield_mode'] == "Colibre": 
             self.shieldLength_arr = np.zeros(len(self.nH_arr), dtype = np.float64) 
             
@@ -69,6 +73,13 @@ class SnapshotData:
         with h5py.File(self.driver_pars['input_file'], 'r') as h5file:
 
             unit_length_in_cgs = self.driver_pars["snapshot_unitLength_cgs"]
+            
+            print()
+            print('ccccccccccccccccccccccccccccccccccccccccc')
+            print('unit_length_in_cgs = ', unit_length_in_cgs)
+            print('ccccccccccccccccccccccccccccccccccccccccc')
+            print()
+            
 
             print("Reading in particle data\n" )
             sys.stdout.flush()

@@ -45,7 +45,15 @@ def create_grid(driver_pars, global_pars, init_ion_state):
                 else: 
                     raise Exception("shield_mode %s not recognised. Aborting" % (driver_pars["shield_mode"], )) 
 
-    init_chem_arr = set_initial_chemistry_abundances(metallicity_arr, global_pars, init_ion_state) 
+    init_chem_arr = set_initial_chemistry_abundances(metallicity_arr, global_pars, init_ion_state)
+    
+    print('HHHHHHHHHHHHHHHHHHHHHHHHHHHHHHH')
+    print('metallicity_arr = ', metallicity_arr)
+    print('shieldLength_arr = ', shieldLength_arr)
+    print('init_chem_arr = ', init_chem_arr)
+    print('nH_arr = ', nH_arr)
+    print('temperature_arr = ', temperature_arr)
+    print('HHHHHHHHHHHHHHHHHHHHHHHHHHHHHHH')
     
     print("Cooling table grid:") 
     print("%.2f <= log10(T) <= %.2f" % (min(np.log10(temperature_arr)), max(np.log10(temperature_arr)))) 
