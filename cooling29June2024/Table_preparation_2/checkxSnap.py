@@ -24,7 +24,7 @@ AbundEvol = f['AbundanceEvolution']
 print('AbundEvol.shape = ', AbundEvol.shape)
 
 
-TEvol = TempEvol[136, :]
+TEvol = TempEvol[171, :]
 
 print()
 print('TEvol = ', TEvol)

@@ -87,7 +87,7 @@ print()
 print(MassFrac_arr)
 
 print('----------')
-nt = np.where((nH_arr < 1000) & (nH_arr > 500) & (T_arr < 6e5) & (T_arr > 1e5))
+nt = np.where((nH_arr < 10000) & (nH_arr > 5000) & (T_arr < 6e5) & (T_arr > 1e5))
 print(nt)
 print()
 print('nHHH = ', nH_arr[nt])
