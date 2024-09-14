@@ -112,7 +112,7 @@ class SnapshotData:
             self.temperature_arr = np.array(h5file['PartType0/TempG_hfv']) #!!!!!!!!!!!!! 
                     
             if self.driver_pars["UV_field"] == "S04": 
-                self.gas_coords_arr = np.array(h5file['PartType0/Coordinates']) * unit_length_in_cgs  # gas_coords_arr shape is (N_part, 3)
+                self.gas_coords_arr = np.array(h5file['PartType0/Coordinates']) #* unit_length_in_cgs  # gas_coords_arr shape is (N_part, 3)
 
             # Set the shielding length array 
             self.set_shielding_array() # Use the same approach as before for the Shielding Length (No need to do any thing here!)!

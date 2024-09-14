@@ -422,9 +422,11 @@ class ChimesDriver(object):
                     self.myGasVars.G0_parameter[j + 1] = self.ChimesFluxG0_arr[i, j] / max(self.ChimesFluxIon_arr[i, j], 1.0e-100) 
                     self.myGasVars.H2_dissocJ[j + 1] = self.myGasVars.G0_parameter[j + 1] * self.spectra_table.H2_dissocJ[j + 1] / self.spectra_table.G0_parameter[j + 1]
             elif self.driver_pars["UV_field"] == "S04" and self.driver_pars["IO_mode"] == "snapshot":
-                self.myGasVars.isotropic_photon_density[0] = 446.2008#compute_AGN_isotropic_photon_density(self.driver_pars["bolometric_AGN_luminosity_cgs"], self.distance_to_AGN[i])
+                self.myGasVars.isotropic_photon_density[0] = compute_AGN_isotropic_photon_density(self.driver_pars["bolometric_AGN_luminosity_cgs"], self.distance_to_AGN[i])
                 print('3333333333333333 For SnapShot 33333333333333333333333')
                 print('self.myGasVars.isotropic_photon_density[0] = ', self.myGasVars.isotropic_photon_density[0])
+                print('L = ', self.driver_pars["bolometric_AGN_luminosity_cgs"])
+                print('self.distance_to_AGN[i] = ', self.distance_to_AGN[i])
                 print('33333333333333333333333333333333333333333333333333333')
                 
             atomic_masses = np.array([4., 12., 14., 16., 20., 24., 28., 32., 40., 56.])

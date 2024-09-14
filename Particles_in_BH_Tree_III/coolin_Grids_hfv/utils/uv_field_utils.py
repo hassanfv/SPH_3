@@ -108,4 +108,10 @@ def compute_colibre_ISRF(myGasVars, myGlobalVars, spectra_table, N_ref_over_NH0_
 # bolometric AGN luminosity and distance
 # from the AGN. 
 def compute_AGN_isotropic_photon_density(L_AGN_cgs, r_kpc):
+    print()
+    print('From inside compute_AGN_isotropic_photon_density---> L_AGN_cgs, r_kpc = ', L_AGN_cgs, r_kpc)
+    print()
+    #r_kpc = r_kpc / 3.086e21
     return 5.39903 * (L_AGN_cgs / 1.0e46) / (r_kpc ** 2.0) 
+
+
