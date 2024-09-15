@@ -9,13 +9,13 @@ IO_mode		     grid
 output_file    ./SingleChimesRun.hdf5
 UV_field       S04
 bolometric_AGN_luminosity_cgs  1.0e46
-distance_to_AGN_kpc 0.11
+distance_to_AGN_kpc 0.50
 shield_mode    Jeans
 
 
 
-log_T_min       8.0
-log_T_max       8.0
+log_T_min       6.0
+log_T_max       6.0
 delta_log_T     1.0
 log_nH_min      3.0
 log_nH_max      3.0
@@ -27,12 +27,12 @@ delta_log_Z     1.0
 shield_length_factor  1.0 
 max_shield_length  1.000e19
 
-n_iterations    100
+n_iterations    3000
 
 # Global Variables
 StaticMolCooling          1 
 Tmol_K                    1.0e5
-InitIonState              12
+InitIonState              5
 grain_temperature         10.0 
 cmb_temperature           2.725 
 relativeTolerance         1.0e-8
