@@ -22,6 +22,17 @@ t_Arr_in_yrs = t_Arr_in_sec / (3600. * 24. * 365.25)
 
 plt.scatter(t_Arr_in_yrs, np.log10(TempEvol), s = 5, color = 'k')
 
+
+plt.ylim(3.7, 6.2)
+plt.xlim(0.0, 8000)
+
+plt.xlabel('Time [yrs]')
+plt.ylabel('log(T)')
+
+plt.savefig('T_vs_time.png', dpi = 300, bbox_inches = 'tight') # Great! This confirms the idea !!!
+
+
+
 plt.show()
 
 
