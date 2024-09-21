@@ -6,7 +6,9 @@ import matplotlib.pyplot as plt
 import h5py
 
 
-iElm = 10 #!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+iElm = 0 #!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+plt.figure(figsize = (8, 8))
 
 #------ Single Chimes Output -----
 f = h5py.File(f'./SingleChimesRun_initIonState_1.hdf5', 'r')
