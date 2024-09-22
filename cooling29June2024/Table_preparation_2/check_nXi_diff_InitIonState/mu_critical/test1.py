@@ -34,7 +34,7 @@ AbEvol = AbundEvol[0, 0, 0, iElm, :]
 
 plt.scatter(t_Arr_in_yrs, np.log10(TempEvol), s = 5, color = 'b')
 
-plt.ylim(2, 11)
+#plt.ylim(2, 11)
 
 plt.savefig('figx.png', dpi = 300, bbox_inches = 'tight') # Great! This confirms the idea !!!
 

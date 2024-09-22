@@ -30,7 +30,7 @@ AbEvol = AbundEvol[0, 0, 0, iElm, :]
 Tmp1 = TempEvol[:-1]
 Tmp2 = TempEvol[1:]
 
-nxx = np.where(((Tmp1 - Tmp2) < 0.0) & (Tmp1 < 2e4))[0]
+nxx = np.where(((Tmp1 - Tmp2) < 0.0) & (Tmp2 < 1e4))[0] # Assuming turning point always occurs below 1e4 K. 
 
 print(nxx)
 
