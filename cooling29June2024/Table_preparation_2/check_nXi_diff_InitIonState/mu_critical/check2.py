@@ -11,7 +11,7 @@ iElm = 0 #!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 plt.figure(figsize = (8, 8))
 
 #------ Single Chimes Output -----
-f = h5py.File(f'./SingleChimesRun_initIonState_1.hdf5', 'r')
+f = h5py.File(f'./SingleChimesRun_T_6.0_Ion_5.hdf5', 'r')
 TempEvol = f['TemperatureEvolution'][:]
 print('TempEvol.shape = ', TempEvol.shape)
 AbundEvol = f['AbundanceEvolution'][:]     # (T, nH, Z, Elm, t)
@@ -28,7 +28,7 @@ plt.scatter(np.log10(TempEvol), np.log10(1e-30+AbEvol), s = 5, color = 'k')
 
 
 #------ Single Chimes Output -----
-f = h5py.File(f'./SingleChimesRun_initIonState_6.hdf5', 'r')
+f = h5py.File(f'./SingleChimesRunX.hdf5', 'r')
 TempEvol = f['TemperatureEvolution'][:]
 print('TempEvol.shape = ', TempEvol.shape)
 AbundEvol = f['AbundanceEvolution'][:]     # (T, nH, Z, Elm, t)
@@ -45,7 +45,7 @@ plt.scatter(np.log10(TempEvol), np.log10(1e-30+AbEvol), s = 5, color = 'b')
 
 
 #------ Single Chimes Output -----
-f = h5py.File(f'./SingleChimesRun_T_5.5_Ion_3.hdf5', 'r')
+f = h5py.File(f'./SingleChimesRun.hdf5', 'r')
 TempEvol = f['TemperatureEvolution'][:]
 print('TempEvol.shape = ', TempEvol.shape)
 AbundEvol = f['AbundanceEvolution'][:]     # (T, nH, Z, Elm, t)
@@ -60,7 +60,7 @@ AbEvol = AbundEvol[0, 0, 0, iElm, :]
 
 plt.scatter(np.log10(TempEvol), np.log10(1e-30+AbEvol), s = 5, color = 'lime')
 
-
+'''
 #------ Single Chimes Output -----
 f = h5py.File(f'./SingleChimesRun_T_5.5_Ion_1.hdf5', 'r')
 TempEvol = f['TemperatureEvolution'][:]
@@ -113,7 +113,7 @@ plt.scatter(np.log10(TempEvol), np.log10(1e-30+AbEvol), s = 5, color = 'red')
 
 print('t_Arr_in_yrs = ', t_Arr_in_yrs)
 
-'''
+
 #------ Single Chimes Output -----
 f = h5py.File(f'./SingleChimesRun_T_6.0_Ion_5_nH_3.5.hdf5', 'r')
 TempEvol = f['TemperatureEvolution'][:]

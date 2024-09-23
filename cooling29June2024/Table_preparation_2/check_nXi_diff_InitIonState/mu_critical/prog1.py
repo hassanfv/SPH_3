@@ -5,11 +5,35 @@ import matplotlib.pyplot as plt
 import h5py
 import os
 
+
+df = pd.read_csv('data_species.csv')
+print(df)
+    
+AtomicMass = df['A']
+
+gamma = 5./3.
+kB = 1.3807e-16
+mH = 1.6726e-24
 pc_to_cm = 3.086e18
+
 
 # Read the initial param file.
 with open('Refgrid_noneq_evolution_AGN.param', 'r') as file:
     original_content = file.readlines()
+
+
+#----- getMu
+def getMu(Ab):
+
+  s = 0.0
+  p = 0.0
+  for j in range(157):
+    s += Ab[j] * AtomicMass[j]
+    p += Ab[j] # Note that ne is also included in the sum!!
+
+  mu = s / p
+  
+  return mu
 
 
 #===== update_parameters
@@ -58,12 +82,31 @@ def mainFunc(log_nH_i, rkpc_i, Lsh_i):
   
   #os.remove(updated_file_name)
 
-  return OutFile, OutFile_pkl
+  return OutFile, OutFile_pkl, updated_file_name # updated_file_name will be used to delete param file at the end of each loop!
+
+
+#===== getModelOutput
+def getModelOutput(OutHDF5FileName):
+
+  f = h5py.File(OutHDF5FileName, 'r')
+  TempEvol = f['TemperatureEvolution'][:] # (T, nH, Z, t)
+  AbundEvol = f['AbundanceEvolution'][:]     # (T, nH, Z, Elm, t)
+
+  N_nH = n_densities = f['TableBins/N_Densities'][()]
+  N_T = n_temperatures = f['TableBins/N_Temperatures'][()]
+  nHarr = f['TableBins/Densities'][:]
+  Tarr = f['TableBins/Temperatures'][:]
+  
+  return TempEvol, AbundEvol, nHarr, Tarr
+
+
+
+
 
 #----------- Preparing the grid -------
 rkpcG = np.arange(0.01, 1.02, 0.1)# it is in kpc
 LshG = np.arange(0.0, 2.51, 0.25) # it is in log10 of pc so 0.0 mean 1pc or 3.086e18 cm ---> We take Lsh in the range 1.0 pc up to ~300 pc.
-nHG = np.arange(1.0, 4.0, 0.1)
+nHG = np.arange(1.0, 4.01, 0.1)
 #--------------------------------------
 
 print(len(rkpcG), len(LshG), len(nHG), len(rkpcG)*len(LshG)*len(nHG))
@@ -82,16 +125,58 @@ for i in range(N_nH):
 
 N = len(inList)
 
+ResX = np.zeros((N, 2))
+
 for j in range(N):
 
   nH_t, rkpc_t, Lsh_t = inList[j]
 
-  OutFile, OutFile_pkl = mainFunc(nH_t, rkpc_t, Lsh_t)
+  OutHDF5FileName, OutFile_pkl, updated_file_name = mainFunc(nH_t, rkpc_t, Lsh_t)
   
   print()
-  print('OutFile, OutFile_pkl = ', OutFile, OutFile_pkl)
+  print('OutHDF5FileName, OutFile_pkl = ', OutHDF5FileName, OutFile_pkl)
+  
+  TempEvol, AbundEvol, nHarr, Tarr = getModelOutput(OutHDF5FileName)
+  
+  TempEvol = TempEvol[0, 0, 0, :]
+    
+  print()
+  print('TempEvol.shape = ', TempEvol.shape)
+  print()
+  
+  AbundEvol = AbundEvol[0, 0, 0, :, :]
+  
+  print()
+  print('AbundEvol.shape = ', AbundEvol.shape)
+  print()
+  
+  #------ Finding the turning point -----
+  Tmp1 = TempEvol[:-1]
+  Tmp2 = TempEvol[1:]
 
-  s()
+  nxx = np.where(((Tmp1 - Tmp2) < 0.0) & (Tmp2 < 1.1e4))[0] # Assuming turning point always occurs below 1e4 K. 
+
+  print('nxx = ', nxx)
+
+  if nxx.size > 0:
+    ndx = nxx[0]
+    T_crit = TempEvol[ndx]
+    AbX = AbundEvol[:, ndx]
+    mu_crit = getMu(AbX)
+    ResX[j, 0] = T_crit
+    ResX[j, 1] = mu_crit
+    print('ndx = ', ndx)
+    print('T_crit = ', T_crit)
+    print('mu_crit = ', mu_crit)
+  else:
+    print('nxx is empty !!!!!')
+  
+  os.remove(OutHDF5FileName)
+  os.remove(updated_file_name)
+  
+  print(ResX)
+
+  #s()
 
 
 

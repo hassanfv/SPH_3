@@ -6,6 +6,30 @@ import matplotlib.pyplot as plt
 import h5py
 
 
+#----- getMu
+def getMu(Ab):
+
+  s = 0.0
+  p = 0.0
+  for j in range(157):
+    s += Ab[j] * AtomicMass[j]
+    p += Ab[j] # Note that ne is also included in the sum!!
+
+  mu = s / p
+  
+  return mu
+
+
+df = pd.read_csv('data_species.csv')
+print(df)
+    
+AtomicMass = df['A']
+
+gamma = 5./3.
+kB = 1.3807e-16
+mH = 1.6726e-24
+pc_to_cm = 3.086e18
+
 iElm = 1 #!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
 plt.figure(figsize = (8, 8))
@@ -23,6 +47,8 @@ t_Arr_in_sec = f['TimeArray_seconds'][:]
 t_Arr_in_yrs = t_Arr_in_sec / (3600. * 24. * 365.25)
 #---------------------------------
 
+AbundEvolX = AbundEvol[0, 0, 0, :, :]
+
 AbEvol = AbundEvol[0, 0, 0, iElm, :]
 
 
@@ -37,8 +63,11 @@ print(nxx)
 if nxx.size > 0:
   ndx = nxx[0]
   T_crit = TempEvol[ndx]
+  AbX = AbundEvolX[:, ndx]
+  mu = getMu(AbX)
   print('ndx = ', ndx)
   print('T_crit = ', T_crit)
+  print('mu_crit = ', mu)
 else:
   print('nxx is empty !!!!!')
 
