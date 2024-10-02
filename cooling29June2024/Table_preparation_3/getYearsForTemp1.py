@@ -33,6 +33,7 @@ pc_to_cm = 3.086e18
 
 #------ Single Chimes Output -----
 f = h5py.File(f'SingleChimesRun.hdf5', 'r')
+f = h5py.File(f'./nH_-4.0_rkpc_0.01_Lsh_18.489.hdf5', 'r')
 TempEvol = f['TemperatureEvolution'][:][0, 0, 0, :]
 print('TempEvol.shape = ', TempEvol.shape)
 AbundEvol = f['AbundanceEvolution'][:]     # (T, nH, Z, Elm, t)

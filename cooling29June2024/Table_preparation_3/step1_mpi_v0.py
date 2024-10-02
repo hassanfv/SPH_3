@@ -4,6 +4,33 @@ import pickle
 import matplotlib.pyplot as plt
 import h5py
 import os
+from scipy.interpolate import interp1d
+from mpi4py import MPI
+import time
+
+
+#=========================================
+df = pd.read_csv('nH_vs_time.csv')
+# ['nH', 'n_iter', 'dt']
+print(df.columns)
+
+nH = df['nH'].values
+n_iter = df['n_iter'].values
+dt = df['dt'].values
+
+t = n_iter * dt
+t_yrs = t / 3600. / 24. / 365.25
+
+#--- Interpolation ------
+nHG = np.linspace(-4.0, 4.0, 81)  # Generates 81 points from -4 to 4 inclusively
+f_linear = interp1d(nH, np.log10(t_yrs), bounds_error=False, fill_value="extrapolate")
+log_tG = f_linear(nHG)
+
+t_G = 10**log_tG * 3600. * 24. * 365.25 # converting back to seconds!
+dt_G = t_G / 30000.0
+
+print(dt_G)
+#=========================================
 
 
 df = pd.read_csv('data_species.csv')
@@ -61,13 +88,17 @@ def mainFunc(log_nH_i, rkpc_i, Lsh_i):
 
   OutFile = f'./nH_{log_nH_i:.1f}_rkpc_{rkpc_i:.2f}_Lsh_{np.log10(10**Lsh_i * pc_to_cm):.3f}.hdf5'
   OutFile_pkl = f'./nH_{log_nH_i:.1f}_rkpc_{rkpc_i:.2f}_Lsh_{np.log10(10**Lsh_i * pc_to_cm):.3f}.pkl'
+  
+  ndx = (np.abs(nHG - log_nH_i)).argmin()
+  dt_i = dt_G[ndx]
 
   user_input = {
     "output_file": "   " + OutFile + '\n',
     "distance_to_AGN_kpc": f'{rkpc_i:.2f}\n',
     "max_shield_length": " " + f'{(10**Lsh_i * pc_to_cm):.3E}\n',
     "log_nH_min": 4*" " + f'{log_nH_i:.1f}\n',
-    "log_nH_max": 4*" " + f'{log_nH_i:.1f}\n'}
+    "log_nH_max": 4*" " + f'{log_nH_i:.1f}\n',
+    "hydro_timestep": 11*" " + f'{dt_i:.2E}\n'}
 
   # Update the parameters in the file content
   updated_content = update_parameters(original_content, user_input)
@@ -78,8 +109,7 @@ def mainFunc(log_nH_i, rkpc_i, Lsh_i):
       file.writelines(updated_content)
 
   #---- Executing CHIMES ----
-  command = f"python3 chimes-driver.py {updated_file_name}"
-  #command = f"mpirun -np 96 -x LD_LIBRARY_PATH=/path/to/install/dir/lib:$LD_LIBRARY_PATH python3 chimes-driver.py {updated_file_name}"
+  command = f"python3 chimes-driverx.py {updated_file_name}" # NOTE THAT "chimes-driverx.py" MUST BE USED HERE and not "chimes-driver.py"
   print(command)
   os.system(command)
   #----
@@ -105,7 +135,48 @@ def getModelOutput(OutHDF5FileName):
   return TempEvol, AbundEvol, t_Arr_in_sec
 
 
+#===== mainFunc
+def doChimes(nbeg, nend):
 
+  for j in range(nbeg, nend):
+
+    nH_t, rkpc_t, Lsh_t = inList[j]
+   
+
+    OutHDF5FileName, OutFile_pkl, updated_file_name = mainFunc(nH_t, rkpc_t, Lsh_t)
+    
+    print()
+    print('OutHDF5FileName, OutFile_pkl = ', OutHDF5FileName, OutFile_pkl)
+    
+    TempEvol, AbundEvol, t_Arr_in_sec = getModelOutput(OutHDF5FileName)
+    
+    TempEvol = TempEvol[0, 0, 0, :]
+      
+    print()
+    print('TempEvol.shape = ', TempEvol.shape)
+    print()
+    
+    
+    AbundEvol = AbundEvol[0, 0, 0, SelectSpecies, :]
+      
+    print()
+    print('AbundEvol.shape = ', AbundEvol.shape)
+    print()
+    
+    dictx = {'TempEvol': TempEvol, 'AbundEvol': AbundEvol,
+             'nH': nHG, 'rkpc': rkpcG,
+             'Lsh': LshG, 'Species_id': SelectSpecies,
+             'Species_name': SpName, 't_in_sec': t_Arr_in_sec}
+    
+    with open(OutFile_pkl, 'wb') as f:
+      pickle.dump(dictx, f)
+    
+    #os.remove(OutHDF5FileName)
+    #os.remove(updated_file_name)
+    
+    #print(ResX)
+
+    #s()
 
 
 #----------- Preparing the grid -------
@@ -127,49 +198,40 @@ for i in range(N_nH):
     for k in range(N_Lsh):
       inList.append([float(nHG[i]), float(rkpcG[j]), float(LshG[k])])
 
-
 N = len(inList)
 
-ResX = np.zeros((N, 2))
+comm = MPI.COMM_WORLD
+rank = comm.Get_rank()
+nCPUs = comm.Get_size()
 
-for j in range(N):
+#------- used in MPI --------
+count = N // nCPUs
+remainder = N % nCPUs
 
-  nH_t, rkpc_t, Lsh_t = inList[j]
+if rank < remainder:
+	nbeg = rank * (count + 1)
+	nend = nbeg + count + 1
+else:
+	nbeg = rank * count + remainder
+	nend = nbeg + count
+#--------------------------
 
-  OutHDF5FileName, OutFile_pkl, updated_file_name = mainFunc(nH_t, rkpc_t, Lsh_t)
-  
-  print()
-  print('OutHDF5FileName, OutFile_pkl = ', OutHDF5FileName, OutFile_pkl)
-  
-  TempEvol, AbundEvol, t_Arr_in_sec = getModelOutput(OutHDF5FileName)
-  
-  TempEvol = TempEvol[0, 0, 0, :]
-    
-  print()
-  print('TempEvol.shape = ', TempEvol.shape)
-  print()
-  
-  
-  AbundEvol = AbundEvol[:, :, 0, SelectSpecies, :]
-    
-  print()
-  print('AbundEvol.shape = ', AbundEvol.shape)
-  print()
-  
-  dictx = {'TempEvol': TempEvol, 'AbundEvol': AbundEvol,
-           'nH': nHG, 'rkpc': rkpcG,
-           'Lsh': LshG, 'Species_id': SelectSpecies,
-           'Species_name': SpName, 't_in_sec': t_Arr_in_sec}
-  
-  with open(OutFile_pkl, 'wb') as f:
-    pickle.dump(dictx, f)
-  
-  os.remove(OutHDF5FileName)
-  os.remove(updated_file_name)
-  
-  print(ResX)
+if rank == 0:
+	T1 = time.time()
+#--------------------------
 
-  #s()
+local_res = doChimes(nbeg, nend)
+
+if rank == 0:
+	tmp = local_res
+	for i in range(1, nCPUs):
+		tmp1 = comm.recv(source = i)
+else:
+	comm.send(local_res, dest = 0)
+#----------------------------
+
+if rank == 0:
+  print(f'Elapsed time = ', time.time() - T1)
 
 
 
