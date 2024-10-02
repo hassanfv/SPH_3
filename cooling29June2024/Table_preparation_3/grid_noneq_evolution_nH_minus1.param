@@ -15,8 +15,8 @@ shield_mode    Jeans
 log_T_min       10.3
 log_T_max       10.3
 delta_log_T     1.0
-log_nH_min      2.5
-log_nH_max      2.5
+log_nH_min     -1.0
+log_nH_max     -1.0
 delta_log_nH    1.0
 log_Z_min      -1.0 
 log_Z_max      -1.0
@@ -54,4 +54,4 @@ cr_rate                   1.8e-16
 doppler_broad             7.1 
 ForceEqOn                 0 
 ThermEvolOn               1 
-hydro_timestep            9.99E+09
+hydro_timestep            3.16e13
