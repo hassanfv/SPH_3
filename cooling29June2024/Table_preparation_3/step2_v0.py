@@ -32,6 +32,8 @@ for j in range(N):
   nH_t, rkpc_t, Lsh_t = inList[j]
 
   nam = f'./nH_{nH_t:.1f}_rkpc_{rkpc_t:.2f}_Lsh_{np.log10(10**Lsh_t * pc_to_cm):.3f}.pkl'
+  nam = 'nH_0.8_rkpc_0.61_Lsh_20.239.pkl'
+  
   print(nam)
   
   with open(nam, 'rb') as f:

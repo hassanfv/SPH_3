@@ -109,7 +109,7 @@ def mainFunc(log_nH_i, rkpc_i, Lsh_i):
       file.writelines(updated_content)
 
   #---- Executing CHIMES ----
-  command = f"python3 chimes-driverx.py {updated_file_name}" # NOTE THAT "chimes-driverx.py" MUST BE USED HERE and not "chimes-driver.py"
+  command = f"python3 chimes-driverXX.py {updated_file_name}" # NOTE THAT "chimes-driverXX.py" MUST BE USED HERE and not "chimes-driver.py"
   print(command)
   os.system(command)
   #----
@@ -139,6 +139,8 @@ def getModelOutput(OutHDF5FileName):
 def doChimes(nbeg, nend):
 
   for j in range(nbeg, nend):
+  
+    TTTA = time.time()
 
     nH_t, rkpc_t, Lsh_t = inList[j]
    
@@ -177,6 +179,14 @@ def doChimes(nbeg, nend):
     #print(ResX)
 
     #s()
+    
+    print('\n\n')
+    print('!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!')
+    print('!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!')
+    print(f'Elapsed time in one loop = {(time.time() - TTTA):.2f} seconds !')
+    print('!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!')
+    print('!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!')
+    print('\n\n')
 
 
 #----------- Preparing the grid -------

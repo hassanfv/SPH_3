@@ -108,7 +108,6 @@ def mainFunc(log_nH_i, rkpc_i, Lsh_i):
 
   #---- Executing CHIMES ----
   command = f"python3 chimes-driver.py {updated_file_name}"
-  #command = f"mpirun -np 96 -x LD_LIBRARY_PATH=/path/to/install/dir/lib:$LD_LIBRARY_PATH python3 chimes-driver.py {updated_file_name}"
   print(command)
   os.system(command)
   #----

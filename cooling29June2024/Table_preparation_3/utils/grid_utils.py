@@ -50,7 +50,7 @@ def create_grid(driver_pars, global_pars, init_ion_state):
     print('HHHHHHHHHHHHHHHHHHHHHHHHHHHHHHH')
     print('metallicity_arr = ', metallicity_arr)
     print('shieldLength_arr = ', shieldLength_arr)
-    print('init_chem_arr = ', init_chem_arr)
+    #print('init_chem_arr = ', init_chem_arr)
     print('nH_arr = ', nH_arr)
     print('temperature_arr = ', temperature_arr)
     print('HHHHHHHHHHHHHHHHHHHHHHHHHHHHHHH')
