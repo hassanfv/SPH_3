@@ -4,6 +4,7 @@ import pandas as pd
 import pickle
 import matplotlib.pyplot as plt
 import h5py
+import time
 
 
 #----- getMu
@@ -31,8 +32,10 @@ mH = 1.6726e-24
 pc_to_cm = 3.086e18
 
 
+TTA = time.time()
+
 #------ Single Chimes Output -----
-f = h5py.File(f'SingleChimesRun.hdf5', 'r')
+#f = h5py.File(f'SingleChimesRun.hdf5', 'r')
 f = h5py.File(f'./nH_2.4_rkpc_0.81_Lsh_20.739.hdf5', 'r')
 TempEvol = f['TemperatureEvolution'][:][0, 0, 0, :]
 print('TempEvol.shape = ', TempEvol.shape)
@@ -98,7 +101,7 @@ for ndx in range(0, AbEvol.shape[1], 1):
   
   xRes.append([TempEvol[ndx], mu])
 
-  print(f'T = {TempEvol[ndx]:.4E},   mu = {mu:.4f}')
+  #print(f'T = {TempEvol[ndx]:.4E},   mu = {mu:.4f}')
 
 xRes = np.array(xRes)
 
@@ -110,6 +113,10 @@ print('len n_steps = ', n_steps)
 muSteps = np.linspace(0.04, 0.01, n_steps)
 
 print(f'Years in yrs for different T = {Res} ')
+
+print()
+print(f'Elapsed time = {time.time() - TTA:.2f} seconds.')
+print()
 
 # Create a figure with 2 subplots
 fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(16, 8))
@@ -139,7 +146,7 @@ i = 0
 for tmp in muSteps:
   ax2.axhline(y = y0, linestyle = ':', color = 'b')
   y0 += tmp
-  print(y0)
+  #print(y0)
   i += 1
 
 plt.savefig('figx.png', dpi = 300, bbox_inches = 'tight') # Great! This confirms the idea !!!
