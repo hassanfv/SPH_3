@@ -10,7 +10,7 @@ import time
 
 
 #=========================================
-df = pd.read_csv('nH_vs_time.csv')
+df = pd.read_csv('nH_vs_time.xsv')
 # ['nH', 'n_iter', 'dt']
 print(df.columns)
 
@@ -33,7 +33,7 @@ print(dt_G)
 #=========================================
 
 
-df = pd.read_csv('data_species.csv')
+df = pd.read_csv('data_species.xsv')
 print(df)
     
 AtomicMass = df['A']
