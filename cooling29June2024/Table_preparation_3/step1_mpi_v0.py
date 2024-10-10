@@ -168,7 +168,8 @@ def doChimes(nbeg, nend):
     dictx = {'TempEvol': TempEvol, 'AbundEvol': AbundEvol,
              'nH': nHG, 'rkpc': rkpcG,
              'Lsh': LshG, 'Species_id': SelectSpecies,
-             'Species_name': SpName, 't_in_sec': t_Arr_in_sec}
+             'Species_name': SpName, 't_in_sec': t_Arr_in_sec,
+             'nH_p': nH_t, 'rkpc_p': rkpc_t, 'Lsh_p': Lsh_t}
     
     with open(OutFile_pkl, 'wb') as f:
       pickle.dump(dictx, f)

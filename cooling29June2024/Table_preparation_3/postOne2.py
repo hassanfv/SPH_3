@@ -7,7 +7,7 @@ import time
 import glob
 
 
-filez = glob.glob('*.pkl')
+filez = glob.glob('./pklFiles/*.pkl')
 
 j = 0
 
@@ -88,6 +88,28 @@ df.columns = colz
 print()
 print(df)
 print()
+
+
+nHG = np.arange(-4.0, 4.01, 0.1)
+rkpcG = np.arange(0.01, 1.02, 0.1)
+LshG = np.arange(0.0, 2.51, 0.25)
+
+nHstep = 0.1
+rkpcstep = 0.1
+Lshstep = 0.25
+
+nH_p = 0.4
+rkpc_p = 0.7
+Lsh_p = 0.75
+
+ndx_nH = round((nH_p - nHG[0]) / nHstep)
+ndx_rkpc = round((rkpc_p - rkpcG[0]) / rkpcstep)
+ndx_Lsh = round((Lsh_p - LshG[0]) / Lshstep)
+
+print(f'nH_p = {nH_p},  nHG[ndx_nH] = {nHG[ndx_nH]}')
+print(f'rkpc_p = {rkpc_p},  rkpcG[ndx_rkpc] = {rkpcG[ndx_rkpc]}')
+print(f'Lsh_p = {Lsh_p},  LshG[ndx_Lsh] = {LshG[ndx_Lsh]}')
+
 
 #----- Plot Section --------
 plt.scatter(t_Arr_in_yrs, np.log10(TEvol), s = 1)
