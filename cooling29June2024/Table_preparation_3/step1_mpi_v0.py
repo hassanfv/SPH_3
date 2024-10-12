@@ -10,7 +10,7 @@ import time
 
 
 #=========================================
-df = pd.read_csv('nH_vs_time.xsv')
+df = pd.read_csv('xnH_vs_time.xsv')
 # ['nH', 'n_iter', 'dt']
 print(df.columns)
 
@@ -33,7 +33,7 @@ print(dt_G)
 #=========================================
 
 
-df = pd.read_csv('data_species.xsv')
+df = pd.read_csv('xdata_species.xsv')
 print(df)
     
 AtomicMass = df['A']
@@ -174,12 +174,8 @@ def doChimes(nbeg, nend):
     with open(OutFile_pkl, 'wb') as f:
       pickle.dump(dictx, f)
     
-    #os.remove(OutHDF5FileName)
-    #os.remove(updated_file_name)
-    
-    #print(ResX)
-
-    #s()
+    os.remove(OutHDF5FileName)
+    os.remove(updated_file_name)
     
     print('\n\n')
     print('!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!')

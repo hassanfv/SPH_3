@@ -31,7 +31,7 @@ print(dt_G)
 #=========================================
 
 
-df = pd.read_csv('data_species.csv')
+df = pd.read_csv('xdata_species.csv')
 print(df)
     
 AtomicMass = df['A']

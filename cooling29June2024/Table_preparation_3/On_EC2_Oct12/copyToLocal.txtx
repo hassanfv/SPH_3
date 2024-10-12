@@ -1,0 +1,1 @@
+rsync -avz -e "ssh -i keyXtest.pem" ubuntu@ec2-18-153-94-20.eu-central-1.compute.amazonaws.com:~/pklFiles .

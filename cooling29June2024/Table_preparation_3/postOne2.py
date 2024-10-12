@@ -9,7 +9,7 @@ import glob
 
 filez = glob.glob('./pklFiles/*.pkl')
 
-j = 0
+j = 1
 
 nam = filez[j] # Good for testing ---> nH_2.4_rkpc_0.81_Lsh_20.739.pkl
 
@@ -17,12 +17,17 @@ print(nam)
 
 with open(nam, 'rb') as f:
   data = pickle.load(f)
-  # ['TempEvol', 'AbundEvol', 'nH', 'rkpc', 'Lsh', 'Species_id', 'Species_name', 't_in_sec']
+  # ['TempEvol', 'AbundEvol', 'nH', 'rkpc', 'Lsh', 'Species_id', 'Species_name', 't_in_sec', 'nH_p', 'rkpc_p', 'Lsh_p']
 
 print(data.keys())
 
+
 TEvol = data['TempEvol']
 t_Arr_in_yrs = data['t_in_sec'] / 3600. / 24. / 365.25
+
+nH_p = data['nH_p']
+rkpc_p = data['rkpc_p']
+Lsh_p = data['Lsh_p']
 
 Res = np.zeros(9)
 
@@ -98,9 +103,9 @@ nHstep = 0.1
 rkpcstep = 0.1
 Lshstep = 0.25
 
-nH_p = 0.4
-rkpc_p = 0.7
-Lsh_p = 0.75
+#nH_p = 0.4
+#rkpc_p = 0.7
+#Lsh_p = 0.75
 
 ndx_nH = round((nH_p - nHG[0]) / nHstep)
 ndx_rkpc = round((rkpc_p - rkpcG[0]) / rkpcstep)
