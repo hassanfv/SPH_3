@@ -8,7 +8,9 @@ import glob
 
 TTA = time.time()
 
-filez = glob.glob('./pklFiles/*.pkl')
+dirX = '/home/pc/Desktop/N_body_2024/SPH_3/cooling29June2024/Table_preparation_3/On_EC2_Oct12/pklFiles01/pklFiles/'
+
+filez = glob.glob(dirX + '*.pkl')
 
 Xres = []
 
@@ -16,13 +18,13 @@ for j in range(len(filez)):
 
   nam = filez[j] # Good for testing ---> nH_2.4_rkpc_0.81_Lsh_20.739.pkl
 
-  print(nam)
+  print(j, nam)
 
   with open(nam, 'rb') as f:
     data = pickle.load(f)
     # ['TempEvol', 'AbundEvol', 'nH', 'rkpc', 'Lsh', 'Species_id', 'Species_name', 't_in_sec', 'nH_p', 'rkpc_p', 'Lsh_p']
 
-  print(data.keys())
+  #print(data.keys())
 
 
   TEvol = data['TempEvol']
