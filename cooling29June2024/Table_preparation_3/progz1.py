@@ -20,7 +20,7 @@ def getMu(Ab):
   return mu
 
 
-df = pd.read_csv('data_species.csv')
+df = pd.read_csv('xdata_species.xsv')
 print(df)
     
 AtomicMass = df['A']
