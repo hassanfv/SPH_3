@@ -22,8 +22,8 @@ nHG = np.arange(-4.0, 4.01, 0.1)
 #--------------------------------------
 
 nH = 2.4
-rkpc = 0.71
-Lsh = 0.75
+rkpc = 0.81
+Lsh = 2.25
 
 ndx_nH = closestNdx(nHG, nH)
 ndx_rkpc = closestNdx(rkpcG, rkpc)

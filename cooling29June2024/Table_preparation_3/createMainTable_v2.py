@@ -53,7 +53,7 @@ filez = glob.glob(dirX + '*.pkl')
 print(len(filez))
 print()
 
-j = 11 #12    #11
+j = 21 #12    #11
 
 nam = filez[j]
 
@@ -92,15 +92,11 @@ print()
 ndx_nH = closestNdx(nHG, nH_p)
 ndx_rkpc = closestNdx(rkpcG, rkpc_p)
 ndx_Lsh = closestNdx(LshG, Lsh_p)
-
-#ndx_Lsh = closestNdx(muG, mu_p) # mu_p changes over time but other _p parameters are fixed over time!!!!
 #-----------------------------------------------------------------------------------
-
-# Before assigning mu_p I need to find the location of T_i for interpolation!!!!!! 
 
 print('TEvol = ', TEvol)
 
-T_p = 4.6
+T_p = 5.6
 
 nx = closestNdx(TEvol, T_p)
 
@@ -157,17 +153,12 @@ print(f'First closest T to {T_p} is {T2}\n')
 print(f'\nXXX: T_p = {T_p},  T[nx] = {TEvol[nx]}\n')
 
 
-print()
-print('T3 = ', T3)
-print('nx, nx+1,nx+k = ', nx, nx+1, nx+k)
-print(Tarr)
-
 if delta_T < 0.01:
   print('\n!!!!!!!!!!!!! delta_T < 0.01 !!!!!!!!!!!!!!')
   t100 = tarr[1] + np.arange(0, 101)
   T100 = np.interp(t100, tarr[1:], Tarr[1:])
 
-if delta_T >= 0.01:
+if delta_T >= 0.01: # We fine grid the Tarr so that we have a value that is close enough to T_p ---> Good approach !
   print('\n!!!!!!!!!!!!! delta_T > 0.01 !!!!!!!!!!!!!!')
   tFine = np.linspace(tarr[0], tarr[-1], 1000)
   T_interp = np.interp(tFine, tarr, Tarr)
@@ -191,58 +182,12 @@ if delta_T >= 0.01:
 
   print(f'\nYYY: T_p = {T_p},  T[nx] = {T_interp[nx]}\n')
   
-  plt.scatter(tFine, T_interp, s = 1, color = 'k')
-
-# NOW WE INterpolate the main one. This is applicable even if from the begining delta_T was > 0.01 !
-
-
-
-
-
+  plt.scatter(tFine, T_interp, s = 10, color = 'k')
 
 plt.scatter(t100, T100, s = 1, color = 'lime')
 plt.axhline(y = T_p, linestyle = ':', color = 'red')
 plt.show()
 
-s()
-
-
-ndx_T_L, ndx_T_R = boundNdx(TEvol, T_p)
-
-print()
-print(TEvol[ndx_T_L], T_p, TEvol[ndx_T_R])
-
-
-nH = 2.5
-rkpc = 0.31
-#Lsh = 0.75
-Lsh = np.log10(10**19.489 / 3.086e18)
-
-ndx_nH = closestNdx(nHG, nH)
-ndx_rkpc = closestNdx(rkpcG, rkpc)
-ndx_Lsh = closestNdx(LshG, Lsh)
-
-nam = dirX + f'./nH_{nHG[ndx_nH]:.1f}_rkpc_{rkpcG[ndx_rkpc]:.2f}_Lsh_{np.log10(10**LshG[ndx_Lsh] * pc_to_cm):.3f}.pkl'
-print(nam)
-
-with open(nam, 'rb') as f:
-  data = pickle.load(f)
-
-print()
-print(data.keys())
-print()
-
-TEvol = data['TempEvol']
-t_Arr_in_yrs = data['t_in_sec'] / 3600. / 24. / 365.25
-
-mu = data['mu']
-
-#----- Plot Section --------
-#plt.scatter(t_Arr_in_yrs, np.log10(TEvol), s = 1)
-plt.scatter(np.log10(TEvol), mu, s = 1)
-
-plt.show()
-#--------------------------
 
 
 
