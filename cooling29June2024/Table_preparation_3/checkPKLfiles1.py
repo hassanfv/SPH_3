@@ -21,9 +21,9 @@ LshG = np.arange(0.0, 2.51, 0.25) # it is in log10 of pc so 0.0 mean 1pc or 3.08
 nHG = np.arange(-4.0, 4.01, 0.1)
 #--------------------------------------
 
-nH = 2.4
-rkpc = 0.81
-Lsh = 2.25
+nH = 3.2
+rkpc = 0.21
+Lsh = 0.75
 
 ndx_nH = closestNdx(nHG, nH)
 ndx_rkpc = closestNdx(rkpcG, rkpc)

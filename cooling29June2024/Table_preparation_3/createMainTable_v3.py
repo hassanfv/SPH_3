@@ -1,10 +1,13 @@
 
+# In _v3 version, we check whether a T_p is within accepted range. someInfoTable.csv contains values like min_T, TR1 and TR2 than is used for this purpose.
+
 import numpy as np
 import matplotlib.pyplot as plt
 import pickle
 import glob
 from scipy.interpolate import interp1d
 import random
+import pandas as pd
 
 #===== closestNdx
 def closestNdx(arr, val):
@@ -24,6 +27,19 @@ def boundNdx(arr, val):
 
 
 pc_to_cm = 3.086e18
+
+#------------
+dfx = pd.read_csv('someInfoTable.csv')
+print(dfx.keys())
+# ['nH', 'rkpc', 'Lsh', 't10', 't9', 't8', 't7', 't6', 't5', 't4', 't3', 'min_T', 'TR1', 'TR2']
+nHz = dfx['nH']
+rkpcz = dfx['rkpc']
+Lshz = dfx['Lsh']
+min_T = dfx['min_T']
+TR1 = dfx['TR1']
+TR2 = dfx['TR2']
+#-------------
+
 
 #----------- Preparing the grid -------
 rkpcG = np.arange(0.01, 1.02, 0.1)# it is in kpc

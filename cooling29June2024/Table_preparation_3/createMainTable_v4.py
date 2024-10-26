@@ -1,10 +1,13 @@
 
+# In _v3 version, we check whether a T_p is within accepted range. someInfoTable.csv contains values like min_T, TR1 and TR2 than is used for this purpose.
+
 import numpy as np
 import matplotlib.pyplot as plt
 import pickle
 import glob
 from scipy.interpolate import interp1d
 import random
+import pandas as pd
 
 #===== closestNdx
 def closestNdx(arr, val):
@@ -24,6 +27,19 @@ def boundNdx(arr, val):
 
 
 pc_to_cm = 3.086e18
+
+#------------
+dfx = pd.read_csv('someInfoTable.csv')
+print(dfx.keys())
+# ['nH', 'rkpc', 'Lsh', 't10', 't9', 't8', 't7', 't6', 't5', 't4', 't3', 'min_T', 'TR1', 'TR2']
+nHz = dfx['nH']
+rkpcz = dfx['rkpc']
+Lshz = dfx['Lsh']
+min_T = dfx['min_T']
+TR1 = dfx['TR1']
+TR2 = dfx['TR2']
+#-------------
+
 
 #----------- Preparing the grid -------
 rkpcG = np.arange(0.01, 1.02, 0.1)# it is in kpc
@@ -54,7 +70,7 @@ filez = glob.glob(dirX + '*.pkl')
 print(len(filez))
 print()
 
-j = random.randint(0, 9800) #12    #11
+j = 12#random.randint(0, 9800) #12    #11
 
 nam = filez[j]
 
@@ -106,12 +122,15 @@ print(f'\nt1, t2, t3 before adding k (nx + k) = {0, t_Arr_in_yrs[nx]-t_Arr_in_yr
 print(f'T1, T2, T3 before adding k (nx + k) = {TEvol[nx-1], TEvol[nx], TEvol[nx+1]}\n')
 print(f'dt before: {dt}\n')
 k = 1
-while dt < 500: # We want to make sure we have enough data points after nx (at least 100 years... but we assume 500 to be safe!)
-  dt = t_Arr_in_yrs[nx+k] - t_Arr_in_yrs[nx]
+while dt < 500: # We want to make sure we have enough data points AFTER "nx" (at least 100 years... but we assume 500 to be safe!)
   k += 1
+  dt = t_Arr_in_yrs[nx+k] - t_Arr_in_yrs[nx]
 
 print(f'dt after: {dt}\n')
 print(f'k = {k}\n')
+print(f'dtXXXX = {t_Arr_in_yrs[nx+k-1] - t_Arr_in_yrs[nx]}')
+print(f'dtYYYY = {t_Arr_in_yrs[nx+k] - t_Arr_in_yrs[nx]}')
+
 
 t1 = float(t_Arr_in_yrs[nx-1])
 tZeroPoint = t1+0.0
@@ -127,6 +146,8 @@ t1 -= tZeroPoint
 t2 -= tZeroPoint
 tarr = [t1, t2] + t3
 
+print(f'tarr = {tarr}')
+
 T1 = float(TEvol[nx-1])
 T2 = float(TEvol[nx])
 
@@ -140,9 +161,9 @@ else:
 
 Tarr = [T1, T2] + T3
 
-print(f'\ntarr Original = {tarr}\n')
+print(f'\ntarr Original = {tarr}')
 print(f'\nTarr Original = {Tarr}\n')
-print(f'Sizes before ploting: len(tarr), len(Tarr) = {len(tarr), len(Tarr)}')
+print(f'Sizes before ploting: len(tarr) = {len(tarr)}, len(Tarr) = {len(Tarr)}')
 
 plt.scatter(tarr, Tarr, color = 'blue')
 
@@ -175,11 +196,11 @@ if delta_T >= 0.01: # We fine grid the Tarr so that we have a value that is clos
   print()
   print(f'tFine[0] = {tFine[0]}, tFine[-1] = {tFine[-1]}')
   print()
-  
+
   tarrX = tFine[nx:]
   TarrX = T_interp[nx:]
   t100 = tarrX[0] + np.arange(0, 101)
-  T100 = np.interp(t100, tarrX, TarrX)
+  T100 = np.interp(t100, tarrX, TarrX) 
 
   print(f'\nYYY: T_p = {T_p},  T[nx] = {T_interp[nx]}\n')
   
