@@ -8,7 +8,7 @@ import glob
 from scipy.interpolate import interp1d
 import random
 import pandas as pd
-import os
+from matplotlib.backends.backend_pdf import PdfPages
 
 #===== closestNdx
 def closestNdx(arr, val):
@@ -79,8 +79,8 @@ rkpc_p = float(data['rkpc_p'])
 Lsh_p = float(data['Lsh_p'])
 t_Arr_in_yrs = data['t_in_sec'] / 3600. / 24. / 365.25
 
-#plt.scatter(t_Arr_in_yrs, TEvol, s = 1, color = 'k')
-#plt.show()
+plt.scatter(t_Arr_in_yrs, TEvol, s = 1, color = 'k')
+plt.show()
 
 print()
 print(f'nH_p, rkpc_p, Lsh_p = {nH_p}, {rkpc_p}, {Lsh_p}')
@@ -113,10 +113,11 @@ print(f'nx = {nx}')
 
 #i = 24143
 
-ndxTG_test = []
+pdf = PdfPages('output_plots.pdf')
+figure, axes = plt.subplots(nrows=2, ncols=2, figsize=(8, 11))  # Create a 2x2 grid of plots
+plot_count = 0  # Counter to track number of plots
 
-count = 0 # Only for test!
-kk = 0 # Only for test!
+ndxTG_test = []
 
 for i in range(1, len(TEvol)-1, 2):
 
@@ -196,37 +197,31 @@ for i in range(1, len(TEvol)-1, 2):
       
       print(f'ndx_nH = {ndx_nH}, ndx_rkpc = {ndx_rkpc}, ndx_Lsh = {ndx_Lsh}, ndxTG = {ndxTG}')
       
-      #if True & (TG[ndxTG] < 6.8):
-      if True:
-        plt.scatter(t_Arr_in_yrs, TEvol, s = 1, color = 'grey')
-        plt.scatter(np.array(tarr)+tZeroPoint, Tarr, color = 'blue')
-        plt.scatter(np.array(tFine)+tZeroPoint, T_interp, s = 10, color = 'k')
-        plt.scatter(np.array(t100)+tZeroPoint, T100, s = 1, color = 'lime')
-        
-        plt.axhline(y = T_p, linestyle = ':', color = 'red')
-        
-        plt.xlim(765337, 780000) # 766926
-        plt.ylim(3.6, 6.05)
-        
-        #--- check if file with similar name exists ---
-        tmpFiles = [os.path.basename(f) for f in glob.glob('./pics/*.jpg')]
-        filename = f'test_{round(TG[ndxTG], 2)}.jpg'
-        if filename in tmpFiles:
-            ttmp = list(range(100))
-            plt.savefig(f'./pics/test_{round(TG[ndxTG], 2)}_{ttmp[kk]:01d}.jpg', bbox_inches='tight', dpi=300)
-            kk +=1
-        else:
-            plt.savefig(f'./pics/{filename}', bbox_inches='tight', dpi=300)
-        
-        #ttmp = tFine[0] + tZeroPoint
-        #filename = f'test_{round(TG[ndxTG], 2)}.jpg'
-        #plt.savefig(f'./pics/{filename}', bbox_inches='tight', dpi=300)
-        
-        #plt.show()
-        plt.close()
-        
-        count +=1
-        
+      ax = axes[plot_count // 2, plot_count % 2]  # Determine which subplot to use
+
+      ax.scatter(tarr, Tarr, color='blue')
+      ax.scatter(tFine, T_interp, s=10, color='k')
+      ax.scatter(t100, T100, s=1, color='lime')
+      ax.axhline(y=T_p, linestyle=':', color='red')
+
+      ax.set_title(f"Plot {plot_count + 1}")
+      plot_count += 1
+
+      if plot_count == 4:  # Once we fill a page, save it and prepare a new set of plots
+          pdf.savefig(figure)
+          plt.close(figure)  # Close the current figure to free memory
+          figure, axes = plt.subplots(nrows=2, ncols=2, figsize=(8, 11))
+          plot_count = 0
+
+      # If there are any remaining plots that didn't fill the last page
+      if plot_count > 0:
+          for i in range(plot_count, 4):  # Clear any unused subplots
+              axes[i // 2, i % 2].axis('off')
+          pdf.savefig(figure)
+plt.close(figure)
+
+# Explicitly close the PdfPages object
+pdf.close()
 
 print()
 print('---------------------------------------------')
