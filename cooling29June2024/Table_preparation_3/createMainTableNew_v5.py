@@ -1,4 +1,5 @@
 
+# In _New_v4 version, we are filling mainTable.
 # In _New_v3 version, we include mu in the analysis.
 
 import numpy as np
@@ -9,6 +10,7 @@ from scipy.interpolate import interp1d
 import random
 import pandas as pd
 import os
+import readchar
 
 #===== closestNdx
 def closestNdx(arr, val):
@@ -35,6 +37,11 @@ rkpcG = np.arange(0.01, 1.02, 0.1)# it is in kpc
 LshG = np.arange(0.0, 2.51, 0.25) # it is in log10 of pc so 0.0 mean 1pc or 3.086e18 cm ---> We take Lsh in the range 1.0 pc up to ~300 pc.
 nHG = np.arange(-4.0, 4.01, 0.1)
 TG = np.arange(2.0, 10.31, 0.1)
+
+N_rkpc = len(rkpcG)
+N_Lsh = len(LshG)
+N_nH = len(nHG)
+N_T = len(TG)
 #--------------------------------------
 
 #-------- Creating mu grid ------------
@@ -46,7 +53,17 @@ muG = np.zeros_like(muSteps)
 for i, tmp in enumerate(muSteps):
   muG[i] = y0
   y0 += tmp
+
+N_mu = len(muG)
 #--------------------------------------
+
+mainTable = np.zeros((N_nH, N_rkpc, N_Lsh, N_mu, N_T, 101))
+
+print(mainTable.shape)
+
+#s()
+
+print(f'N_rkpc * N_Lsh * N_nH * N_mu * 101 = {N_rkpc * N_Lsh * N_nH * N_mu * 101}')
 
 print()
 print('muG = ', muG)
@@ -212,6 +229,14 @@ for i in range(1, len(TEvol)-1, 2):
       t100 = tarrX[0] + np.arange(0, 101)
       T100 = np.interp(t100, tarrX, TarrX)
       
+      mainTable[ndx_nH, ndx_rkpc, ndx_Lsh, nx_in_muG, ndxTG, :] = T100
+      print()
+      print(ndx_nH, ndx_rkpc, ndx_Lsh, nx_in_muG)
+      print(mainTable[ndx_nH, ndx_rkpc, ndx_Lsh, nx_in_muG, ndxTG, :])
+      print()
+      #print('Press a key\n')
+      #kb = readchar.readkey()
+      
       print('\n\n\n')
       print(f'ndx_nH = {ndx_nH}, ndx_rkpc = {ndx_rkpc}, ndx_Lsh = {ndx_Lsh}, nx_in_muG = {nx_in_muG},  ndxTG = {ndxTG}')
       print(f'nHG[ndx_nH] = {nHG[ndx_nH]}, rkpcG[ndx_rkpc] = {rkpcG[ndx_rkpc]}, LshG[ndx_Lsh] = {LshG[ndx_Lsh]}, \
@@ -238,7 +263,27 @@ for i in range(1, len(TEvol)-1, 2):
         #plt.show()
         plt.close()
         
-        count +=1 
+        count +=1
+
+
+print('BEFORE')
+i, j, k, l = [75, 6, 0, 24]
+tmp = mainTable[ndx_nH, ndx_rkpc, ndx_Lsh, nx_in_muG, ndxTG, :]
+print(tmp)
+
+
+print('AFTER')
+tmp = mainTable[i, j, k, l, ndxTG, :]
+print(tmp)
+
+mainTable = mainTable.astype(np.float32)
+with open('mainTable.pkl', 'wb') as f:
+  pickle.dump(mainTable, f)
+
+print()
+print('-----------')
+print(ndx_nH, ndx_rkpc, ndx_Lsh, nx_in_muG)
+print('-----------\n')
 
 df = pd.DataFrame(csv_res)
 df.columns = ['nH', 'rkpc', 'Lsh', 'mu', 'T']
