@@ -99,6 +99,11 @@ t_Arr_in_yrs = data['t_in_sec'] / 3600. / 24. / 365.25
 #plt.scatter(t_Arr_in_yrs, TEvol, s = 1, color = 'k')
 #plt.show()
 
+#with open('test.pkl', 'wb') as f:\
+#  pickle.dump({'t_Arr_in_yrs': t_Arr_in_yrs, 'TEvol': TEvol}, f)
+
+#s()
+
 print()
 print(f'nH_p, rkpc_p, Lsh_p = {nH_p}, {rkpc_p}, {Lsh_p}')
 

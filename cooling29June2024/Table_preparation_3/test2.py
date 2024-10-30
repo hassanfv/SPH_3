@@ -25,5 +25,9 @@ print(tmp)
 print()
 print(tmp.shape)
 print(TG[70])
+print()
+print(nHG[i])
+
+
 
 
