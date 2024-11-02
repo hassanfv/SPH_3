@@ -17,9 +17,9 @@ with open('mainTable.pkl', 'rb') as f:
 
 # mainTable = np.zeros((N_nH, N_rkpc, N_Lsh, N_mu, N_T, 101))
 
-i, j, k, l = [75, 6, 0, 24]
+i, j, k, l = [75, 6, 0, 24] # nH, rkpc, Lsh, mu
 
-tmp = data[i, j, k, 0, 70] # Note to change mu when playing with T.
+tmp = data[i, j, k, 0, 20] # Note to change mu when playing with T.
 
 print(tmp)
 print()

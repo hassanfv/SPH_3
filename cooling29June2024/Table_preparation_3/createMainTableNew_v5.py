@@ -57,13 +57,19 @@ for i, tmp in enumerate(muSteps):
 N_mu = len(muG)
 #--------------------------------------
 
-mainTable = np.zeros((N_nH, N_rkpc, N_Lsh, N_mu, N_T, 101))
+totTime = 101
+tStep = 2
+NtotTime = int(totTime/tStep)
+print(f'NtotTime = {NtotTime}\n')
+
+
+mainTable = np.zeros((N_nH, N_rkpc, N_Lsh, N_mu, N_T, NtotTime))
+mainTableMu = np.zeros((N_nH, N_rkpc, N_Lsh, N_mu, N_T, NtotTime))
 
 print(mainTable.shape)
 
-#s()
 
-print(f'N_rkpc * N_Lsh * N_nH * N_mu * 101 = {N_rkpc * N_Lsh * N_nH * N_mu * 101}')
+print(f'N_rkpc * N_Lsh * N_nH * N_mu * NtotTime = {N_rkpc * N_Lsh * N_nH * N_mu * NtotTime}')
 
 print()
 print('muG = ', muG)
@@ -231,16 +237,29 @@ for i in range(1, len(TEvol)-1, 2):
       
       tarrX = tFine[nx:]
       TarrX = T_interp[nx:]
-      t100 = tarrX[0] + np.arange(0, 101)
+      muarrX= mu_interp[nx:]
+      t100 = tarrX[0] + np.arange(0, NtotTime)
       T100 = np.interp(t100, tarrX, TarrX)
+      mu100 = np.interp(t100, tarrX, muarrX)
       
       mainTable[ndx_nH, ndx_rkpc, ndx_Lsh, nx_in_muG, ndxTG, :] = T100
+      mainTableMu[ndx_nH, ndx_rkpc, ndx_Lsh, nx_in_muG, ndxTG, :] = mu100
       print()
       print(ndx_nH, ndx_rkpc, ndx_Lsh, nx_in_muG)
       print(mainTable[ndx_nH, ndx_rkpc, ndx_Lsh, nx_in_muG, ndxTG, :])
       print()
       #print('Press a key\n')
       #kb = readchar.readkey()
+      
+      '''
+      if T100[0] < 4.0:
+        print()
+        print('------------- TEST for MU -----------------')
+        print(T100)
+        print()
+        print(mu100)
+        print('-------------------------------------------\n')
+      '''
       
       print('\n\n\n')
       print(f'ndx_nH = {ndx_nH}, ndx_rkpc = {ndx_rkpc}, ndx_Lsh = {ndx_Lsh}, nx_in_muG = {nx_in_muG},  ndxTG = {ndxTG}')
@@ -281,9 +300,15 @@ print('AFTER')
 tmp = mainTable[i, j, k, l, ndxTG, :]
 print(tmp)
 
+#---- Saving T evolution
 mainTable = mainTable.astype(np.float32)
 with open('mainTable.pkl', 'wb') as f:
   pickle.dump(mainTable, f)
+
+#---- Saving Mu evolution
+mainTableMu = mainTableMu.astype(np.float32)
+with open('mainTableMu.pkl', 'wb') as f:
+  pickle.dump(mainTableMu, f)
 
 print()
 print('-----------')
