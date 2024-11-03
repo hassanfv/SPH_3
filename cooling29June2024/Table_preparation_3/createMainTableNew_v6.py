@@ -17,6 +17,13 @@ import readchar
 def closestNdx(arr, val):
   return np.argmin(abs(arr - val))
 
+#===== closestNdx
+#def closestNdx(arr, val):
+#  nx = np.argmin(abs(arr - val))
+#  if arr[nx] > val: # We always get the left-hand side index!
+#    nx = nx - 1
+#  return nx
+
 
 pc_to_cm = 3.086e18
 
@@ -46,24 +53,27 @@ N_T = len(TG)
 #--------------------------------------
 
 #-------- Creating mu grid ------------
-n_steps = int((1.25 - 0.59) / (np.mean([0.04, 0.01])))
-print('len n_steps = ', n_steps)
-muSteps = np.linspace(0.04, 0.01, n_steps)
-y0 = 0.59
-muG = np.zeros_like(muSteps)
-for i, tmp in enumerate(muSteps):
-  muG[i] = y0
-  y0 += tmp
+#n_steps = int((1.25 - 0.59) / (np.mean([0.04, 0.01])))
+#print('len n_steps = ', n_steps)
+#muSteps = np.linspace(0.04, 0.01, n_steps)
+#y0 = 0.59
+#muG = np.zeros_like(muSteps)
+#for i, tmp in enumerate(muSteps):
+#  muG[i] = y0
+#  y0 += tmp
 
-#muG = np.arange(0.6, 1.21, 0.1)
+#muG = np.arange(0.6, 1.26, 0.05)
+
+muG = np.array([0.6, 0.7, 0.8, 0.9, 0.95, 1.0] + [float(_) for _ in np.arange(1.01, 1.24, 0.01)])
+
 N_mu = len(muG)
 #--------------------------------------
 
 print(muG)
 
 
-totTime = 101
-tStep = 2
+totTime = 50
+tStep = 1
 NtotTime = int(totTime/tStep)
 print(f'NtotTime = {NtotTime}\n')
 
@@ -86,7 +96,7 @@ filez = glob.glob(dirX + '*.pkl')
 print(len(filez))
 print()
 
-j = 11 #random.randint(0, 9800) #12    #11
+j = 5771#random.randint(0, 9800) #12    #11
 
 nam = filez[j]
 
@@ -109,7 +119,7 @@ t_Arr_in_yrs = data['t_in_sec'] / 3600. / 24. / 365.25
 plt.scatter(t_Arr_in_yrs, TEvol, s = 1, color = 'k')
 plt.show()
 
-#s()
+
 
 
 print()
@@ -263,10 +273,10 @@ for i in range(1, len(TEvol)-1, 2):
       tarrX = tFine[nx:]
       TarrX = T_interp[nx:]
       muarrX= mu_interp[nx:]
-      t100 = tarrX[0] + np.arange(0, NtotTime)
+      t100 = tarrX[0] + np.arange(0, NtotTime) # Note the usage of tStep as a multiplier !
       T100 = np.interp(t100, tarrX, TarrX)
       mu100 = np.interp(t100, tarrX, muarrX)
-      
+
       mainTable[ndx_nH, ndx_rkpc, ndx_Lsh, nx_in_muG, ndxTG, :] = T100
       mainTableMu[ndx_nH, ndx_rkpc, ndx_Lsh, nx_in_muG, ndxTG, :] = mu100
       print()
@@ -278,7 +288,7 @@ for i in range(1, len(TEvol)-1, 2):
       print(f'nHG[ndx_nH] = {nHG[ndx_nH]}, rkpcG[ndx_rkpc] = {rkpcG[ndx_rkpc]}, LshG[ndx_Lsh] = {LshG[ndx_Lsh]}, \
               muG[nx_in_muG] = {muG[nx_in_muG]}, TG[ndxTG]={TG[ndxTG]}')
       print()
-      csv_res.append([nHG[ndx_nH], rkpcG[ndx_rkpc], LshG[ndx_Lsh], muG[nx_in_muG], TG[ndxTG]])
+      csv_res.append([T_interp[nx], TG[ndxTG], T100[0], T100[-1], mu_interp[nx], muG[nx_in_muG], mu100[0], mu100[-1]])
       
       #if True & (TG[ndxTG] < 6.8):
       if True:
@@ -306,6 +316,7 @@ mainTable = mainTable.astype(np.float32)
 with open('mainTable.pkl', 'wb') as f:
   pickle.dump(mainTable, f)
 
+del mainTable
 #---- Saving Mu evolution
 mainTableMu = mainTableMu.astype(np.float32)
 with open('mainTableMu.pkl', 'wb') as f:
@@ -317,7 +328,7 @@ print(ndx_nH, ndx_rkpc, ndx_Lsh, nx_in_muG)
 print('-----------\n')
 
 df = pd.DataFrame(csv_res)
-df.columns = ['nH', 'rkpc', 'Lsh', 'mu', 'T']
+df.columns = ['T_interp[nx]', 'TG[ndxTG]', 'T_start', 'T_End', 'mu_interp[nx]', 'muG[nx_in_muG]', 'mu_start', 'mu_End']
 df.to_csv('dataTest.csv', index = False)
 print(df.head(68))
 

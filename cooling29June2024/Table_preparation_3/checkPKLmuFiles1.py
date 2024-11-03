@@ -11,9 +11,8 @@ pc_to_cm = 3.086e18
 def closestNdx(arr, val):
   return np.argmin(abs(arr - val))
 
-dirX = '/home/pc/Desktop/N_body_2024/SPH_3/cooling29June2024/Table_preparation_3/pklMuFiles/'
-
-filez = glob.glob(dirX + '*.pkl')
+#dirX = '/home/pc/Desktop/N_body_2024/SPH_3/cooling29June2024/Table_preparation_3/pklMuFiles/'
+#filez = glob.glob(dirX + '*.pkl')
 
 #----------- Preparing the grid -------
 rkpcG = np.arange(0.01, 1.02, 0.1)# it is in kpc
@@ -30,11 +29,22 @@ ndx_nH = closestNdx(nHG, nH)
 ndx_rkpc = closestNdx(rkpcG, rkpc)
 ndx_Lsh = closestNdx(LshG, Lsh)
 
-nam = dirX + f'./nH_{nHG[ndx_nH]:.1f}_rkpc_{rkpcG[ndx_rkpc]:.2f}_Lsh_{np.log10(10**LshG[ndx_Lsh] * pc_to_cm):.3f}.pkl'
-print(nam)
+#nam = dirX + f'./nH_{nHG[ndx_nH]:.1f}_rkpc_{rkpcG[ndx_rkpc]:.2f}_Lsh_{np.log10(10**LshG[ndx_Lsh] * pc_to_cm):.3f}.pkl'
+#print(nam)
+
+dirX = '/home/pc/Desktop/N_body_2024/SPH_3/cooling29June2024/Table_preparation_3/pklFromEC2/'
+filez = glob.glob(dirX + '*.pkl')
+j = 5771
+nam = filez[j]
 
 with open(nam, 'rb') as f:
   data = pickle.load(f)
+nH_p = float(data['nH_p'])
+rkpc_p = float(data['rkpc_p'])
+Lsh_p = float(data['Lsh_p'])
+
+print()
+print(f'nH_p, rkpc_p, Lsh_p = {nH_p}, {rkpc_p}, {Lsh_p}\n')
 
 print()
 print(data.keys())

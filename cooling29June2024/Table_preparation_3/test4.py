@@ -83,7 +83,6 @@ for j in range(1000):
 
   TEvolved = data[nx_nH_i, nx_rkpc_i, nx_Lsh_i, nx_mu_i, nx_T_i][:]   #!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
   MuEvolved = dataMu[nx_nH_i, nx_rkpc_i, nx_Lsh_i, nx_mu_i, nx_T_i][:]#!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-
   #------------ duck-tapping ------
   k = 0
   TEvolved = data[nx_nH_i, nx_rkpc_i, nx_Lsh_i, nx_mu_i+k, nx_T_i]
@@ -97,10 +96,6 @@ for j in range(1000):
   #--------------------------------
   
   print('TEvolved XXX = ', TEvolved)
-
-
-  #TEvolved = data[nx_nH_i, nx_rkpc_i, nx_Lsh_i, nx_mu_i, nx_T_i]#[:20]   #!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-  #MuEvolved = dataMu[nx_nH_i, nx_rkpc_i, nx_Lsh_i, nx_mu_i, nx_T_i]#[:20]#!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
   delta_T = TEvolved[-1] - TEvolved[0]
   
