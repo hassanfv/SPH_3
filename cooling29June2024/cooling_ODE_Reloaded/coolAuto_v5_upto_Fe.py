@@ -1902,9 +1902,11 @@ A_v = 1.0
 G0 = 0.01
 dust_ratio = 0.01
 
-t_span = (1*3.16e7, 5000*3.16e7)
+t_span = (1*3.16e7, 10*3.16e7)
 
+T11 = time.time()
 solution = solve_ivp(func, t_span, y0, method="BDF", dense_output=True)
+print('T11 = ', time.time() - T11)
 
 t = np.linspace(t_span[0], t_span[1], 50000) # This 10000 is not years, it is the number of points in linspace !!!!
 y = solution.sol(t)
