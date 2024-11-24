@@ -66,7 +66,8 @@ print('Elapsed time = ', time.time() - TA)
 
 res = np.array(res)
 
-plt.plot(res[:, 1], res[:, 2], linewidth = 0.5)
+plt.plot(res[:, 1], res[:, 3], linewidth = 0.5)
+plt.savefig('fig_test5.png', bbox_inches = 'tight', dpi = 400)
 plt.show()
 
 

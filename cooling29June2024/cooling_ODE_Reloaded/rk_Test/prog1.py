@@ -222,6 +222,9 @@ for j in range(kmax):
 
 plt.scatter(y1, y3, s = 5, color = 'r')
 plt.plot(y1, y3, linewidth = 0.5, color = 'k')
+
+plt.savefig('fig.png', bbox_inches = 'tight', dpi = 200)
+
 plt.show()
 
 

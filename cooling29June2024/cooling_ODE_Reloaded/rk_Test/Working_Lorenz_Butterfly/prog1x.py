@@ -107,7 +107,7 @@ def rkqs(y, dydx, x, htry, yscal):
 #===== odeint
 def odeint(ystart, x1, x2, h1):
 
-  MAXSTP=10000
+  MAXSTP=20000
   TINY=1.0e-30
 
   kount = 0
@@ -167,7 +167,7 @@ def odeint(ystart, x1, x2, h1):
     if abs(hnext) <= hmin:
       raise ValueError("Step size too small in odeint")
 
-  raise ValueError("Too many steps in routine odeint")
+  raise ValueError("Too many steps in routine odeint - Increase MAXSTP to fix it !")
 
 
 # ===== derivs (Lorenz butter fly feature)
@@ -184,12 +184,12 @@ def derivs(x, y):
 
 
 
-kmax = 2000 # We want to save 100 intermediate data. !!!!!!! Adjust if need or less sampling points !!!!!!!!
+kmax = 4000 # We want to save 400 intermediate data. !!!! Adjust if need or less sampling points !!!! Plot will be incomplete if it is small !!!
 dxsav = 0.001 #!!!!!!!!!!!!!!!!!!!!!!!!!! To be adjusted for each problem !!!!!!!!!!!!!!!!!!!!!!!!!!
 
 # Note that here x1 and x2 represent time !
 x1 = 0.0 # Initial time !!!!!!!!!!!!!!!!!!!!!!!
-x2 = 50.0 # Final time !!!!!!!!!!!!!!!!!!!!!!!!!
+x2 = 100.0 # Final time !!!!!!!!!!!!!!!!!!!!!!!!!
 h1 = 0.001 # Step size !!!!!!!!!!!!!!!!!!!!!!!!
 ystart = np.array([1.0, 1.0, 1.0]) # Initial condition
 
@@ -198,7 +198,7 @@ nvar = len(ystart)
 xp = np.zeros(kmax)         # Will contain data for later tests and checks!
 yp = np.zeros((nvar, kmax)) # Will contain data for later tests and checks!
 
-eps = 1e-8   # THIS affects the execution time !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+eps = 1e-10   # THIS affects the execution time !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 hmin = 1e-5  #!!!!!!!!!!!!!!!!!!!!!!!!!! To be adjusted for each problem !!!!!!!!!!!!!!!!!!!!!!!!!!
 
 TA = time.time()
@@ -220,6 +220,8 @@ for j in range(kmax):
   y3[j] = yp[2, j]
 
 plt.plot(y1, y3, linewidth = 0.5)
+plt.scatter(y1, y3, s = 1, color = 'r')
+plt.savefig('figx.png', bbox_inches = 'tight', dpi = 500)
 plt.show()
 
 
