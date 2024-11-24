@@ -50,7 +50,7 @@ def derivs(x, y):
     dydx[2] = y[0] * y[1] - beta * y[2]          # dz/dt = x*y - beta*z
     return dydx
 
-h = 0.01  # Step size
+h = 0.004  # Step size
 x = 0.0  # Initial time
 y = np.array([1.0, 1.0, 1.0])  # Initial values for x, y, z
 

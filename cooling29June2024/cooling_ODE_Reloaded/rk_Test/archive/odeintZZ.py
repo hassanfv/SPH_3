@@ -1,27 +1,18 @@
 
-import numpy as np
 
-
-kmax = 100 # We want to save 100 intermediate data.
-kount = 0
-nvar = len(ystart)
-
-xp = np.zeros(kmax)         # Will contain data for later tests and checks!
-yp = np.zeros((nvar, kmax)) # Will contain data for later tests and checks!
-
-
-eps = None   #!!!!!!!!!!!!!!!!!!! PLACE HOLDER !!!!!!!!!!!!!!
-hmin = None  #!!!!!!!!!!!!!!!!!!! PLACE HOLDER !!!!!!!!!!!!!!
-
-
-def odeint(ystart, x1, x2, h1)
+#===== odeint
+def odeint(ystart, x1, x2, h1):
 
   MAXSTP=10000
   TINY=1.0e-30
 
-  yscal = np.zeros(yscal)
-  y = np.zeros(yscal)
-  dydx = np.zeros(yscal)
+  kount = 0
+
+  nvar = len(ystart)
+
+  yscal = np.zeros(nvar)
+  y = np.zeros(nvar)
+  dydx = np.zeros(nvar)
 
   x = x1
 
@@ -43,18 +34,18 @@ def odeint(ystart, x1, x2, h1)
     if kmax > 0 and kount < kmax - 1 and abs(x-xsav) > abs(dxsav):
       for i in range(nvar):
         yp[i, kount] = y[i]
-        xp[kout] = x
+        xp[kount] = x
         xsav = x
-        kount += 1
+      kount += 1
 
     if (x+h-x2)*(x+h-x1) > 0.0:
       h = x2 - x
 
-    x, y, hdid, hnext = rkqs(y,dydx,x,h,eps,yscal,hdid,hnext,derivs)
+    x, y, hdid, hnext = rkqs(y, dydx, x, h, yscal)
 
     if hdid == h:
       nok += 1
-    else
+    else:
       nbad += 1
 
     if (x-x2)*(x2-x1) >= 0.0:
@@ -67,13 +58,12 @@ def odeint(ystart, x1, x2, h1)
         kount += 1
       return ystart, xp, yp, nok, nbad
     
+    print('x, hnext, hmin = ', x, hnext, hmin)
+    
     if abs(hnext) <= hmin:
       raise ValueError("Step size too small in odeint")
 
   raise ValueError("Too many steps in routine odeint")
-
-  
-
 
 
 
