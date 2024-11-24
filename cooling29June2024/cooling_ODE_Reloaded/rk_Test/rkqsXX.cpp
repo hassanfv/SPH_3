@@ -26,6 +26,6 @@ void NR::rkqs(Vec_IO_DP &y, Vec_IO_DP &dydx, DP &x, const DP htry,
 	} // When we exit this loop we have the "y" which is evolved for one step h with the best h (i.e. with a h that gives errmax <= 1.0)!
 	if (errmax > ERRCON) hnext=SAFETY*h*pow(errmax,PGROW); // ERRCON: threshold for deciding if step size can be increased significantly.
 	else hnext=5.0*h;
-	x += (hdid=h);
-	for (i=0;i<n;i++) y[i]=ytemp[i]; // We replace y with ytemp which contains the y values with the best h (i.e. h with errmax <= 1>0).
+	x += (hdid=h); // we add h to x and then set hdid to h !
+	for (i=0;i<n;i++) y[i]=ytemp[i]; // We replace y with ytemp which contains the y values with the best h (i.e. h with errmax <= 1.0); see "break" location in code.
 }

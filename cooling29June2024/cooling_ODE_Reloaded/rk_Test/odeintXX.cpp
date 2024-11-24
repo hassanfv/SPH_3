@@ -40,7 +40,7 @@ void NR::odeint(Vec_IO_DP &ystart, const DP x1, const DP x2, const DP eps,
 		rkqs(y,dydx,x,h,eps,yscal,hdid,hnext,derivs); // Note that x and y are updated in rkqs, i.e. x is now x+h and y is its corresponding y!
 		if (hdid == h) ++nok; else ++nbad; // if h did not change in rkqs (indicating it was already a good h) then we increment nok otherwise h was bad and ++nbad !
 		if ((x-x2)*(x2-x1) >= 0.0) { // this "if" is activated when x reaches x2 or even exceeds it by h amount because x is updated in rkqs to x + h!
-			for (i=0;i<nvar;i++) ystart[i]=y[i];
+			for (i=0;i<nvar;i++) ystart[i]=y[i]; // We do this because when it is returned we will use values in ystart as the final evolved y. See odeint arguments!
 			if (kmax != 0) {
 				for (i=0;i<nvar;i++) yp[i][kount]=y[i];
 				xp[kount++]=x;
@@ -48,7 +48,7 @@ void NR::odeint(Vec_IO_DP &ystart, const DP x1, const DP x2, const DP eps,
 			return;
 		}
 		if (fabs(hnext) <= hmin) nrerror("Step size too small in odeint");
-		h=hnext;
+		h=hnext; // The next step evolution will be performed by this new h which is equal to hnext !
 	}
 	nrerror("Too many steps in routine odeint");
 }
