@@ -4,6 +4,14 @@ import matplotlib.pyplot as plt
 import time
 
 
+#----- sign
+def sign(a, b):
+  if b >= 0:
+    return a if a >= 0 else -a
+  else:
+    return -a if a >= 0 else a
+
+
 #===== rkck
 def rkck(y, dydx, x, h):
   a2, a3, a4, a5, a6 = 0.2, 0.3, 0.6, 1.0, 0.875
@@ -89,7 +97,7 @@ def rkqs(y, dydx, x, htry, yscal):
     if xnew == x:  # Stepsize underflow ---> This is used to alert us if h = 0.0 !
       raise ValueError("Stepsize underflow in rkqs")
 
-  # When we exit the WHILE loop, we have the "y" which is evolved for one step h with the best h (i.e. with a h that gives errmax <= 1.0)!
+  # When we exit the WHILE loop, we have the "y" (ytemp) which is evolved for one step h with the best h (i.e. with a h that gives errmax <= 1.0)!
   if errmax > ERRCON:
     hnext = SAFETY * h * errmax ** PGROW
   else:
@@ -120,7 +128,8 @@ def odeint(ystart, x1, x2, h1):
 
   x = x1
 
-  h = np.sign(h1) * (x2 - x1)
+  #h = np.sign(h1) * (x2 - x1) # This is wrong. I made a worng conversion from C++ to python !
+  h = sign(h1, x2 - x1)
 
   nok = nbad = 0
 
@@ -142,7 +151,7 @@ def odeint(ystart, x1, x2, h1):
         xsav = x
       kount += 1
 
-    if (x+h-x2)*(x+h-x1) > 0.0:
+    if (x+h-x2)*(x+h-x1) > 0.0: # To adjust h if x+h exceed the upper limit value, x2 !
       h = x2 - x
 
     x, y, hdid, hnext = rkqs(y, dydx, x, h, yscal)
@@ -191,7 +200,7 @@ dxsav = 0.001 #!!!!!!!!!!!!!!!!!!!!!!!!!! To be adjusted for each problem !!!!!!
 # Note that here x1 and x2 represent time !
 x1 = 0.0 # Initial time !!!!!!!!!!!!!!!!!!!!!!!
 x2 = 1.0 # Final time !!!!!!!!!!!!!!!!!!!!!!!!!
-h1 = 0.001 # Step size !!!!!!!!!!!!!!!!!!!!!!!!
+h1 = 0.1 # Step size !!!!!!!!!!!!!!!!!!!!!!!!
 ystart = np.array([1.0, 1.0, 1.0]) # Initial condition
 
 nvar = len(ystart)
@@ -199,7 +208,7 @@ nvar = len(ystart)
 xp = np.zeros(kmax)         # Will contain data for later tests and checks!
 yp = np.zeros((nvar, kmax)) # Will contain data for later tests and checks!
 
-eps = 1e-9   # THIS affects the execution time !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+eps = 1e-7   # THIS affects the execution time !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 hmin = 1e-5  #!!!!!!!!!!!!!!!!!!!!!!!!!! To be adjusted for each problem !!!!!!!!!!!!!!!!!!!!!!!!!!
 
 TA = time.time()

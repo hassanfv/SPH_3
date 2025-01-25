@@ -1,4 +1,11 @@
 
+#----- sign
+def sign(a, b):
+  if b >= 0:
+    return a if a >= 0 else -a
+  else:
+    return -a if a >= 0 else a
+
 
 #===== odeint
 def odeint(ystart, x1, x2, h1):
@@ -16,7 +23,8 @@ def odeint(ystart, x1, x2, h1):
 
   x = x1
 
-  h = np.sign(h1) * (x2 - x1)
+  #h = np.sign(h1) * (x2 - x1) # This is wrong. I made a worng conversion from C++ to python !
+  h = sign(h1, x2 - x1)
 
   nok = nbad = 0
 

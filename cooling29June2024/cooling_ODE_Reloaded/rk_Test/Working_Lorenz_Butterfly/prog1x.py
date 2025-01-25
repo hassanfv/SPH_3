@@ -4,6 +4,13 @@ import matplotlib.pyplot as plt
 import time
 
 
+#----- sign
+def sign(a, b):
+  if b >= 0:
+    return a if a >= 0 else -a
+  else:
+    return -a if a >= 0 else a
+
 #===== rkck
 def rkck(y, dydx, x, h):
     a2, a3, a4, a5, a6 = 0.2, 0.3, 0.6, 1.0, 0.875
@@ -107,8 +114,8 @@ def rkqs(y, dydx, x, htry, yscal):
 #===== odeint
 def odeint(ystart, x1, x2, h1):
 
-  MAXSTP=20000
-  TINY=1.0e-30
+  MAXSTP = 50000
+  TINY = 1.0e-30
 
   kount = 0
 
@@ -120,7 +127,9 @@ def odeint(ystart, x1, x2, h1):
 
   x = x1
 
-  h = np.sign(h1) * (x2 - x1)
+  #h = np.sign(h1) * (x2 - x1) # This is wrong. I made a worng conversion from C++ to python !
+  h = sign(h1, x2 - x1)
+  print('h, h1, x2-x1 = ', h, h1, x2-x1)
 
   nok = nbad = 0
 
@@ -190,7 +199,7 @@ dxsav = 0.001 #!!!!!!!!!!!!!!!!!!!!!!!!!! To be adjusted for each problem !!!!!!
 # Note that here x1 and x2 represent time !
 x1 = 0.0 # Initial time !!!!!!!!!!!!!!!!!!!!!!!
 x2 = 100.0 # Final time !!!!!!!!!!!!!!!!!!!!!!!!!
-h1 = 0.001 # Step size !!!!!!!!!!!!!!!!!!!!!!!!
+h1 = 0.02 # Step size !!!!!!!!!!!!!!!!!!!!!!!!
 ystart = np.array([1.0, 1.0, 1.0]) # Initial condition
 
 nvar = len(ystart)
@@ -198,7 +207,7 @@ nvar = len(ystart)
 xp = np.zeros(kmax)         # Will contain data for later tests and checks!
 yp = np.zeros((nvar, kmax)) # Will contain data for later tests and checks!
 
-eps = 1e-10   # THIS affects the execution time !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+eps = 1e-5   # THIS affects the execution time !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 hmin = 1e-5  #!!!!!!!!!!!!!!!!!!!!!!!!!! To be adjusted for each problem !!!!!!!!!!!!!!!!!!!!!!!!!!
 
 TA = time.time()
