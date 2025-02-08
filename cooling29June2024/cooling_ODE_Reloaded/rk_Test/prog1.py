@@ -99,9 +99,9 @@ def rkqs(y, dydx, x, htry, yscal):
 
   # When we exit the WHILE loop, we have the "y" (ytemp) which is evolved for one step h with the best h (i.e. with a h that gives errmax <= 1.0)!
   if errmax > ERRCON:
-    hnext = SAFETY * h * errmax ** PGROW
+    hnext = SAFETY * h * errmax ** PGROW # Here we decrease the stepsize.
   else:
-    hnext = 5.0 * h
+    hnext = 5.0 * h # Here we increase the stepsize.
 
   x += h
   hdid = h
@@ -128,7 +128,7 @@ def odeint(ystart, x1, x2, h1):
 
   x = x1
 
-  #h = np.sign(h1) * (x2 - x1) # This is wrong. I made a worng conversion from C++ to python !
+  #h = np.sign(h1) * (x2 - x1) # This was wrong. I made a worng conversion from C++ to python !
   h = sign(h1, x2 - x1)
 
   nok = nbad = 0
