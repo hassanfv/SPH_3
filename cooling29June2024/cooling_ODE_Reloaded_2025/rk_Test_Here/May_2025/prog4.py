@@ -3,6 +3,7 @@
 
 import numpy as np
 import matplotlib.pyplot as plt
+import time
 
 
 #----- rk4singlestep
@@ -43,6 +44,8 @@ yin = y0
 traj = [yin]
 t = [tin]
 
+TA = time.time()
+
 while tin <= 10:
 
   yin = rk4singlestep(lorenz, dt, tin, yin)
@@ -52,9 +55,16 @@ while tin <= 10:
   traj.append(list(yin))
   t.append(tin)
 
+print("Elapsed time in main loop = ", time.time() - TA)
+
 traj = np.array(traj)
 
 print(traj)
+print()
+print(traj.shape)
+
+#plt.scatter(traj[:, 1], traj[:, 2], s = 3, color = 'k')
+#plt.show()
 
 ax = plt.figure().add_subplot(projection = '3d')
 ax.scatter(traj[:, 0], traj[:, 1], traj[:, 2], s = 3, color = 'k')

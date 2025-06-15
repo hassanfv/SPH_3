@@ -199,7 +199,7 @@ dxsav = 0.001 #!!!!!!!!!!!!!!!!!!!!!!!!!! To be adjusted for each problem !!!!!!
 
 # Note that here x1 and x2 represent time !
 x1 = 0.0 # Initial time !!!!!!!!!!!!!!!!!!!!!!!
-x2 = 1.0 # Final time !!!!!!!!!!!!!!!!!!!!!!!!!
+x2 = 20.0 # Final time !!!!!!!!!!!!!!!!!!!!!!!!!
 h1 = 0.1 # Step size !!!!!!!!!!!!!!!!!!!!!!!!
 ystart = np.array([1.0, 1.0, 1.0]) # Initial condition
 
