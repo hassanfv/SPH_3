@@ -80,6 +80,7 @@ void rkdumb_h(float *vstart, const float x1, const float x2, int nvar, int nstep
   x = x1;
   h = (x2 - x1) / nstep;
   
+  // main for loop
   for (k = 0; k < nstep; k++)
   {
     derivs(x, v, dv);
